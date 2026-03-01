@@ -12,6 +12,7 @@ class User(Base):
     password_hash=Column(String,nullable=False)
 
     role_id=Column(Integer,ForeignKey("roles.id"),nullable=False)
-    created_at=Column(DateTime,default=datetime.utcnow)
+    created_at=Column(DateTime,default=datetime.utcnow) # type: ignore
 
+    #relation
     role=relationship("Role",back_populates="users")

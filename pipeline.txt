@@ -1,0 +1,16 @@
+Angular
+  ↓
+Router (proposals.py)
+  ↓
+Schema validates input
+  ↓
+Model writes to DB
+  ↓
+PostgreSQL stores data
+
+
+core → global brain
+db → database door
+models → table shapes
+schemas → API shapes
+routers → endpoints

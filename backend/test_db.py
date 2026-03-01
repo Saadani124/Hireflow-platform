@@ -4,10 +4,10 @@ import os
 
 load_dotenv()
 
-DATABASE_URL = os.getenv("DATABASE_URL")
+db = os.environ["DATABASE_URL"]
 
 try:
-    engine = create_engine(DATABASE_URL)
+    engine = create_engine(db)
     conn = engine.connect()
     print("✅ Database connected successfully!")
     conn.close()

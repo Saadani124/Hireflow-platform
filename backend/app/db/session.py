@@ -7,11 +7,11 @@ import os
 load_dotenv()
 
 #njib connection mn .env file
-DATABASE_URL = os.getenv("DATABASE_URL")
+db = os.environ["DATABASE_URL"]
 
 #create the Engine: the actual manager that talks to your database
 engine = create_engine(
-    DATABASE_URL,
+    db,
     #tests connections before use: if a connection is dead: it creates a new one
     pool_pre_ping=True 
 )
