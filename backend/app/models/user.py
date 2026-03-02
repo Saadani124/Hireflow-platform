@@ -14,5 +14,5 @@ class User(Base):
     role_id=Column(Integer,ForeignKey("roles.id"),nullable=False)
     created_at=Column(DateTime,default=datetime.utcnow) # type: ignore
 
-    #relation
+    #relations
     role=relationship("Role",back_populates="users")
