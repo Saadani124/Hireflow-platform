@@ -1,0 +1,94 @@
+body {
+  font-family: 'Inter', sans-serif;
+}
+
+/* Layout */
+.signup-wrapper {
+  background: linear-gradient(to bottom right, #f6f7f8, #ffffff, rgba(0,163,255,0.08));
+}
+
+/* Header */
+.signup-header {
+  background: rgba(255,255,255,0.9);
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.logo-box {
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, #00A3FF, #0066FF);
+  border-radius: 8px;
+}
+
+/* Card */
+.signup-card {
+  width: 100%;
+  max-width: 520px;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 20px 40px rgba(0,163,255,0.1);
+  overflow: hidden;
+  border: 1px solid #f1f5f9;
+}
+
+.card-top-bar {
+  height: 6px;
+  background: linear-gradient(135deg, #00A3FF, #0066FF);
+}
+
+.card-footer {
+  background: #f8fafc;
+  border-top: 1px solid #f1f5f9;
+}
+
+/* Inputs */
+.custom-input {
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.custom-input:focus {
+  border-color: #00A3FF;
+  box-shadow: 0 0 0 0.2rem rgba(0,163,255,0.15);
+}
+
+/* Buttons */
+.btn-primary-custom {
+  background: linear-gradient(135deg, #00A3FF, #0066FF);
+  color: white;
+  border: none;
+  border-radius: 12px;
+}
+
+.btn-primary-custom:hover {
+  opacity: 0.9;
+}
+
+.btn-outline-primary-custom {
+  border: 2px solid #00A3FF;
+  color: #00A3FF;
+  border-radius: 50px;
+  padding: 6px 18px;
+  background: transparent;
+}
+
+.btn-outline-primary-custom:hover {
+  background: #00A3FF;
+  color: white;
+}
+
+.text-primary-custom {
+  color: #00A3FF;
+}
+
+.pointer {
+  cursor: pointer;
+}
+
+.clickable {
+  cursor: pointer;
+}
+
+.modal {
+  background: rgba(0,0,0,0.5);
+}

@@ -1,0 +1,132 @@
+<div class="signup-wrapper d-flex flex-column min-vh-100">
+
+  <!-- Header -->
+  <header class="signup-header d-flex justify-content-between align-items-center px-4 py-3">
+    <div class="d-flex align-items-center gap-2">
+      <div class="logo-box d-flex justify-content-center align-items-center">
+        <i class="bi bi-briefcase-fill text-white"></i>
+      </div>
+      <h5 class="m-0 fw-bold">HireFlow</h5>
+    </div>
+
+    <button class="btn btn-outline-primary-custom" (click)="goLogin()">
+      Log in
+    </button>
+  </header>
+
+  <!-- Main -->
+  <main class="flex-grow-1 d-flex justify-content-center align-items-center p-4">
+
+    <div class="signup-card">
+
+      <div class="card-top-bar"></div>
+
+      <div class="card-body p-4 p-md-5">
+
+        <div class="text-center mb-4">
+          <h2 class="fw-bold">Join the marketplace</h2>
+          <p class="text-muted">
+            Start hiring top talent or find your next dream gig on HireFlow.
+          </p>
+        </div>
+
+        <form>
+
+          <div class="mb-3">
+            <label class="form-label small fw-bold text-uppercase">Full Name</label>
+            <input type="text" class="form-control custom-input" placeholder="Enter your full name">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label small fw-bold text-uppercase">Email Address</label>
+            <input type="email" class="form-control custom-input" placeholder="name@work.com">
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label small fw-bold text-uppercase">Password</label>
+              <input type="password" class="form-control custom-input" placeholder="••••••••">
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label class="form-label small fw-bold text-uppercase">Confirm</label>
+              <input type="password" class="form-control custom-input" placeholder="••••••••">
+            </div>
+          </div>
+
+          <div class="form-check mb-4">
+            <input class="form-check-input" type="checkbox" id="terms">
+            <label class="form-check-label small text-muted" for="terms">
+              I agree to the 
+              <span class="text-primary-custom fw-bold clickable"
+                    (click)="openTerms()">Terms of Service</span>
+              and 
+              <span class="text-primary-custom fw-bold clickable"
+                    (click)="openPrivacy()">Privacy Policy</span>.
+            </label>
+          </div>
+
+          <button type="submit" class="btn btn-primary-custom w-100 py-3 fw-bold">
+            Create Account →
+          </button>
+
+        </form>
+
+      </div>
+
+      <div class="card-footer text-center py-3">
+        Already have an account?
+        <span class="text-primary-custom fw-bold clickable" (click)="goLogin()">
+          Log in instead
+        </span>
+      </div>
+
+    </div>
+
+  </main>
+
+  <footer class="text-center py-4 text-muted small">
+    © 2024 HireFlow Inc. All rights reserved.
+  </footer>
+
+</div>
+
+<!-- Terms Modal -->
+<div class="modal fade" tabindex="-1" [class.show]="showTerms"
+     [style.display]="showTerms ? 'block' : 'none'"
+     *ngIf="showTerms">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Terms of Service</h5>
+        <button type="button" class="btn-close" (click)="closeModals()"></button>
+      </div>
+      <div class="modal-body">
+        <p>
+          These are the Terms of Service. By creating an account,
+          you agree to comply with all platform rules and policies.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Privacy Modal -->
+<div class="modal fade" tabindex="-1" [class.show]="showPrivacy"
+     [style.display]="showPrivacy ? 'block' : 'none'"
+     *ngIf="showPrivacy">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Privacy Policy</h5>
+        <button type="button" class="btn-close" (click)="closeModals()"></button>
+      </div>
+      <div class="modal-body">
+        <p>
+          This is the Privacy Policy. We protect your personal data
+          and do not share information without consent.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>

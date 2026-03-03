@@ -1,0 +1,102 @@
+body {
+  font-family: 'Inter', sans-serif;
+}
+
+/* Layout */
+.login-wrapper {
+  width: 100%;
+}
+
+/* LEFT SIDE */
+.login-left {
+  width: 50%;
+  background: linear-gradient(135deg, #0f172a, #1978e5, #38bdf8);
+  overflow: hidden;
+}
+
+.text-sky {
+  color: #38bdf8;
+}
+
+/* Shapes */
+.shape-1 {
+  position: absolute;
+  width: 400px;
+  height: 400px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 50%;
+  top: -100px;
+  left: -100px;
+}
+
+.shape-2 {
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  background: rgba(56,189,248,0.2);
+  border-radius: 50%;
+  bottom: -50px;
+  right: -50px;
+}
+
+.shape-3 {
+  position: absolute;
+  width: 200px;
+  height: 200px;
+  border: 30px solid rgba(255,255,255,0.05);
+  transform: rotate(45deg);
+  top: 40%;
+  left: 20%;
+}
+
+/* Logo */
+.logo-icon {
+  width: 40px;
+  height: 40px;
+  background: rgba(255,255,255,0.2);
+  border-radius: 8px;
+}
+
+/* RIGHT SIDE */
+.login-right {
+  max-width: 600px;
+  margin: auto;
+}
+
+.login-card {
+  max-width: 440px;
+  margin: auto;
+}
+
+/* Inputs */
+.custom-input {
+  padding: 14px;
+  border-radius: 12px;
+  border: 2px solid #e5e7eb;
+  background: #f8fafc;
+}
+
+.custom-input:focus {
+  border-color: #1978e5;
+  box-shadow: 0 0 0 0.2rem rgba(25,120,229,0.15);
+}
+
+/* Buttons */
+.btn-primary-custom {
+  background: #1978e5;
+  color: white;
+  border-radius: 12px;
+  border: none;
+}
+
+.btn-primary-custom:hover {
+  background: #1666c1;
+}
+
+.text-primary-custom {
+  color: #1978e5;
+}
+
+.clickable {
+  cursor: pointer;
+}
