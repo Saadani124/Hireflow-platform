@@ -80,11 +80,14 @@ body {
   margin: 0 auto 20px;
   box-shadow: 0 20px 50px rgba(0,163,255,0.5);
 }
+.logo-box > *{
+  font-size: 50px;
+}
 
 .platform-text {
   font-weight: bold;
   letter-spacing: 3px;
-  font-size: 14px;
+  font-size: 20px;
   color: #111;
 }
 
