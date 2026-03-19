@@ -1,0 +1,18 @@
+1. Password utilities
+    hash password
+    verify password
+
+2. JWT system
+    create access token
+    decode token
+
+3. Auth endpoints
+    /register
+    /login
+
+4. Current user system
+    get logged-in user from token
+
+5. Role protection
+    restrict admin / client / freelancer
+

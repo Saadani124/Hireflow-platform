@@ -1,0 +1,5 @@
+❌ user CANNOT register as admin
+✅ user chooses: client wala freelancer
+✅ admin only comes from seeding (ma tnajmch taaml register ka admin)
+✅ passwords always hashed (ma tnajmch taaml login b password normal)
+✅ protected endpoints require token (ma tnajmch taaml access l protected endpoints b token)

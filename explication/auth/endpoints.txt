@@ -1,0 +1,20 @@
+Login → you get a token (like a badge)
+
+Every protected action → you must show the badge
+
+el actions kima: create job/apply to job/view dashboard/........
+
+create_access_token({
+        "user_id": user.id,
+        "role": user.role
+    })
+=> el token fih: user_id, role, date d'expiration
+
+kifeh bch nestamlouh ? (pour tester)
+
+    njibou el "Bearer <token mte3k>" mn /docs
+    
+    Without token: 401 error
+    With token: 200 ok
+
+ki zedna core/security.py tzedet l /docs button Authorize ntestiw beha kol endpoint

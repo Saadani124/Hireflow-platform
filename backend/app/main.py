@@ -5,12 +5,18 @@ from app.db.session import engine,SessionLocal
 from app.db.base import Base
 from app.models.user import User
 
+from app.routers import auth
+from app.routers import test
+
 # IMPORTANT: Models must be imported before Base.metadata.create_all
 # This ensures SQLAlchemy "knows" about your tables before trying to create them.
 # from app.models import user, job_listing  
 
 #initialize FastAPI
-app = FastAPI(title="HireFlow API")
+app = FastAPI(title="HireFlow API") #hedhi tji kbal kol chy
+
+app.include_router(auth.router)
+app.include_router(test.router)
 
 #creation des tables
 Base.metadata.create_all(bind=engine)
@@ -22,8 +28,8 @@ def seed_admins():
     db = SessionLocal()
     try:
         ADMIN_USERS = [
-            {"name": "Saada", "email": "admin1", "password": "dedsec"},
-            {"name": "Aziz", "email": "admin2", "password": "dedsec"},
+            {"name": "Saada", "email": "admin1@admin.com", "password": "dedsec"},
+            {"name": "Aziz", "email": "admin2@admin.com", "password": "dedsec"},
         ]
         for admin in ADMIN_USERS:
             exists = db.query(User).filter(User.email==admin["email"]).first()

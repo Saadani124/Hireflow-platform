@@ -1,0 +1,37 @@
+JSON Web Token (JWT) as a digital passport.
+
+How the System Works
+*steps:
+
+1-Login: 
+user yekteb
+
+2-Verification: 
+ytol al db
+
+3-Token Creation: 
+Instead of creating a "session" in its memory, the server creates a JWT and sends it back to you.
+
+4-Storage: 
+Your browser stores the token(Cookie).
+
+5-Access: 
+For every future request (like viewing your profile), your browser sends that token in the header.
+
+6-Validation: 
+The server checks the signature. If it’s valid, it grants access.
+
+
+Structure de JWT:
+
+1. Header (المعلومات التعريفية):
+It contains the type of token (JWT) and the signing algorithm (mch mouhema).
+
+2. Payload:
+This is the "data" part. It includes claims (statements) about the user,kima:
+user_id: The unique identifier of the user.
+role: The role of the user (client, freelancer, admin).
+exp: The expiration time of the token.
+
+3. Signature:
+This is the verification part. It is created by taking the Header and Payload, encoding them, and then signing them with a secret key known only to the server.
