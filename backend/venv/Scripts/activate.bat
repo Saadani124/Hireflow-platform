@@ -8,7 +8,7 @@ if defined _OLD_CODEPAGE (
     "%SystemRoot%\System32\chcp.com" 65001 > nul
 )
 
-set VIRTUAL_ENV=C:\Users\ctOS_ERROR\Desktop\TP\s2\Hireflow-platform\venv
+set VIRTUAL_ENV=C:\Users\ctOS_ERROR\Desktop\TP\s2\Hireflow-project\backend\venv
 
 if not defined PROMPT set PROMPT=$P$G
 
