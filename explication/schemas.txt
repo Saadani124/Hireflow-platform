@@ -1,0 +1,14 @@
+Pydantic: library fi pyhton tsahel alik enek trequesti w tresponse w tvalidi data b sahel
+
+# Without schema — you'd manually do:
+    body = await request.json()
+    if "email" not in body:
+        raise HTTPException(400, "email required")
+    if not isinstance(body["email"], str):
+        ...etc...
+
+# With schema — Pydantic
+    class registerSchema(BaseModel):
+        email: EmailStr
+        password: str
+        role: str
