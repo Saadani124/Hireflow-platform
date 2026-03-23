@@ -1,0 +1,5 @@
+Client create job
+→ Freelancer apply
+→ Client accept proposal
+→ Job in_progress
+→ Client complete job 

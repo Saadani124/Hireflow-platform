@@ -1,0 +1,30 @@
+les routers servent à organiser tes routes par domaine 
+au lieu de tout mettre dans "main.py"
+
+ sans les fichiers routers
+   |
+   V
+@router.post("/auth/register")
+@router.post("/auth/login")
+@router.get("/users/")
+@router.post("/jobs/")
+@router.get("/jobs/{id}")
+@router.post("/proposals/")
+
+  main.py:
+  app.include_router(auth_router)
+  app.include_router(user_router)
+  app.include_router(job_router)
+  app.include_router(proposal_router)
+
+
+
+=> 3 avantages clés :
+ "Organisation": chaque fichier = un domaine, facile à retrouver.
+
+
+  router = APIRouter(prefix="/jobs", tags=["Jobs"])
+                          ||
+                          VV
+ "Préfixe automatique": prefix="/jobs" évite de répéter /jobs sur chaque route.
+ "Tags Swagger": tags=["Jobs"] groupe tes routes dans Swagger UI automatiquement.

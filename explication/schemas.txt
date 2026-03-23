@@ -12,3 +12,7 @@ Pydantic: library fi pyhton tsahel alik enek trequesti w tresponse w tvalidi dat
         email: EmailStr
         password: str
         role: str
+
+
+=> le model = comment donnée vit en BD
+=> le schema = comment donnée voyage sur API

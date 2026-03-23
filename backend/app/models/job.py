@@ -4,15 +4,13 @@ from app.db.base import Base
 
 
 class Job(Base):
-    __tablename__ = "jobs"
+    __tablename__="jobs"
 
-    id = Column(Integer, primary_key=True, index=True)
-    title = Column(String, nullable=False)
-    description = Column(Text, nullable=False)
-    budget = Column(Integer, nullable=False)
+    id=Column(Integer,primary_key=True,index=True)
+    title=Column(String,nullable=False)
+    description=Column(Text,nullable=False)
+    budget=Column(Integer,nullable=False)
+    status=Column(String,default="open")
 
-    status = Column(String, default="open")
-
-    client_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-
-    created_at = Column(DateTime, default=datetime.utcnow)
+    client_id=Column(Integer,ForeignKey("users.id"),nullable=False)
+    created_at=Column(DateTime, default=datetime.utcnow)

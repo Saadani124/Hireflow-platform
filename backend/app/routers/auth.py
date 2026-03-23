@@ -11,16 +11,16 @@ router = APIRouter(prefix="/auth", tags=["Auth"])
 @router.post("/register")
 def register(data: registerSchema, db: Session = Depends(get_db)):
 
-    #block le admin creation
+    #block le creation d'admin 
     if data.role == "admin":
         raise HTTPException(status_code=403, detail="Cannot register as admin")
 
-    #vérifier role validity
+    #vérifier validité de role 
     if data.role not in ["client", "freelancer"]:
         raise HTTPException(status_code=400, detail="Invalid role")
 
-    #vérifier email exists
-    existing_user = db.query(User).filter(User.email == data.email).first()
+    #vérifier existance email 
+    existing_user = db.query(User).filter(User.email==data.email).first()
     if existing_user:
         raise HTTPException(status_code=400, detail="Email already registered")
 
@@ -37,10 +37,10 @@ def register(data: registerSchema, db: Session = Depends(get_db)):
     return {"message": "User registered successfully"}
 
 @router.post("/login")
-def login(data: loginSchema, db: Session = Depends(get_db)):
+def login(data:loginSchema,
+            db:Session=Depends(get_db)):
 
-    user = db.query(User).filter(User.email == data.email).first()
-
+    user = db.query(User).filter(User.email==data.email).first()
     if not user or not verify_password(data.password, user.password_hash):
         raise HTTPException(status_code=401, detail="Invalid credentials")
 

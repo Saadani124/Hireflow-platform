@@ -1,0 +1,14 @@
+pipeline:
+freelancer → application au job → client → acceptation → job progression
+
+-freelance peut postuler à un job
+-une seule application par job
+-freelance peut modifier sa application
+-le client peut consulter les propositions
+-le client peut accepter une proposition
+
+
+1- creation du modele proposal
+2- creation du schema proposal
+3- creation du router proposal
+4- creation du endpoint proposal
