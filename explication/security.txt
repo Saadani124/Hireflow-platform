@@ -1,0 +1,3 @@
+login        ->  hash_password()       ->  stocke le hash en BD
+connexion    ->  verify_password()     ->  si OK -> create_access_token()
+requete API  ->  decode_access_token() ->  si valide -> accès autorisé
