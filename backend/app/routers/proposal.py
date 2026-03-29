@@ -5,13 +5,14 @@ from app.db.session import get_db
 from app.models.proposal import Proposal
 from app.models.job import Job
 from app.schemas.proposal import ProposalCreate
+from app.schemas.proposal import ProposalResponse
 
 from app.core.dependencies import get_current_client, get_current_freelancer
 
 router = APIRouter(prefix="/proposals", tags=["Proposals"])
 
 #application au job
-@router.post("/apply")
+@router.post("/apply",response_model=ProposalResponse)
 def apply_to_job(data: ProposalCreate,
                  db: Session=Depends(get_db),
                  user=Depends(get_current_freelancer)):  # FAUTE: get_current_user utilisé au lieu de get_current_freelancer
@@ -94,7 +95,10 @@ def accept_proposal(proposal_id: int,
 
     db.commit()
     db.refresh(proposal)
-    return {"message":"Proposal accepted"}
+    return {
+        "job_id":job.id,
+        "message":"Proposal accepted"
+    }
 
 # client consulte les propositions(chatgpt)
 @router.get("/job/{job_id}")

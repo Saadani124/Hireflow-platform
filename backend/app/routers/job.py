@@ -5,17 +5,17 @@ from fastapi import HTTPException
 from app.db.session import get_db
 from app.models.job import Job
 from app.schemas.job import JobCreate
+from app.schemas.job import JobResponse
 
 from app.core.dependencies import get_current_client,get_current_freelancer,get_current_user
 
 router = APIRouter(prefix="/jobs",tags=["Jobs"])
 
 #naamlo job endpoint
-@router.post("/create")
+@router.post("/create",response_model=JobResponse)
 def create_job(data:JobCreate, 
                 db:Session=Depends(get_db), 
-                user=Depends(get_current_client)
-):
+                user=Depends(get_current_client)):
     job=Job(
         title=data.title,
         description=data.description,
@@ -29,10 +29,10 @@ def create_job(data:JobCreate,
     return job
 
 #list job endpoint
-@router.get("/")
+@router.get("/",response_model=list[JobResponse])
 def list_jobs(db:Session=Depends(get_db),
                 user=Depends(get_current_user)):
-    jobs = db.query(Job).all()
+    jobs = db.query(Job).order_by(Job.created_at.desc()).all()
     return jobs
 
 #get job by id endpoint
