@@ -15,5 +15,3 @@ class ProposalResponse(BaseModel):
     price: int
     status: str
 
-    class Config:
-        orm_mode = True

@@ -13,6 +13,3 @@ class JobResponse(BaseModel):
     description: str
     budget: int
     status: str
-
-    class Config:
-        orm_mode = True
