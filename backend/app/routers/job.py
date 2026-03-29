@@ -6,8 +6,7 @@ from app.db.session import get_db
 from app.models.job import Job
 from app.schemas.job import JobCreate
 
-from app.core.dependencies import get_current_client
-from app.core.dependencies import get_current_user
+from app.core.dependencies import get_current_client,get_current_freelancer,get_current_user
 
 router = APIRouter(prefix="/jobs",tags=["Jobs"])
 
@@ -65,3 +64,19 @@ def complete_job(job_id: int,
     db.commit()
     db.refresh(job)
     return {"message": "Job completed"}
+
+#client consulte ses jobs
+@router.get("/me")
+def get_my_jobs(db: Session=Depends(get_db),
+                user=Depends(get_current_client)):
+
+    jobs=db.query(Job).filter(Job.client_id == user.id).all()
+    return jobs
+
+#freelancer consulte les jobs elli postulehom
+@router.get("/open")
+def get_open_jobs(db: Session=Depends(get_db),
+                  user=Depends(get_current_freelancer)):
+
+    jobs=db.query(Job).filter(Job.status=="open").all()
+    return jobs

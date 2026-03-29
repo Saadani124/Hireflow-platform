@@ -9,7 +9,7 @@ from app.routers import auth
 from app.routers import test
 from app.routers import job
 from app.routers import proposal
-
+from app.routers import admin
 # IMPORTANT: Models must be imported before Base.metadata.create_all
 # This ensures SQLAlchemy "knows" about your tables before trying to create them.
 # from app.models import user, job_listing  
@@ -17,10 +17,12 @@ from app.routers import proposal
 #initialize FastAPI
 app = FastAPI(title="HireFlow API") #hedhi tji kbal kol chy
 
+
 app.include_router(auth.router)
 app.include_router(test.router)
 app.include_router(job.router)
 app.include_router(proposal.router)
+app.include_router(admin.router)
 
 #creation des tables
 Base.metadata.create_all(bind=engine)

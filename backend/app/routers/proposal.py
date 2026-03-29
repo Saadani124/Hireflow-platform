@@ -130,5 +130,5 @@ def delete_proposal(proposal_id: int, db: Session=Depends(get_db), user=Depends(
 def getmy_proposals(db:Session=Depends(get_db),
                     user=Depends(get_current_freelancer)):
 
-    proposals = db.query(Proposal).filter(Proposal.freelancer_id==user.id).all()
+    proposals=db.query(Proposal).filter(Proposal.freelancer_id==user.id).all()
     return proposals
