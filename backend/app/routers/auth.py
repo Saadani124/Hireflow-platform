@@ -21,6 +21,7 @@ def register(data: registerSchema, db: Session = Depends(get_db)):
 
     #vérifier existance email 
     existing_user = db.query(User).filter(User.email==data.email).first()
+
     if existing_user:
         raise HTTPException(status_code=400, detail="Email already registered")
 
