@@ -1,6 +1,6 @@
 Angular
   ↓
-Router (proposals.py)
+Router
   ↓
 Schema validates input
   ↓
