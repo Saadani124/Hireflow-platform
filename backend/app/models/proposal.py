@@ -10,10 +10,10 @@ class Proposal(Base):
     job_id=Column(Integer,ForeignKey("jobs.id"),nullable=False)
     freelancer_id=Column(Integer,ForeignKey("users.id"),nullable=False)
 
-    message=Column(String,nullable=False)
+    message = Column(String(255), nullable=False)
     price=Column(Integer,nullable=False)
 
-    status=Column(String,default="pending")
+    status = Column(String(50), default="pending")
     created_at=Column(DateTime,default=datetime.utcnow)
 
     #important
