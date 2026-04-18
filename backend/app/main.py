@@ -11,6 +11,9 @@ from app.routers import job
 from app.routers import proposal
 from app.routers import admin
 
+#added by aziz
+from fastapi.middleware.cors import CORSMiddleware
+
 # IMPORTANT: Models must be imported before Base.metadata.create_all
 # This ensures SQLAlchemy "knows" about your tables before trying to create them.
 # from app.models import user, job_listing  
@@ -24,6 +27,17 @@ app.include_router(test.router)
 app.include_router(job.router)
 app.include_router(proposal.router)
 app.include_router(admin.router)
+
+#added by aziz
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:4200"
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 #creation des tables
 Base.metadata.create_all(bind=engine)

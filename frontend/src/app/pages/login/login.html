@@ -1,1 +1,66 @@
-<p>login works!</p>
+<div class="login-page">
+<div class="left-panel">
+  <a class="logo">Hire<span>Flow</span></a>
+
+  <div class="panel-content">
+    <h2>Start your <em>journey</em></h2>
+    <p>Connect with opportunities and grow your freelance career.</p>
+  </div>
+
+  <div class="proof">
+    <div class="avatars">
+      <div class="avatar">A</div>
+      <div class="avatar">B</div>
+      <div class="avatar">C</div>
+    </div>
+    <div class="proof-text">
+      Trusted by <strong>hundreds of students</strong>
+    </div>
+  </div>
+</div>
+
+<div class="right-panel">
+  <div class="form-box">
+
+    <h1>Login</h1>
+    <p class="sub">Access your account</p>
+
+    <!-- ERROR -->
+    <div *ngIf="errorMessage" class="error-banner">
+        {{ errorMessage }}
+    </div>
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+
+      <div class="field-group">
+        <label>Email</label>
+        <div class="input-wrap">
+          <input type="text" formControlName="email">
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="row-between">
+          <label>Password</label>
+        </div>
+
+        <div class="input-wrap">
+          <input type="password" formControlName="password">
+        </div>
+      </div>
+
+      <button type="submit" class="submit-btn">
+        Login
+      </button>
+
+    </form>
+
+    <div class="bottom-link">
+      Don’t have an account?
+      <a routerLink="/register">Sign up</a>
+    </div>
+
+  </div>
+  <p>{{ errorMessage }}</p>
+</div>
+</div>

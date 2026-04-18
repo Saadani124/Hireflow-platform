@@ -1,1 +1,82 @@
-<p>register works!</p>
+<div class="register-page">
+
+  <div class="page-wrap">
+
+    <!-- LEFT -->
+    <div class="left-panel">
+      <a class="logo">Hire<span>Flow</span></a>
+
+      <div class="left-content">
+        <h2>Join the <em>platform</em></h2>
+        <p>Start your journey as a freelancer or hire talented students.</p>
+
+        <div class="role-cards">
+          <div class="role-card">
+            <strong>Client</strong>
+            <span>Post jobs and hire freelancers</span>
+          </div>
+          <div class="role-card">
+            <strong>Freelancer</strong>
+            <span>Find jobs and build experience</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT -->
+    <div class="right-panel">
+
+      <h1>Create Account</h1>
+      <p class="sub">Sign up to get started</p>
+
+      <!-- ERROR -->
+      <div *ngIf="errorMessage" class="error-banner">
+        {{ errorMessage }}
+      </div>
+
+      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+
+        <div class="grid2">
+
+          <div class="field">
+            <label>Name</label>
+            <input type="text" formControlName="name">
+          </div>
+
+          <div class="field">
+            <label>Email</label>
+            <input type="text" formControlName="email">
+          </div>
+
+          <div class="field">
+            <label>Password</label>
+            <input type="password" formControlName="password">
+          </div>
+
+          <div class="field">
+            <label>Role</label>
+            <select formControlName="role">
+              <option value="">Select role</option>
+              <option value="client">Client</option>
+              <option value="freelancer">Freelancer</option>
+            </select>
+          </div>
+
+        </div>
+
+        <button type="submit" class="submit-btn">
+          Create Account
+        </button>
+
+      </form>
+
+      <div class="bottom-link">
+        Already have an account?
+        <a routerLink="/login">Login</a>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
