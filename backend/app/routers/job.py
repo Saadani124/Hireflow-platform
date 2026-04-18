@@ -16,10 +16,11 @@ router = APIRouter(prefix="/jobs",tags=["Jobs"])
 def create_job(data:JobCreate, 
                 db:Session=Depends(get_db), 
                 user=Depends(get_current_client)):
-    job=Job(
+    job = Job(
         title=data.title,
         description=data.description,
         budget=data.budget,
+        category=data.category, 
         client_id=user.id
     )
     db.add(job)

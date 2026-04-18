@@ -13,6 +13,7 @@ class Job(Base):
     budget = Column(Integer, nullable=False)
 
     status = Column(String(50), default="open")
+    category = Column(String(50), nullable=False)
 
     client_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)

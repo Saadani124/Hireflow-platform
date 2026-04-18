@@ -5,6 +5,7 @@ class JobCreate(BaseModel):
     title: str
     description: str
     budget: int
+    category: str
 
 #bch nhasno l response mtaa l API
 class JobResponse(BaseModel):
@@ -13,3 +14,4 @@ class JobResponse(BaseModel):
     description: str
     budget: int
     status: str
+    category: str
