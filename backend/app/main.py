@@ -13,6 +13,8 @@ from app.routers import admin
 
 #added by aziz
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from app.routers import user
 
 # IMPORTANT: Models must be imported before Base.metadata.create_all
 # This ensures SQLAlchemy "knows" about your tables before trying to create them.
@@ -38,6 +40,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
+app.include_router(user.router)
 
 #creation des tables
 Base.metadata.create_all(bind=engine)

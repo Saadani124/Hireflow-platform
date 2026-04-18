@@ -12,5 +12,6 @@ class User(Base):
     email = Column(String(150), unique=True, nullable=False)
     password_hash = Column(String(255), nullable=False)
     role = Column(String(50), nullable=False)
+    profile_image = Column(String(255), nullable=True)
 
     created_at = Column(DateTime, default=datetime.utcnow)
