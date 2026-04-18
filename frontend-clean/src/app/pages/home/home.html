@@ -1,0 +1,161 @@
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="navbar-inner">
+
+    <!-- LOGO -->
+    <div class="logo">
+      Hire<span>Flow</span>
+    </div>
+
+    <!-- RIGHT SIDE -->
+    <div class="nav-right">
+
+
+
+      <!-- PROFILE DROPDOWN -->
+      <div class="avatar-wrap">
+        <img
+          [src]="user?.profile_image || 'http://localhost:8000/uploads/default.png'"
+          (click)="menuOpen = !menuOpen"
+          class="avatar"
+          alt="profile">
+
+        <div *ngIf="menuOpen" class="dropdown">
+          <div (click)="goProfile()" class="dropdown-item">
+            <span class="material-symbols-outlined">person</span>
+            Profile
+          </div>
+          <div (click)="goDashboard()" class="dropdown-item">
+            <span class="material-symbols-outlined">dashboard</span>
+            Dashboard
+          </div>
+          <div (click)="logout()" class="dropdown-item danger">
+            <span class="material-symbols-outlined">logout</span>
+            Logout
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<main class="main-content">
+
+  <!-- HERO / SEARCH -->
+  <section class="hero-section">
+    <h1 class="hero-title">
+      Find your next <span class="hero-accent">opportunity</span>
+    </h1>
+
+    <div class="search-wrap">
+      <span class="search-icon material-symbols-outlined">search</span>
+      <input
+        [(ngModel)]="search"
+        (input)="onSearchChange()"
+        placeholder="Search jobs by title or keyword..."
+        class="search-input">
+    </div>
+  </section>
+
+  <!-- CATEGORY FILTER -->
+  <section class="filter-section">
+    <div class="filter-chips">
+      <button
+        *ngFor="let cat of categories"
+        (click)="selectCategory(cat)"
+        [class.chip-active]="selectedCategory === cat"
+        [class.chip-inactive]="selectedCategory !== cat"
+        class="chip">
+        {{ cat }}
+      </button>
+    </div>
+  </section>
+
+  <!-- LOADING -->
+  <div *ngIf="loading" class="grid-3col">
+    <div class="skeleton-card" *ngFor="let i of skeletons">
+      <div class="skel-row">
+        <div class="skel skel-badge"></div>
+        <div class="skel skel-status"></div>
+      </div>
+      <div class="skel skel-title"></div>
+      <div class="skel skel-line"></div>
+      <div class="skel skel-line short"></div>
+      <div class="skel-footer">
+        <div class="skel skel-budget"></div>
+        <div class="skel skel-btn"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- EMPTY STATE -->
+  <div *ngIf="!loading && filteredJobs.length === 0" class="empty-state">
+    <span class="material-symbols-outlined empty-icon">work_off</span>
+    <p class="empty-title">No open jobs available</p>
+    <p class="empty-sub">Check back later or try a different category.</p>
+  </div>
+
+  <!-- JOB GRID -->
+  <section *ngIf="!loading && filteredJobs.length > 0" class="grid-3col">
+
+    <div
+      *ngFor="let job of filteredJobs"
+      class="job-card">
+
+      <!-- TOP ROW -->
+      <div class="card-top">
+        <span class="category-badge">{{ job.category }}</span>
+        <span class="open-badge">
+          <span class="open-dot"></span>
+          Open
+        </span>
+      </div>
+
+      <!-- TITLE -->
+      <h3 class="card-title">{{ job.title }}</h3>
+
+      <!-- DESC -->
+      <p class="card-desc">{{ job.description }}</p>
+
+      <!-- FOOTER -->
+      <div class="card-footer">
+        <div class="card-budget">
+          <span class="material-symbols-outlined budget-icon">payments</span>
+          ${{ job.budget }}
+        </div>
+
+        <button
+          *ngIf="user?.role === 'freelancer'"
+          (click)="apply(job)"
+          class="apply-btn">
+          Apply Now
+          <span class="material-symbols-outlined arrow-icon">arrow_forward</span>
+        </button>
+      </div>
+
+    </div>
+  </section>
+
+</main>
+
+<!-- BOTTOM NAV (mobile only) -->
+<nav class="bottom-nav">
+  <button class="bottom-btn active">
+    <span class="material-symbols-outlined">explore</span>
+    Explore
+  </button>
+  <button class="bottom-btn">
+    <span class="material-symbols-outlined">work_history</span>
+    Applied
+  </button>
+  <button class="bottom-btn">
+    <span class="material-symbols-outlined">bookmark</span>
+    Saved
+  </button>
+  <button class="bottom-btn" (click)="goProfile()">
+    <span class="material-symbols-outlined">person</span>
+    Profile
+  </button>
+</nav>

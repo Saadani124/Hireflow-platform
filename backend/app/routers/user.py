@@ -12,6 +12,9 @@ router = APIRouter(prefix="/users", tags=["Users"])
 
 UPLOAD_DIR = "uploads"
 
+@router.get("/me")
+def get_me(user: User = Depends(get_current_user)):
+    return user
 
 @router.post("/upload-profile-picture")
 def upload_profile_picture(
