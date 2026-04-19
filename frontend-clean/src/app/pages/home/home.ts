@@ -5,15 +5,17 @@ import { JobService } from '../../services/job';
 import {ProposalService } from '../../services/proposal';
 import { ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule],
   templateUrl: './home.html',
   styleUrls: ['./home.css']
 })
 export class Home implements OnInit {
+  jobForm!: FormGroup;
 
   jobs: any[] = [];
   filteredJobs: any[] = [];
@@ -71,8 +73,16 @@ export class Home implements OnInit {
     private jobService: JobService,
     private cdr: ChangeDetectorRef,
     private ProposalService: ProposalService,
-    private router: Router
-  ) {}
+    private router: Router,
+    private fb: FormBuilder
+  ) {
+    this.jobForm = this.fb.group({
+      title: ['', [Validators.required, Validators.minLength(5)]],
+      description: ['', [Validators.required, Validators.minLength(10)]],
+      budget: [0, [Validators.required, Validators.min(1)]],
+      category: ['', Validators.required]
+    });
+  }
 
   ngOnInit() {
 
@@ -86,9 +96,7 @@ export class Home implements OnInit {
   }
 
   // 3. Only then load jobs
-  setTimeout(() => {
-    this.loadJobs();
-  }, 100);
+  this.loadJobs();
 }
 
   loadJobs() {
@@ -157,6 +165,7 @@ export class Home implements OnInit {
 
   closePostModal() {
     this.postModalOpen = false;
+    this.jobForm.reset();
   }
 
   onModalOverlayClick(event: any) {
@@ -167,27 +176,29 @@ export class Home implements OnInit {
 
   submitJob() {
 
-    if (!this.newJob.title || !this.newJob.description || !this.newJob.budget || !this.newJob.category) {
-      this.showToast('Fill all fields', 'error');
+    if (this.jobForm.invalid) {
+      this.jobForm.markAllAsTouched();
       return;
     }
 
     this.submittingJob = true;
 
-    this.jobService.createJob(this.newJob).subscribe({
+    this.jobService.createJob(this.jobForm.value).subscribe({
       next: () => {
         this.submittingJob = false;
         this.closePostModal();
         this.loadJobs();
-        this.showToast('Job created', 'success');
 
-        this.newJob = { title: '', description: '', budget: 0, category: '' };
-        this.cdr.detectChanges();
+        this.jobForm.reset({
+          title: '',
+          description: '',
+          budget: 0,
+          category: ''
+        });
       },
       error: (err) => {
         this.submittingJob = false;
-        this.showToast(err.error?.detail || 'Error', 'error');
-        this.cdr.detectChanges();
+        alert(err.error?.detail || 'Error creating job');
       }
     });
   }
@@ -220,14 +231,41 @@ export class Home implements OnInit {
       }
     });
   }
-
+  goHome(){
+    this.router.navigate(['/home']);
+    return;
+  }
   goProfile() {
-  console.log('go to profile');
+
+    const user = this.user;
+
+    if (!user) {
+      this.router.navigate(['/login']);
+      return;
+    }
+
+    if (user.role === 'client') {
+      this.router.navigate(['/ClientDashboard'], {
+        queryParams: { section: 'profile' }
+      });
+    }
+
+    else if (user.role === 'admin') {
+      this.router.navigate(['/admin-dashboard'], {
+        queryParams: { section: 'profile' }
+      });
+    }
+
+    else if (user.role === 'freelancer') {
+      this.router.navigate(['/freelancer-dashboard'], {
+        queryParams: { section: 'profile' }
+      });
+    }
   }
 
   goDashboard() {
 
-    const user = JSON.parse(localStorage.getItem('user') || 'null');
+    const user = this.user;
 
     if (!user) {
       this.router.navigate(['/login']);

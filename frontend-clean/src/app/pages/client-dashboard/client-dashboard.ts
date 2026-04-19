@@ -5,7 +5,8 @@ import { ChangeDetectorRef } from '@angular/core';
 import { JobService } from '../../services/job';
 import { ProposalService } from '../../services/proposal';
 import { Auth } from '../../services/auth';
-
+import { ActivatedRoute } from '@angular/router';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-client-dashboard',
@@ -50,15 +51,23 @@ export class ClientDashboard implements OnInit {
     private jobService: JobService,
     private proposalService: ProposalService,
     private auth: Auth,
-    private cdr: ChangeDetectorRef
+    private router: Router,
+    private cdr: ChangeDetectorRef,
+    private route: ActivatedRoute
   ) {}
 
   ngOnInit() {
+
     this.user = this.auth.getUser();
 
-    if (this.user?.profile_image) {
-      this.user.profile_image = 'http://localhost:8000' + this.user.profile_image;
+    if (this.user && this.user.profile_image) {
+      this.user.profile_image =
+        'http://localhost:8000' + this.user.profile_image;
     }
+
+    this.route.queryParams.subscribe(params => {
+      this.activeSection = params['section'] || 'overview';
+    });
 
     this.loadJobs();
   }
@@ -177,7 +186,10 @@ export class ClientDashboard implements OnInit {
     localStorage.clear();
     window.location.href = '/login';
   }
-
+  goHome(){
+    this.router.navigate(['/home']);
+    return;
+  }
   // =========================
   // POST JOB MODAL
   // =========================

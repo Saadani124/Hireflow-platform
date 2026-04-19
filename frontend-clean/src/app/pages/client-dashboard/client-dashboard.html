@@ -1,26 +1,42 @@
 <!-- NAVBAR -->
 <nav class="navbar">
-  <a routerLink="/home" class="logo">Hire<span>Flow</span></a>
-  <div class="nav-right">
-    <button class="nav-btn" title="Notifications">
-      <span class="material-symbols-outlined">notifications</span>
-    </button>
-    <div class="avatar-wrap">
-      <div class="avatar" (click)="toggleMenu()">
-        <img *ngIf="user?.profile_image" [src]="user.profile_image" alt="avatar" />
-        <span *ngIf="!user?.profile_image" class="avatar-fallback">{{ user?.name?.charAt(0)?.toUpperCase() || '?' }}</span>
+  <div class="navbar-inner">
+
+    <!-- LOGO -->
+    <div (click)="goHome()" class="logo">
+    Hire<span>Flow</span>
+      
+    </div>
+
+    <!-- RIGHT SIDE -->
+    <div class="nav-right">
+
+
+
+      <!-- PROFILE DROPDOWN -->
+      <div class="avatar-wrap">
+        <img
+          [src]="user?.profile_image || 'http://localhost:8000/uploads/default.png'"
+          (click)="menuOpen = !menuOpen"
+          class="avatar"
+          alt="profile">
+
+        <div *ngIf="menuOpen" class="dropdown">
+          <div (click)="showSection('profile')" class="dropdown-item">
+            <span class="material-symbols-outlined">person</span>
+            Profile
+          </div>
+          <div (click)="showSection('overview')" class="dropdown-item">
+            <span class="material-symbols-outlined">dashboard</span>
+            Dashboard
+          </div>
+          <div (click)="logout()" class="dropdown-item danger">
+            <span class="material-symbols-outlined">logout</span>
+            Logout
+          </div>
+        </div>
       </div>
-      <div class="dropdown" [class.open]="menuOpen">
-        <div class="dropdown-item" (click)="showSection('profile')">
-          <span class="material-symbols-outlined">person</span> Profile
-        </div>
-        <div class="dropdown-item" (click)="showSection('overview')">
-          <span class="material-symbols-outlined">dashboard</span> Dashboard
-        </div>
-        <div class="dropdown-item danger" (click)="logout()">
-          <span class="material-symbols-outlined">logout</span> Logout
-        </div>
-      </div>
+
     </div>
   </div>
 </nav>

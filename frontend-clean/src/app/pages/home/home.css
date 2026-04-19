@@ -58,6 +58,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .logo {
+  cursor: pointer;
   font-family: 'Space Grotesk', sans-serif;
   font-weight: 700;
   font-size: 1.4rem;
@@ -127,8 +128,8 @@ h1, h2, h3, h4, h5, h6 {
 /* DROPDOWN */
 .dropdown {
   position: absolute;
-  right: 0;
-  top: calc(100% + 8px);
+  right: -75px;
+  top: calc(100% + 12px);
   background: var(--surface-container-lowest);
   border: 1px solid var(--outline-variant);
   border-radius: 12px;
@@ -733,3 +734,26 @@ small {
 .form-textarea { resize: vertical; min-height: 80px; }
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 8px; }
+
+
+
+
+.modal-footer .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 18px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: 'Manrope', sans-serif;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s;
+}
+.modal-footer .btn-primary { background: linear-gradient(135deg, #004ac6, #2563eb); color: #ffffff; }
+.modal-footer .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+.modal-footer .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+.modal-footer .btn-ghost { background: #f2f4f6; color: #191c1e; }
+.modal-footer .btn-ghost:hover { background: #eceef0; }
+.modal-footer .btn .material-symbols-outlined { font-size: 16px; }
