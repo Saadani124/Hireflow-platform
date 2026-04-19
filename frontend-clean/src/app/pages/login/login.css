@@ -85,7 +85,10 @@
   .bottom-link{text-align:center;margin-top:1.5rem;font-size:.88rem;color:var(--gray);}
   .bottom-link a{color:var(--blue);font-weight:600;text-decoration:none;}
   .bottom-link a:hover{text-decoration:underline;}
-  small{
-    color: red;
-  }
+  small {
+  color: #dc2626;
+  font-size: 12px;
+  display: block;
+  margin-top: 4px;
+}
   @media(max-width:700px){.left-panel{display:none;}.right-panel{background:var(--navy);}.form-box h1,.form-box .sub{color:#fff;}.label{color:rgba(255,255,255,.7);}input{background:rgba(255,255,255,.08);color:#fff;border-color:rgba(255,255,255,.15);}.submit-btn{background:var(--blue);}.bottom-link{color:rgba(255,255,255,.5);}}

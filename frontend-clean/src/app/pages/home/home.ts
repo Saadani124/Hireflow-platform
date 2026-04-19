@@ -45,8 +45,18 @@ export class Home implements OnInit {
     'Product'
   ];
 
+  applySubmitted = false;
+  applyError = '';
+  applyLoading = false;
+  applySuccess = '';
 
-  
+
+  deleteModal = false;
+  jobToDelete: any = null;
+  deleteLoading = false;
+  deleteError = '';
+
+
   constructor(
     private jobService: JobService,
     private cdr: ChangeDetectorRef,
@@ -121,11 +131,10 @@ export class Home implements OnInit {
     this.selectedJob = job;
     this.showApplyModal = true;
 
-    // reset form
-    this.proposalData = {
-      message: '',
-      price: 0
-    };
+    this.proposalData = { message: '', price: 0 };
+
+    this.applySubmitted = false;
+    this.applyError = '';
   }
   postJob() {
     this.showCreateJobModal = true;
@@ -137,9 +146,32 @@ export class Home implements OnInit {
   }
 
   deleteJob(job: any) {
-    console.log('Delete clicked:', job);
+    this.jobToDelete = job;   // store job
+    this.deleteModal = true;  // open modal
+    this.deleteError = '';    // reset errors
   }
+  confirmDelete() {
 
+    this.deleteLoading = true;
+
+    this.jobService.deleteJob(this.jobToDelete.id).subscribe({
+      next: () => {
+
+        this.deleteLoading = false;
+
+        // remove from UI
+        this.jobs = this.jobs.filter(j => j.id !== this.jobToDelete.id);
+        this.applyFilters();
+
+        this.deleteModal = false; // close modal
+      },
+      error: (err) => {
+        this.deleteLoading = false;
+        this.deleteError = err.error?.detail || 'Delete failed';
+      }
+    });
+  }
+  
   goProfile() {
   console.log('go to profile');
   }
@@ -154,11 +186,18 @@ export class Home implements OnInit {
 
   
   submitProposal() {
+    this.applySubmitted = true;
 
-    if (!this.proposalData.message || !this.proposalData.price) {
-      alert('Fill all fields');
+    if (!this.proposalData.message || this.proposalData.message.length < 10) {
       return;
     }
+
+    if (!this.proposalData.price || this.proposalData.price <= 0) {
+      return;
+    }
+    this.applyLoading = true;
+    this.applyError = '';
+    this.applySuccess = '';
 
     this.ProposalService.apply(
       this.selectedJob.id,
@@ -166,14 +205,22 @@ export class Home implements OnInit {
       this.proposalData.price
     ).subscribe({
       next: () => {
-        alert('Applied successfully');
-        this.closeModal();
+        this.applyLoading = false;
+        this.applySuccess = 'Application sent successfully';
+        this.cdr.detectChanges();
+        setTimeout(() => {
+          this.closeModal();
+          this.applySuccess = '';
+          this.cdr.detectChanges();
+        }, 1500);
       },
       error: (err) => {
-        console.log(err);
-        alert(err.error?.detail || 'Error');
+        this.applyLoading = false;
+        this.applyError = err.error?.detail || 'Failed to apply';
+        this.cdr.detectChanges();
       }
     });
+    
   }
 
   closeModal() {

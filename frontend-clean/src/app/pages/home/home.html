@@ -213,33 +213,96 @@
 
 </div>
 <!-- APPLY MODAL -->
-      <div *ngIf="showApplyModal" class="modal-overlay">
+  <div *ngIf="showApplyModal" class="modal-overlay">
 
-        <div class="modal">
+    <div class="modal">
 
-          <h2>Apply to "{{ selectedJob?.title }}"</h2>
+      <h2>Apply to "{{ selectedJob?.title }}"</h2>
 
-          <textarea
-            [(ngModel)]="proposalData.message"
-            placeholder="Your message..."
-            class="modal-input"></textarea>
+      <!-- SUCCESS -->
+      <div *ngIf="applySuccess" class="success-banner">
+        {{ applySuccess }}
+      </div>
 
-          <input
-            type="number"
-            [(ngModel)]="proposalData.price"
-            placeholder="Your price"
-            class="modal-input">
+      <!-- ERROR -->
+      <div *ngIf="applyError" class="error-banner">
+        {{ applyError }}
+      </div>
 
-          <div class="modal-actions">
-            <button (click)="closeModal()" class="btn cancel">
-              Cancel
-            </button>
+      <!-- MESSAGE -->
+      <textarea
+        [(ngModel)]="proposalData.message"
+        placeholder="Your message..."
+        class="modal-input"></textarea>
 
-            <button (click)="submitProposal()" class="btn confirm">
-              Confirm
-            </button>
-          </div>
+      <small *ngIf="applySubmitted && (!proposalData.message || proposalData.message.length < 10)">
+        Message must be at least 10 characters
+      </small>
 
-        </div>
+      <!-- PRICE -->
+      <input
+        type="number"
+        [(ngModel)]="proposalData.price"
+        placeholder="Your price"
+        class="modal-input">
+
+      <small *ngIf="applySubmitted && (!proposalData.price || proposalData.price <= 0)">
+        Price must be greater than 0
+      </small>
+
+      <!-- BUTTONS -->
+      <div class="modal-actions">
+        <button (click)="closeModal()" class="btn cancel">
+          Cancel
+        </button>
+
+        <button
+          (click)="submitProposal()"
+          class="btn confirm"
+          [disabled]="applyLoading">
+
+          <span *ngIf="!applyLoading">Confirm</span>
+          <span *ngIf="applyLoading">Sending...</span>
+
+        </button>
+      </div>
+
+    </div>
+
+  </div>
+  <div *ngIf="deleteModal" class="modal-overlay">
+
+    <div class="modal">
+
+      <h2>Delete Job</h2>
+
+      <p>Are you sure you want to delete this job?</p>
+
+      <!-- ERROR -->
+      <div *ngIf="deleteError" class="error-banner">
+        {{ deleteError }}
+      </div>
+
+      <div class="modal-actions">
+
+        <!-- CANCEL -->
+        <button (click)="deleteModal = false" class="btn cancel">
+          Cancel
+        </button>
+
+        <!-- CONFIRM -->
+        <button
+          (click)="confirmDelete()"
+          class="btn confirm"
+          [disabled]="deleteLoading">
+
+          <span *ngIf="!deleteLoading">Delete</span>
+          <span *ngIf="deleteLoading">Deleting...</span>
+
+        </button>
 
       </div>
+
+    </div>
+
+  </div>

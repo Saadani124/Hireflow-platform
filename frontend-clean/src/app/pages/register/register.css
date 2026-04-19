@@ -241,6 +241,9 @@ select {
     padding: 2rem;
   }
 }
-small{
-  color: red;
+small {
+  color: #dc2626;
+  font-size: 12px;
+  display: block;
+  margin-top: 4px;
 }
