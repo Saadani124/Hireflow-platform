@@ -37,34 +37,59 @@
       <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
 
         <div class="grid2">
+          <!-- ERROR -->
+          <div *ngIf="errorMessage" class="error-banner">
+            {{ errorMessage }}
+          </div>
 
-          <div class="field">
+          <div class="field-group">
             <label>Name</label>
-            <input type="text" formControlName="name">
+            <input formControlName="name" placeholder="Your name">
+
+            <small *ngIf="(registerForm.get('name')?.touched || submitted) && registerForm.get('name')?.invalid">
+              Name is required
+            </small>
           </div>
 
-          <div class="field">
+          <!-- EMAIL -->
+          <div class="field-group">
             <label>Email</label>
-            <input type="text" formControlName="email">
+            <input formControlName="email" placeholder="Email">
+
+            <small *ngIf="(registerForm.get('email')?.touched || submitted) && registerForm.get('email')?.invalid">
+              <span *ngIf="registerForm.get('email')?.errors?.['required']">Email required</span>
+              <span *ngIf="registerForm.get('email')?.errors?.['email']">Invalid email</span>
+            </small>
           </div>
 
-          <div class="field">
+          <!-- PASSWORD -->
+          <div class="field-group">
             <label>Password</label>
-            <input type="password" formControlName="password">
+            <input type="password" formControlName="password" placeholder="Password">
+
+            <small *ngIf="(registerForm.get('password')?.touched || submitted) && registerForm.get('password')?.invalid">
+              Minimum 6 characters
+            </small>
           </div>
 
-          <div class="field">
+          <!-- ROLE -->
+          <div class="field-group">
             <label>Role</label>
+
             <select formControlName="role">
               <option value="">Select role</option>
               <option value="client">Client</option>
               <option value="freelancer">Freelancer</option>
             </select>
+
+            <small *ngIf="(registerForm.get('role')?.touched || submitted) && registerForm.get('role')?.invalid">
+              Role is required
+            </small>
           </div>
 
         </div>
 
-        <button type="submit" class="submit-btn">
+        <button type="submit" class="submit-btn" [disabled]="registerForm.invalid">
           Create Account
         </button>
 

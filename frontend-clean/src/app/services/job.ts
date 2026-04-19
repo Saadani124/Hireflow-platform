@@ -13,4 +13,7 @@ export class JobService {
   getJobs() {
     return this.http.get<any[]>(this.API);
   }
+  createJob(data: any) {
+  return this.http.post('http://localhost:8000/jobs/create', data);
+}
 }

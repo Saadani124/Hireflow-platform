@@ -5,6 +5,7 @@ import { Auth } from '../../services/auth';
 import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef } from '@angular/core';
 
+
 @Component({
   selector: 'app-login',
   standalone: true,
@@ -16,7 +17,7 @@ export class Login {
 
   loginForm!: FormGroup;
   errorMessage: string = '';
-  
+  submitted = false;
 
   constructor(
     private fb: FormBuilder,
@@ -27,13 +28,14 @@ export class Login {
   
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required]]
+      password: ['', [Validators.required, Validators.minLength(6)]]
     });
   }
 
   onSubmit() {
-
+  this.submitted = true;
   if (this.loginForm.invalid) {
+    this.loginForm.markAllAsTouched();
     this.errorMessage = 'Please fill all fields correctly';
     return;
   }

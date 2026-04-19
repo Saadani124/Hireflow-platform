@@ -73,10 +73,7 @@
         </button>
       </div>
 
-      <button
-        *ngIf="user?.role === 'client'"
-        (click)="postJob()"
-        class="post-job-btn">
+      <button *ngIf="user?.role === 'client'" (click)="postJob()" class="post-job-btn">
         <span class="material-symbols-outlined">add</span>
         Post a Job
       </button>
@@ -177,3 +174,72 @@
     Profile
   </button>
 </nav>
+<!-- CREATE JOB MODAL -->
+<div *ngIf="showCreateJobModal" class="modal-overlay">
+
+  <div class="modal">
+
+    <h2>Create Job</h2>
+
+    <input
+      [(ngModel)]="jobData.title"
+      placeholder="Job title"
+      class="modal-input">
+
+    <textarea
+      [(ngModel)]="jobData.description"
+      placeholder="Job description"
+      class="modal-input"></textarea>
+
+    <input
+      type="number"
+      [(ngModel)]="jobData.budget"
+      placeholder="Budget"
+      class="modal-input">
+
+    <select [(ngModel)]="jobData.category" class="modal-input">
+      <option>Development</option>
+      <option>Design</option>
+      <option>Marketing</option>
+      <option>Product</option>
+    </select>
+
+    <div class="modal-actions">
+      <button (click)="closeCreateJob()" class="btn cancel">Cancel</button>
+      <button (click)="submitJob()" class="btn confirm">Create</button>
+    </div>
+
+  </div>
+
+</div>
+<!-- APPLY MODAL -->
+      <div *ngIf="showApplyModal" class="modal-overlay">
+
+        <div class="modal">
+
+          <h2>Apply to "{{ selectedJob?.title }}"</h2>
+
+          <textarea
+            [(ngModel)]="proposalData.message"
+            placeholder="Your message..."
+            class="modal-input"></textarea>
+
+          <input
+            type="number"
+            [(ngModel)]="proposalData.price"
+            placeholder="Your price"
+            class="modal-input">
+
+          <div class="modal-actions">
+            <button (click)="closeModal()" class="btn cancel">
+              Cancel
+            </button>
+
+            <button (click)="submitProposal()" class="btn confirm">
+              Confirm
+            </button>
+          </div>
+
+        </div>
+
+      </div>

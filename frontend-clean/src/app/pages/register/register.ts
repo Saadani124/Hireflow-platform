@@ -19,6 +19,7 @@ export class Register {
 
   registerForm!: FormGroup;
   errorMessage = '';
+  submitted = false;
 
   constructor(
     private fb: FormBuilder,
@@ -29,14 +30,16 @@ export class Register {
     this.registerForm = this.fb.group({
       name: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
-      password: ['', Validators.required],
+      password: ['', Validators.required,Validators.minLength(6)],
       role: ['', Validators.required]
     });
   }
 
   onSubmit() {
+    this.submitted = true;
 
     if (this.registerForm.invalid) {
+      this.registerForm.markAllAsTouched();
       this.errorMessage = 'Please fill all fields correctly';
       return;
     }
@@ -60,7 +63,7 @@ export class Register {
           this.errorMessage = 'Server error';
         }
 
-        this.cdr.detectChanges(); // 🔴 same fix as login
+        this.cdr.detectChanges(); 
       }
     });
   }

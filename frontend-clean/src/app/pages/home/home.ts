@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { JobService } from '../../services/job';
+import {ProposalService } from '../../services/proposal';
 import { ChangeDetectorRef } from '@angular/core';
 
 @Component({
@@ -22,6 +23,19 @@ export class Home implements OnInit {
   loading = true;
 
   skeletons = [1, 2, 3];
+  showApplyModal = false;
+  selectedJob: any = null;
+
+  proposalData = {
+    message: '',
+    price: 0
+  };
+  jobData = {
+    title: '',
+    description: '',
+    budget: 0,
+    category: 'Development'
+  };
 
   categories = [
     'All',
@@ -35,7 +49,8 @@ export class Home implements OnInit {
   
   constructor(
     private jobService: JobService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private ProposalService: ProposalService,
   ) {}
 
   ngOnInit() {
@@ -103,10 +118,22 @@ export class Home implements OnInit {
   }
 
   apply(job: any) {
-    console.log('Apply clicked:', job);
+    this.selectedJob = job;
+    this.showApplyModal = true;
+
+    // reset form
+    this.proposalData = {
+      message: '',
+      price: 0
+    };
   }
   postJob() {
-    console.log('Post a job clicked');
+    this.showCreateJobModal = true;
+    this.jobData = { title: '', description: '', budget: 0, category: 'Development' };
+  }
+
+  closeCreateJob() {
+    this.showCreateJobModal = false;
   }
 
   deleteJob(job: any) {
@@ -124,4 +151,53 @@ export class Home implements OnInit {
     localStorage.clear();
     window.location.href = '/login';
   }
-}
+
+  
+  submitProposal() {
+
+    if (!this.proposalData.message || !this.proposalData.price) {
+      alert('Fill all fields');
+      return;
+    }
+
+    this.ProposalService.apply(
+      this.selectedJob.id,
+      this.proposalData.message,
+      this.proposalData.price
+    ).subscribe({
+      next: () => {
+        alert('Applied successfully');
+        this.closeModal();
+      },
+      error: (err) => {
+        console.log(err);
+        alert(err.error?.detail || 'Error');
+      }
+    });
+  }
+
+  closeModal() {
+    this.showApplyModal = false;
+  }
+  showCreateJobModal = false;
+  submitJob() {
+
+  if (!this.jobData.title || !this.jobData.description || !this.jobData.budget) {
+    alert('Fill all fields');
+    return;
+  }
+
+  this.jobService.createJob(this.jobData).subscribe({
+      next: () => {
+        alert('Job created');
+        this.closeCreateJob();
+        this.loadJobs(); // refresh list
+      },
+      error: (err) => {
+        console.log(err);
+        alert(err.error?.detail || 'Error creating job');
+      }
+    });
+  }
+  
+  }

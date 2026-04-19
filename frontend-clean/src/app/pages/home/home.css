@@ -573,3 +573,68 @@ h1, h2, h3, h4, h5, h6 {
   .nav-links, .icon-btn { display: none; }
   .main-content { padding-bottom: 6rem; }
 }
+/* MODAL BACKGROUND */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+/* MODAL BOX */
+.modal {
+  background: white;
+  padding: 24px;
+  border-radius: 12px;
+  width: 600px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* INPUTS */
+.modal-input {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  width: 100%;
+}
+
+/* BUTTONS */
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.btn {
+  padding: 8px 14px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.btn.cancel {
+  background: #ccc;
+}
+
+.btn.confirm {
+  background: #2563eb;
+  color: white;
+}
+.modal textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+.modal select {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}

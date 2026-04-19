@@ -241,3 +241,6 @@ select {
     padding: 2rem;
   }
 }
+small{
+  color: red;
+}
