@@ -61,14 +61,24 @@
 
   <!-- CATEGORY FILTER -->
   <section class="filter-section">
-    <div class="filter-chips">
+    <div class="filter-row">
+      <div class="filter-chips">
+        <button
+          *ngFor="let cat of categories"
+          (click)="selectCategory(cat)"
+          [class.chip-active]="selectedCategory === cat"
+          [class.chip-inactive]="selectedCategory !== cat"
+          class="chip">
+          {{ cat }}
+        </button>
+      </div>
+
       <button
-        *ngFor="let cat of categories"
-        (click)="selectCategory(cat)"
-        [class.chip-active]="selectedCategory === cat"
-        [class.chip-inactive]="selectedCategory !== cat"
-        class="chip">
-        {{ cat }}
+        *ngIf="user?.role === 'client'"
+        (click)="postJob()"
+        class="post-job-btn">
+        <span class="material-symbols-outlined">add</span>
+        Post a Job
       </button>
     </div>
   </section>
@@ -103,6 +113,14 @@
     <div
       *ngFor="let job of filteredJobs"
       class="job-card">
+
+      <!-- DELETE BUTTON (admin only, appears on card hover) -->
+      <button
+        *ngIf="user?.role === 'admin'"
+        (click)="deleteJob(job)"
+        class="delete-btn">
+        <span class="material-symbols-outlined">delete</span>
+      </button>
 
       <!-- TOP ROW -->
       <div class="card-top">

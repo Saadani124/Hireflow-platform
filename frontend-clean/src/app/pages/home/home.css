@@ -114,9 +114,9 @@ h1, h2, h3, h4, h5, h6 {
 .avatar-wrap { position: relative; }
 
 .avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 40px;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
   object-fit: cover;
   border: 2px solid var(--outline-variant);
   cursor: pointer;
@@ -229,6 +229,36 @@ h1, h2, h3, h4, h5, h6 {
 }
 .filter-section::-webkit-scrollbar { display: none; }
 
+.filter-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.post-job-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0.5rem 1.25rem;
+  border-radius: 9999px;
+  border: none;
+  background: var(--primary-container);
+  color: var(--on-primary);
+  font-family: 'Manrope', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.2s, transform 0.15s;
+  flex-shrink: 0;
+}
+.post-job-btn:hover {
+  background: var(--primary);
+  transform: translateY(-1px);
+}
+.post-job-btn .material-symbols-outlined { font-size: 17px; }
+
 .filter-chips {
   display: flex;
   gap: 0.75rem;
@@ -292,6 +322,33 @@ h1, h2, h3, h4, h5, h6 {
   background: var(--surface-container-low);
   transform: translateY(-3px);
   box-shadow: 0 8px 24px rgba(0, 74, 198, 0.08);
+}
+
+/* DELETE BUTTON */
+.delete-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: none;
+  background: rgba(186, 26, 26, 0.08);
+  color: #ba1a1a;
+  cursor: pointer;
+  opacity: 0;
+  transform: scale(0.85);
+  transition: opacity 0.2s, transform 0.2s, background 0.2s;
+  z-index: 10;
+}
+.delete-btn .material-symbols-outlined { font-size: 18px; }
+.delete-btn:hover { background: rgba(186, 26, 26, 0.15); }
+.job-card:hover .delete-btn {
+  opacity: 1;
+  transform: scale(1);
 }
 
 .card-top {

@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { JobService } from '../../services/job';
+import { ChangeDetectorRef } from '@angular/core';
 
 @Component({
   selector: 'app-home',
@@ -30,7 +31,12 @@ export class Home implements OnInit {
     'Product'
   ];
 
-  constructor(private jobService: JobService) {}
+
+  
+  constructor(
+    private jobService: JobService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit() {
 
@@ -44,20 +50,30 @@ export class Home implements OnInit {
   }
 
   // 3. Only then load jobs
-  this.loadJobs();
+  setTimeout(() => {
+    this.loadJobs();
+  }, 100);
 }
 
   loadJobs() {
+    this.loading = true;
+
     this.jobService.getJobs().subscribe({
       next: (res: any[]) => {
-        // ✅ ONLY OPEN JOBS
+
         this.jobs = res.filter(job => job.status === 'open');
+
         this.applyFilters();
+
         this.loading = false;
+
+        // 🔴 FORCE UI REFRESH
+        this.cdr.detectChanges();
       },
       error: (err) => {
         console.log(err);
         this.loading = false;
+        this.cdr.detectChanges();
       }
     });
   }
@@ -89,6 +105,14 @@ export class Home implements OnInit {
   apply(job: any) {
     console.log('Apply clicked:', job);
   }
+  postJob() {
+    console.log('Post a job clicked');
+  }
+
+  deleteJob(job: any) {
+    console.log('Delete clicked:', job);
+  }
+
   goProfile() {
   console.log('go to profile');
   }
