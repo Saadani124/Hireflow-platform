@@ -73,7 +73,7 @@
         </button>
       </div>
 
-      <button *ngIf="user?.role === 'client'" (click)="postJob()" class="post-job-btn">
+      <button *ngIf="user?.role === 'client'" (click)="openPostModal()" class="post-job-btn">
         <span class="material-symbols-outlined">add</span>
         Post a Job
       </button>
@@ -177,83 +177,49 @@
     Profile
   </button>
 </nav>-->
-<!-- CREATE JOB MODAL -->
-<div *ngIf="showCreateJobModal" class="modal-overlay">
-
-  <div class="modal">
-
-    <h2>Create Job</h2>
-
-    <!-- ERROR -->
-    <div *ngIf="createError" class="error-banner">
-      {{ createError }}
-    </div>
-
-    <!-- TITLE -->
-    <input
-      [(ngModel)]="jobData.title"
-      placeholder="Job title"
-      class="modal-input">
-
-    <small *ngIf="createSubmitted && (!jobData.title || jobData.title.length < 5)">
-      Title must be at least 5 characters
-    </small>
-
-    <!-- DESCRIPTION -->
-    <textarea
-      [(ngModel)]="jobData.description"
-      placeholder="Job description"
-      class="modal-input"></textarea>
-
-    <small *ngIf="createSubmitted && (!jobData.description || jobData.description.length < 10)">
-      Description must be at least 10 characters
-    </small>
-
-    <!-- BUDGET -->
-    <input
-      type="number"
-      [(ngModel)]="jobData.budget"
-      placeholder="Budget"
-      class="modal-input">
-
-    <small *ngIf="createSubmitted && (!jobData.budget || jobData.budget <= 0)">
-      Budget must be greater than 0
-    </small>
-
-    <!-- CATEGORY -->
-    <select [(ngModel)]="jobData.category" class="modal-input">
-      <option value="">Select category</option>
-      <option>Development</option>
-      <option>Design</option>
-      <option>Marketing</option>
-      <option>Product</option>
-    </select>
-
-    <small *ngIf="createSubmitted && !jobData.category">
-      Category is required
-    </small>
-
-    <!-- BUTTONS -->
-    <div class="modal-actions">
-
-      <button (click)="closeCreateJob()" class="btn cancel">
-        Cancel
+<!-- POST JOB MODAL -->
+<div class="modal-overlay" [class.open]="postModalOpen" (click)="onModalOverlayClick($event)">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <span class="modal-title">Post a New Job</span>
+      <button class="modal-close" (click)="closePostModal()">
+        <span class="material-symbols-outlined">close</span>
       </button>
-
-      <button
-        (click)="submitJob()"
-        class="btn confirm"
-        [disabled]="createLoading">
-
-        <span *ngIf="!createLoading">Create</span>
-        <span *ngIf="createLoading">Creating...</span>
-
-      </button>
-
     </div>
-
+    <div class="form-group">
+      <label class="form-label">Job Title</label>
+      <input class="form-input" [(ngModel)]="newJob.title" placeholder="e.g. Build a React landing page" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Description</label>
+      <textarea class="form-textarea" [(ngModel)]="newJob.description" placeholder="Describe the job in detail..."></textarea>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Category</label>
+        <select class="form-select" [(ngModel)]="newJob.category">
+          <option value="">Select category</option>
+          <option>Design</option>
+          <option>Development</option>
+          <option>Marketing</option>
+          <option>Product</option>
+          <option>Writing</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Budget (TND)</label>
+        <input class="form-input" [(ngModel)]="newJob.budget" type="number" placeholder="e.g. 500" />
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" (click)="closePostModal()">Cancel</button>
+      <button class="btn btn-primary" (click)="submitJob()" [disabled]="submittingJob">
+        <span class="material-symbols-outlined">send</span>
+        {{ submittingJob ? 'Posting...' : 'Post Job' }}
+      </button>
+    </div>
   </div>
-
 </div>
 <!-- APPLY MODAL -->
   <div *ngIf="showApplyModal" class="modal-overlay">

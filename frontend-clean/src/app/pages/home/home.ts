@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { JobService } from '../../services/job';
 import {ProposalService } from '../../services/proposal';
 import { ChangeDetectorRef } from '@angular/core';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-home',
@@ -30,12 +31,7 @@ export class Home implements OnInit {
     message: '',
     price: 0
   };
-  jobData = {
-    title: '',
-    description: '',
-    budget: 0,
-    category: 'Development'
-  };
+    
 
   categories = [
     'All',
@@ -56,15 +52,26 @@ export class Home implements OnInit {
   deleteLoading = false;
   deleteError = '';
 
-  createSubmitted = false;
-  createError = '';
-  createLoading = false;
+  postModalOpen = false;
 
+  newJob = {
+    title: '',
+    description: '',
+    budget: 0,
+    category: ''
+  };
 
+  submittingJob = false;
+
+  toastVisible = false;
+  toastMessage = '';
+  toastType: 'success' | 'error' = 'success';
+  
   constructor(
     private jobService: JobService,
     private cdr: ChangeDetectorRef,
     private ProposalService: ProposalService,
+    private router: Router
   ) {}
 
   ngOnInit() {
@@ -140,22 +147,49 @@ export class Home implements OnInit {
     this.applySubmitted = false;
     this.applyError = '';
   }
-  postJob() {
-    this.showCreateJobModal = true;
+  // =========================
+  // POST JOB MODAL
+  // =========================
 
-    this.jobData = {
-      title: '',
-      description: '',
-      budget: 0,
-      category: 'Development'
-    };
-
-    this.createSubmitted = false;
-    this.createError = '';
+  openPostModal() {
+    this.postModalOpen = true;
   }
 
-  closeCreateJob() {
-    this.showCreateJobModal = false;
+  closePostModal() {
+    this.postModalOpen = false;
+  }
+
+  onModalOverlayClick(event: any) {
+    if (event.target.classList.contains('modal-overlay')) {
+      this.closePostModal();
+    }
+  }
+
+  submitJob() {
+
+    if (!this.newJob.title || !this.newJob.description || !this.newJob.budget || !this.newJob.category) {
+      this.showToast('Fill all fields', 'error');
+      return;
+    }
+
+    this.submittingJob = true;
+
+    this.jobService.createJob(this.newJob).subscribe({
+      next: () => {
+        this.submittingJob = false;
+        this.closePostModal();
+        this.loadJobs();
+        this.showToast('Job created', 'success');
+
+        this.newJob = { title: '', description: '', budget: 0, category: '' };
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.submittingJob = false;
+        this.showToast(err.error?.detail || 'Error', 'error');
+        this.cdr.detectChanges();
+      }
+    });
   }
 
   deleteJob(job: any) {
@@ -191,12 +225,30 @@ export class Home implements OnInit {
   console.log('go to profile');
   }
 
-  goDashboard(){
-    console.log('go to dashboard');
+  goDashboard() {
+
+    const user = JSON.parse(localStorage.getItem('user') || 'null');
+
+    if (!user) {
+      this.router.navigate(['/login']);
+      return;
+    }
+
+    if (user.role === 'client') {
+      this.router.navigate(['/ClientDashboard']);
+    }
+
+    else if (user.role === 'admin') {
+      this.router.navigate(['/admin-dashboard']); // future
+    }
+
+    else if (user.role === 'freelancer') {
+      this.router.navigate(['/freelancer-dashboard']); // future
+    }
   }
   logout() {
     localStorage.clear();
-    window.location.href = '/login';
+    this.router.navigate(['/login']);
   }
 
   
@@ -241,32 +293,17 @@ export class Home implements OnInit {
   closeModal() {
     this.showApplyModal = false;
   }
-  showCreateJobModal = false;
-  submitJob() {
+  
+  showToast(message: string, type: 'success' | 'error') {
+    this.toastMessage = message;
+    this.toastType = type;
+    this.toastVisible = true;
 
-    this.createSubmitted = true;
-
-    if (!this.jobData.title || this.jobData.title.length < 5) return;
-    if (!this.jobData.description || this.jobData.description.length < 10) return;
-    if (!this.jobData.budget || this.jobData.budget <= 0) return;
-    if (!this.jobData.category) return;
-
-    this.createLoading = true;
-    this.createError = '';
-
-    this.jobService.createJob(this.jobData).subscribe({
-      next: () => {
-        this.createLoading = false;
-        this.closeCreateJob();
-        this.loadJobs();
-        this.cdr.detectChanges();
-      },
-      error: (err) => {
-        this.createLoading = false;
-        this.createError = err.error?.detail || 'Failed to create job';
-        this.cdr.detectChanges();
-      }
-    });
+    setTimeout(() => {
+      this.toastVisible = false;
+    }, 2500);
+    this.cdr.detectChanges();
   }
+  
   
   }

@@ -46,4 +46,13 @@ export class Auth {
   getMe() {
   return this.http.get('http://localhost:8000/users/me');
   }
+  uploadProfilePicture(file: File) {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    return this.http.post<any>(
+      'http://localhost:8000/users/upload-profile-picture',
+      formData
+    );
+  }
 }

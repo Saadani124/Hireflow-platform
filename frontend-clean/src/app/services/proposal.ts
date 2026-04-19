@@ -17,4 +17,11 @@ export class ProposalService {
       price: price
     });
   }
+  getByJob(jobId: number) {
+    return this.http.get<any[]>(`http://localhost:8000/proposals/job/${jobId}`);
+  }
+
+  accept(id: number) {
+    return this.http.post(`http://localhost:8000/proposals/accept/${id}`, {});
+  }
 }

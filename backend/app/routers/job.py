@@ -35,7 +35,13 @@ def list_jobs(db:Session=Depends(get_db),
                 user=Depends(get_current_user)):
     jobs = db.query(Job).order_by(Job.created_at.desc()).all()
     return jobs
+#client consulte ses jobs
+@router.get("/me")
+def get_my_jobs(db: Session=Depends(get_db),
+                user=Depends(get_current_client)):
 
+    jobs=db.query(Job).filter(Job.client_id == user.id).all()
+    return jobs
 #get job by id endpoint
 @router.get("/{job_id}")
 def get_job(job_id:int,
@@ -66,13 +72,7 @@ def complete_job(job_id: int,
     db.refresh(job)
     return {"message": "Job completed"}
 
-#client consulte ses jobs
-@router.get("/me")
-def get_my_jobs(db: Session=Depends(get_db),
-                user=Depends(get_current_client)):
 
-    jobs=db.query(Job).filter(Job.client_id == user.id).all()
-    return jobs
 
 #freelancer consulte les jobs elli postulehom
 @router.get("/open")
