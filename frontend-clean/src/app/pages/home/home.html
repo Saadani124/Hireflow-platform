@@ -112,20 +112,22 @@
       class="job-card">
 
       <!-- DELETE BUTTON (admin only, appears on card hover) -->
-      <button
-        *ngIf="user?.role === 'admin'"
-        (click)="deleteJob(job)"
-        class="delete-btn">
-        <span class="material-symbols-outlined">delete</span>
-      </button>
+      
 
       <!-- TOP ROW -->
       <div class="card-top">
         <span class="category-badge">{{ job.category }}</span>
         <span class="open-badge">
+          <button
+        *ngIf="user?.role === 'admin'"
+        (click)="deleteJob(job)"
+        class="delete-btn">
+        <span class="material-symbols-outlined">delete</span>
+      </button>
           <span class="open-dot"></span>
           Open
         </span>
+        
       </div>
 
       <!-- TITLE -->
@@ -156,6 +158,7 @@
 </main>
 
 <!-- BOTTOM NAV (mobile only) -->
+ <!-- 
 <nav class="bottom-nav">
   <button class="bottom-btn active">
     <span class="material-symbols-outlined">explore</span>
@@ -173,7 +176,7 @@
     <span class="material-symbols-outlined">person</span>
     Profile
   </button>
-</nav>
+</nav>-->
 <!-- CREATE JOB MODAL -->
 <div *ngIf="showCreateJobModal" class="modal-overlay">
 
@@ -181,32 +184,72 @@
 
     <h2>Create Job</h2>
 
+    <!-- ERROR -->
+    <div *ngIf="createError" class="error-banner">
+      {{ createError }}
+    </div>
+
+    <!-- TITLE -->
     <input
       [(ngModel)]="jobData.title"
       placeholder="Job title"
       class="modal-input">
 
+    <small *ngIf="createSubmitted && (!jobData.title || jobData.title.length < 5)">
+      Title must be at least 5 characters
+    </small>
+
+    <!-- DESCRIPTION -->
     <textarea
       [(ngModel)]="jobData.description"
       placeholder="Job description"
       class="modal-input"></textarea>
 
+    <small *ngIf="createSubmitted && (!jobData.description || jobData.description.length < 10)">
+      Description must be at least 10 characters
+    </small>
+
+    <!-- BUDGET -->
     <input
       type="number"
       [(ngModel)]="jobData.budget"
       placeholder="Budget"
       class="modal-input">
 
+    <small *ngIf="createSubmitted && (!jobData.budget || jobData.budget <= 0)">
+      Budget must be greater than 0
+    </small>
+
+    <!-- CATEGORY -->
     <select [(ngModel)]="jobData.category" class="modal-input">
+      <option value="">Select category</option>
       <option>Development</option>
       <option>Design</option>
       <option>Marketing</option>
       <option>Product</option>
     </select>
 
+    <small *ngIf="createSubmitted && !jobData.category">
+      Category is required
+    </small>
+
+    <!-- BUTTONS -->
     <div class="modal-actions">
-      <button (click)="closeCreateJob()" class="btn cancel">Cancel</button>
-      <button (click)="submitJob()" class="btn confirm">Create</button>
+
+      <button (click)="closeCreateJob()" class="btn cancel">
+        Cancel
+      </button>
+
+      <button
+        (click)="submitJob()"
+        class="btn confirm"
+        [disabled]="createLoading">
+
+        <span *ngIf="!createLoading">Create</span>
+        <span *ngIf="createLoading">Creating...</span>
+
+      </button>
+
     </div>
 
   </div>

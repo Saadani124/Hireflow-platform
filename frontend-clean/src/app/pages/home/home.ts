@@ -56,6 +56,10 @@ export class Home implements OnInit {
   deleteLoading = false;
   deleteError = '';
 
+  createSubmitted = false;
+  createError = '';
+  createLoading = false;
+
 
   constructor(
     private jobService: JobService,
@@ -138,7 +142,16 @@ export class Home implements OnInit {
   }
   postJob() {
     this.showCreateJobModal = true;
-    this.jobData = { title: '', description: '', budget: 0, category: 'Development' };
+
+    this.jobData = {
+      title: '',
+      description: '',
+      budget: 0,
+      category: 'Development'
+    };
+
+    this.createSubmitted = false;
+    this.createError = '';
   }
 
   closeCreateJob() {
@@ -164,14 +177,16 @@ export class Home implements OnInit {
         this.applyFilters();
 
         this.deleteModal = false; // close modal
+        this.cdr.detectChanges();
       },
       error: (err) => {
         this.deleteLoading = false;
         this.deleteError = err.error?.detail || 'Delete failed';
+        this.cdr.detectChanges();
       }
     });
   }
-  
+
   goProfile() {
   console.log('go to profile');
   }
@@ -229,20 +244,27 @@ export class Home implements OnInit {
   showCreateJobModal = false;
   submitJob() {
 
-  if (!this.jobData.title || !this.jobData.description || !this.jobData.budget) {
-    alert('Fill all fields');
-    return;
-  }
+    this.createSubmitted = true;
 
-  this.jobService.createJob(this.jobData).subscribe({
+    if (!this.jobData.title || this.jobData.title.length < 5) return;
+    if (!this.jobData.description || this.jobData.description.length < 10) return;
+    if (!this.jobData.budget || this.jobData.budget <= 0) return;
+    if (!this.jobData.category) return;
+
+    this.createLoading = true;
+    this.createError = '';
+
+    this.jobService.createJob(this.jobData).subscribe({
       next: () => {
-        alert('Job created');
+        this.createLoading = false;
         this.closeCreateJob();
-        this.loadJobs(); // refresh list
+        this.loadJobs();
+        this.cdr.detectChanges();
       },
       error: (err) => {
-        console.log(err);
-        alert(err.error?.detail || 'Error creating job');
+        this.createLoading = false;
+        this.createError = err.error?.detail || 'Failed to create job';
+        this.cdr.detectChanges();
       }
     });
   }

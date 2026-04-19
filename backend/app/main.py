@@ -24,11 +24,7 @@ from app.routers import user
 app = FastAPI(title="HireFlow API") #hedhi tji kbal kol chy
 
 
-app.include_router(auth.router)
-app.include_router(test.router)
-app.include_router(job.router)
-app.include_router(proposal.router)
-app.include_router(admin.router)
+
 
 #added by aziz
 app.add_middleware(
@@ -42,6 +38,13 @@ app.add_middleware(
 )
 app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 app.include_router(user.router)
+
+#tb3 talel
+app.include_router(auth.router)
+app.include_router(test.router)
+app.include_router(job.router)
+app.include_router(proposal.router)
+app.include_router(admin.router)
 
 #creation des tables
 Base.metadata.create_all(bind=engine)
