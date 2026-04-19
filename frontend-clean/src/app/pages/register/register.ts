@@ -30,7 +30,7 @@ export class Register {
     this.registerForm = this.fb.group({
       name: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
-      password: ['', Validators.required,Validators.minLength(6)],
+      password: ['', [Validators.required, Validators.minLength(6)]],
       role: ['', Validators.required]
     });
   }
@@ -53,18 +53,21 @@ export class Register {
         this.router.navigate(['/login']);
       },
       error: (err) => {
-        console.log(err);
+      console.log(err);
 
-        if (err.status === 400) {
-          this.errorMessage = err.error?.detail || 'Invalid data';
-        } else if (err.status === 403) {
-          this.errorMessage = 'Admin registration not allowed';
-        } else {
-          this.errorMessage = 'Server error';
-        }
-
-        this.cdr.detectChanges(); 
+      if (err.status === 400) {
+        this.errorMessage = err.error?.detail || 'Invalid data';
+      } else if (err.status === 403) {
+        this.errorMessage = 'Admin registration not allowed';
+      } else if (err.status === 422) {
+        // 🔴 FASTAPI VALIDATION ERROR
+        this.errorMessage = err.error?.detail?.[0]?.msg || 'Invalid input';
+      } else {
+        this.errorMessage = err.error?.detail || 'Server error';
       }
+
+      this.cdr.detectChanges();
+    }
     });
   }
 }

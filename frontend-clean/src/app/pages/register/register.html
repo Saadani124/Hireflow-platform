@@ -37,10 +37,7 @@
       <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
 
         <div class="grid2">
-          <!-- ERROR -->
-          <div *ngIf="errorMessage" class="error-banner">
-            {{ errorMessage }}
-          </div>
+
 
           <div class="field-group">
             <label>Name</label>
@@ -89,7 +86,7 @@
 
         </div>
 
-        <button type="submit" class="submit-btn" [disabled]="registerForm.invalid">
+        <button type="submit" class="submit-btn" >
           Create Account
         </button>
 
