@@ -51,7 +51,7 @@
         <div class="input-wrap">
           <input type="password" formControlName="password" placeholder="Password">
           <div *ngIf="(loginForm.get('password')?.touched || submitted) && loginForm.get('password')?.invalid">
-            <small>Password must be at least 8 characters</small>
+            <small>Password must be at least 6 characters</small>
           </div>
         </div>
       </div>

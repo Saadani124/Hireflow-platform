@@ -1,4 +1,5 @@
 export const CATEGORIES = [
+  
   'Web Development',
   'Mobile App Development',
   'UI/UX Design',

@@ -10,7 +10,11 @@
     <!-- RIGHT SIDE -->
     <div class="nav-right">
 
-
+      <!-- POST JOB BUTTON (client only) -->
+      <button *ngIf="user?.role === 'client'" (click)="openPostModal()" class="post-job-btn">
+        <span class="material-symbols-outlined">add</span>
+        Post a Job
+      </button>
 
       <!-- PROFILE DROPDOWN -->
       <div class="avatar-wrap">
@@ -61,8 +65,8 @@
 
   <!-- CATEGORY FILTER -->
   <section class="filter-section">
-    <div class="filter-row">
-      <div class="filter-chips">
+    <div class="filter-scroll-wrapper">
+      <div class="filter-chips" id="filterChips">
         <button
           *ngFor="let cat of categories"
           (click)="selectCategory(cat)"
@@ -72,11 +76,6 @@
           {{ cat }}
         </button>
       </div>
-
-      <button *ngIf="user?.role === 'client'" (click)="openPostModal()" class="post-job-btn">
-        <span class="material-symbols-outlined">add</span>
-        Post a Job
-      </button>
     </div>
   </section>
 
@@ -116,19 +115,17 @@
 
       <!-- TOP ROW -->
       <div class="card-top">
-        <span class="category-badge">{{ job.category }}</span>
-        <span class="open-badge">
-          <button
-        *ngIf="user?.role === 'admin'"
-        (click)="deleteJob(job)"
-        class="delete-btn">
-        <span class="material-symbols-outlined">delete</span>
-      </button>
-          <span class="open-dot"></span>
-          Open
-        </span>
-        
-      </div>
+  <span class="category-badge">{{ job.category }}</span>
+  <div style="display:flex; align-items:center; gap:8px;">
+    <button *ngIf="user?.role === 'admin'" (click)="deleteJob(job)" class="delete-btn">
+      <span class="material-symbols-outlined">delete</span>
+    </button>
+    <span class="open-badge">
+      <span class="open-dot"></span>
+      Open
+    </span>
+  </div>
+</div>
 
       <!-- TITLE -->
       <h3 class="card-title">{{ job.title }}</h3>
@@ -212,12 +209,9 @@
         <label class="form-label">Category</label>
         <select class="form-select" formControlName="category">
           <option value="">Select category</option>
-          <option>Design</option>
-          <option>Development</option>
-          <option>Marketing</option>
-          <option>Product</option>
-          <option>Writing</option>
-          <option>Other</option>
+          <option *ngFor="let cat of jobCategories" [value]="cat">
+            {{ cat }}
+          </option>
         </select>
 
         <small *ngIf="jobForm.get('category')?.touched && jobForm.get('category')?.invalid">
@@ -249,7 +243,7 @@
   </div>
 </div>
 <!-- APPLY MODAL -->
-  <div *ngIf="showApplyModal" class="modal-overlay">
+  <div *ngIf="showApplyModal" class="modal-overlay open">
 
     <div class="modal">
 
@@ -306,7 +300,9 @@
     </div>
 
   </div>
-  <div *ngIf="deleteModal" class="modal-overlay">
+
+  
+  <div *ngIf="deleteModal" class="modal-overlay open">
 
     <div class="modal">
 

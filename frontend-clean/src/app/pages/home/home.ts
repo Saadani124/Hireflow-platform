@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { JobService } from '../../services/job';
 import {ProposalService } from '../../services/proposal';
 import { ChangeDetectorRef } from '@angular/core';
+import { CATEGORIES } from '../../core/categories';
 import { Router } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 
@@ -34,14 +35,9 @@ export class Home implements OnInit {
     price: 0
   };
     
-
-  categories = [
-    'All',
-    'Design',
-    'Development',
-    'Marketing',
-    'Product'
-  ];
+  categories = ['All', ...CATEGORIES];
+  jobCategories = CATEGORIES;    
+  
 
   applySubmitted = false;
   applyError = '';
@@ -154,6 +150,7 @@ export class Home implements OnInit {
 
     this.applySubmitted = false;
     this.applyError = '';
+    document.body.classList.add('no-scroll');
   }
   // =========================
   // POST JOB MODAL
@@ -161,11 +158,19 @@ export class Home implements OnInit {
 
   openPostModal() {
     this.postModalOpen = true;
+    document.body.classList.add('no-scroll');
   }
 
   closePostModal() {
     this.postModalOpen = false;
-    this.jobForm.reset();
+    document.body.classList.remove('no-scroll');
+
+    this.jobForm.reset({
+      title: '',
+      description: '',
+      budget: 0,
+      category: ''
+    });
   }
 
   onModalOverlayClick(event: any) {
@@ -207,6 +212,7 @@ export class Home implements OnInit {
     this.jobToDelete = job;   // store job
     this.deleteModal = true;  // open modal
     this.deleteError = '';    // reset errors
+    document.body.classList.add('no-scroll');
   }
   confirmDelete() {
 
@@ -216,18 +222,21 @@ export class Home implements OnInit {
       next: () => {
 
         this.deleteLoading = false;
-
+        
         // remove from UI
         this.jobs = this.jobs.filter(j => j.id !== this.jobToDelete.id);
         this.applyFilters();
 
         this.deleteModal = false; // close modal
         this.cdr.detectChanges();
+        document.body.classList.remove('no-scroll');
       },
       error: (err) => {
         this.deleteLoading = false;
         this.deleteError = err.error?.detail || 'Delete failed';
+        this.deleteModal = false; // close modal
         this.cdr.detectChanges();
+        document.body.classList.remove('no-scroll');
       }
     });
   }
@@ -330,6 +339,7 @@ export class Home implements OnInit {
 
   closeModal() {
     this.showApplyModal = false;
+    document.body.classList.remove('no-scroll');
   }
   
   showToast(message: string, type: 'success' | 'error') {
