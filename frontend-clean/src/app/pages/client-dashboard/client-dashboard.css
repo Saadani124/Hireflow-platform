@@ -355,7 +355,7 @@ tr:hover td { background: #f2f4f6; }
 .btn-complete { background: #e0f2fe; color: #0369a1; }
 .btn-complete:hover { background: #bae6fd; }
 .btn-sm { padding: 6px 12px; font-size: 12px; }
-.btn .material-symbols-outlined { font-size: 16px; }
+.btn .material-symbols-outlined { font-size: 16px; cursor: pointer;}
 
 /* ========= PROPOSALS ========= */
 .proposal-card {

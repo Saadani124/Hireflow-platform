@@ -14,7 +14,7 @@
       <div class="avatar-wrap">
         <img
           [src]="user?.profile_image || 'http://localhost:8000/uploads/default.png'"
-          (click)="menuOpen = !menuOpen"
+          (click)="toggleMenu($event)"
           class="avatar"
           alt="profile">
 
@@ -313,7 +313,7 @@
         </div>
 
         <!-- Edit toggle icon -->
-        <span class="material-symbols-outlined edit-icon" (click)="toggleEdit()">edit</span>
+        <span class="material-symbols-outlined edit-icon" style="cursor: pointer;" (click)="toggleEdit()">edit</span>
 
       </div>
 

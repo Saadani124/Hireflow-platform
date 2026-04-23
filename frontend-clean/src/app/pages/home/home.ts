@@ -86,10 +86,9 @@ export class Home implements OnInit {
   this.user = JSON.parse(localStorage.getItem('user') || 'null');
 
   // 2. Fix profile image URL
-  if (this.user && this.user.profile_image) {
-    this.user.profile_image =
-      'http://localhost:8000' + this.user.profile_image;
-  }
+  if (this.user?.profile_image) {
+  this.user.profile_image = this.normalizeImageUrl(this.user.profile_image);
+}
 
   // 3. Only then load jobs
   this.loadJobs();
@@ -353,5 +352,10 @@ export class Home implements OnInit {
     this.cdr.detectChanges();
   }
   
-  
+  private normalizeImageUrl(url: string): string {
+  if (!url) return '';
+
+  const path = url.replace('http://localhost:8000', '');
+  return 'http://localhost:8000' + path;
+}
   }

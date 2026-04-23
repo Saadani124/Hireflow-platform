@@ -4,7 +4,7 @@ import { RouterModule, Router } from '@angular/router';
 import { Auth } from '../../services/auth';
 import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef } from '@angular/core';
-
+import { normalizeImage } from '../../core/utils/image';
 
 @Component({
   selector: 'app-login',
@@ -55,6 +55,7 @@ export class Login {
       this.auth.saveToken(res.access_token);
 
       this.auth.getMe().subscribe((user: any) => {
+        user.profile_image = normalizeImage(user.profile_image);
         this.auth.saveUser(user);
         this.router.navigate(['/home']);
       });
@@ -74,4 +75,5 @@ export class Login {
     }
   });
 }
+
 }

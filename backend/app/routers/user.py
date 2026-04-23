@@ -18,6 +18,8 @@ UPLOAD_DIR = "uploads"
 def get_me(user: User = Depends(get_current_user)):
     return user
 
+DEFAULT_IMAGE = "/uploads/default.png"
+
 @router.post("/upload-profile-picture")
 def upload_profile_picture(
     file: UploadFile = File(...),
@@ -29,9 +31,9 @@ def upload_profile_picture(
 
     os.makedirs(UPLOAD_DIR, exist_ok=True)
 
-    # 🔴 DELETE OLD IMAGE
-    if user.profile_image:
-        old_path = user.profile_image.lstrip("/")  # remove leading /
+    # 🔴 DELETE OLD IMAGE (except default)
+    if user.profile_image and user.profile_image != DEFAULT_IMAGE:
+        old_path = user.profile_image.lstrip("/")
         if os.path.exists(old_path):
             os.remove(old_path)
 

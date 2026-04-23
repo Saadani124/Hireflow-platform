@@ -17,7 +17,6 @@ import { ReactiveFormsModule, FormBuilder, Validators, FormGroup } from '@angula
   styleUrls: ['./client-dashboard.css']
 })
 export class ClientDashboard implements OnInit {
-  
 
   user: any = null;
 
@@ -49,9 +48,19 @@ export class ClientDashboard implements OnInit {
   toastMessage = '';
   toastType: 'success' | 'error' = 'success';
 
-  
   profileForm!: FormGroup;
-  
+
+  editMode = false;
+
+  imageMenu = false;
+  menuX = 0;
+  menuY = 0;
+
+  viewModal = false;
+
+  // =========================
+  // CONSTRUCTOR
+  // =========================
 
   constructor(
     private jobService: JobService,
@@ -68,18 +77,17 @@ export class ClientDashboard implements OnInit {
     });
   }
 
-
-  
-
-  
+  // =========================
+  // INIT
+  // =========================
 
   ngOnInit() {
-
     this.user = this.auth.getUser();
 
-    if (this.user && this.user.profile_image) {
-      this.user.profile_image =
-        'http://localhost:8000' + this.user.profile_image;
+    // Normalize image URL once on load — handles both raw relative paths and
+    // already-prefixed URLs stored in localStorage
+    if (this.user?.profile_image) {
+      this.user.profile_image = this.normalizeImageUrl(this.user.profile_image);
     }
 
     this.route.queryParams.subscribe(params => {
@@ -91,10 +99,25 @@ export class ClientDashboard implements OnInit {
     this.profileForm.patchValue({
       name: this.user.name,
       email: this.user.email
-      });
-      document.addEventListener('click', () => {
-        this.imageMenu = false;
-      });
+    });
+
+    // Close menus when clicking anywhere on the page
+    document.addEventListener('click', () => {
+      this.imageMenu = false;
+      this.menuOpen = false;
+      this.cdr.detectChanges();
+    });
+  }
+
+  // =========================
+  // HELPERS
+  // =========================
+
+  private normalizeImageUrl(url: string): string {
+    if (!url) return '';
+    // Strip any existing prefix first, then re-apply — idempotent no matter how many times called
+    const path = url.replace('http://localhost:8000', '');
+    return 'http://localhost:8000' + path;
   }
 
   // =========================
@@ -125,6 +148,20 @@ export class ClientDashboard implements OnInit {
     });
   }
 
+  completeJob(id: number) {
+    this.jobService.completeJob(id).subscribe({
+      next: () => {
+        this.showToast('Job completed', 'success');
+        this.loadJobs();
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.showToast(err.error?.detail || 'Error', 'error');
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
   // =========================
   // PROPOSALS
   // =========================
@@ -133,9 +170,7 @@ export class ClientDashboard implements OnInit {
     this.proposalsLoading = true;
 
     const jobs = this.myJobs.filter(j => j.status === 'open' || j.status === 'in_progress');
-
     const results: any[] = [];
-
     let count = 0;
 
     if (jobs.length === 0) {
@@ -149,7 +184,6 @@ export class ClientDashboard implements OnInit {
       this.proposalService.getByJob(job.id).subscribe({
         next: (proposals: any[]) => {
           results.push({ job, proposals });
-
           count++;
 
           if (count === jobs.length) {
@@ -180,41 +214,6 @@ export class ClientDashboard implements OnInit {
     });
   }
 
-  completeJob(id: number) {
-    this.jobService.completeJob(id).subscribe({
-      next: () => {
-        this.showToast('Job completed', 'success');
-        this.loadJobs();
-        this.cdr.detectChanges();
-      },
-      error: (err) => {
-        this.showToast(err.error?.detail || 'Error', 'error');
-        this.cdr.detectChanges();
-      }
-    });
-  }
-
-  // =========================
-  // UI
-  // =========================
-
-  toggleMenu() {
-    this.menuOpen = !this.menuOpen;
-  }
-
-  showSection(section: string) {
-    this.activeSection = section;
-    this.menuOpen = false;
-  }
-
-  logout() {
-    localStorage.clear();
-    window.location.href = '/login';
-  }
-  goHome(){
-    this.router.navigate(['/home']);
-    return;
-  }
   // =========================
   // POST JOB MODAL
   // =========================
@@ -234,7 +233,6 @@ export class ClientDashboard implements OnInit {
   }
 
   submitJob() {
-
     if (!this.newJob.title || !this.newJob.description || !this.newJob.budget || !this.newJob.category) {
       this.showToast('Fill all fields', 'error');
       return;
@@ -248,7 +246,6 @@ export class ClientDashboard implements OnInit {
         this.closePostModal();
         this.loadJobs();
         this.showToast('Job created', 'success');
-
         this.newJob = { title: '', description: '', budget: 0, category: '' };
         this.cdr.detectChanges();
       },
@@ -264,17 +261,110 @@ export class ClientDashboard implements OnInit {
   // PROFILE
   // =========================
 
+  toggleEdit() {
+    this.editMode = !this.editMode;
+
+    if (this.editMode) {
+      this.profileForm.patchValue({
+        name: this.user.name,
+        email: this.user.email
+      });
+    }
+  }
+
+  saveProfile() {
+    if (this.profileForm.invalid) return;
+
+    const existingImage = this.user.profile_image;
+
+    this.auth.updateProfile(this.profileForm.value).subscribe({
+      next: (updatedUser: any) => {
+        this.user = updatedUser;
+
+        // API may or may not return profile_image — preserve existing if absent
+        this.user.profile_image = updatedUser.profile_image
+          ? this.normalizeImageUrl(updatedUser.profile_image)
+          : existingImage;
+
+        localStorage.setItem('user', JSON.stringify(this.user));
+        this.editMode = false;
+        this.showToast('Profile updated', 'success');
+        this.cdr.detectChanges();
+      },
+      error: (err: any) => {
+        console.log(err);
+      }
+    });
+  }
+
   uploadAvatar(event: any) {
     const file = event.target.files[0];
     if (!file) return;
 
     this.auth.uploadProfilePicture(file).subscribe({
       next: (res: any) => {
-        this.user.profile_image = 'http://localhost:8000' + res.image_url;
-        this.showToast('Profile updated', 'success');
+        this.user.profile_image = this.normalizeImageUrl(res.image_url);
+        localStorage.setItem('user', JSON.stringify(this.user));
+        this.showToast('Profile picture updated', 'success');
         this.cdr.detectChanges();
       }
     });
+  }
+
+  // =========================
+  // IMAGE MENU
+  // =========================
+
+  onImageClick(event: MouseEvent) {
+    event.stopPropagation();
+    this.imageMenu = true;
+    this.menuX = event.clientX + window.scrollX;
+    this.menuY = event.clientY + window.scrollY;
+  }
+
+  closeImageMenu() {
+    this.imageMenu = false;
+  }
+
+  triggerUpload() {
+    this.imageMenu = false;
+    document.getElementById('fileInput')?.click();
+  }
+
+  // =========================
+  // VIEW PHOTO MODAL
+  // =========================
+
+  viewPhoto() {
+    this.viewModal = true;
+    this.imageMenu = false;
+  }
+
+  closeView() {
+    this.viewModal = false;
+  }
+
+  // =========================
+  // UI / NAVIGATION
+  // =========================
+
+  toggleMenu(event: MouseEvent) {
+    event.stopPropagation();
+    this.menuOpen = !this.menuOpen;
+  }
+
+  showSection(section: string) {
+    this.activeSection = section;
+    this.menuOpen = false;
+  }
+
+  goHome() {
+    this.router.navigate(['/home']);
+  }
+
+  logout() {
+    localStorage.clear();
+    window.location.href = '/login';
   }
 
   // =========================
@@ -288,75 +378,9 @@ export class ClientDashboard implements OnInit {
 
     setTimeout(() => {
       this.toastVisible = false;
+      this.cdr.detectChanges();
     }, 2500);
+
     this.cdr.detectChanges();
   }
-
-
-  //=========================
-  // EDIT
-  //========================
-  editMode = false;
-  
-
-
-  toggleEdit() {
-    this.editMode = !this.editMode;
-
-    if (this.editMode) {
-      this.profileForm.patchValue({
-        name: this.user.name,
-        email: this.user.email
-      });
-    }
-  }
-  saveProfile() {
-
-  if (this.profileForm.invalid) return;
-
-      this.auth.updateProfile(this.profileForm.value).subscribe({
-        next: (updatedUser: any) => {
-          this.user = updatedUser;
-          localStorage.setItem('user', JSON.stringify(updatedUser));
-          this.editMode = false;
-
-          this.showToast('Profile updated', 'success');
-          this.cdr.detectChanges();
-        },
-        error: (err: any) => {
-          console.log(err);
-        }
-      });
-  }
-  imageMenu = false;
-  menuX = 0;
-  menuY = 0;
-  onImageClick(event: MouseEvent) {
-    event.stopPropagation();
-
-    this.imageMenu = true;
-    this.menuX = event.clientX + window.scrollX;
-    this.menuY = event.clientY + window.scrollY;
-  }
-  closeImageMenu() {
-    this.imageMenu = false;
-  }
-
-  //=========================
-  //VIEW PHOTO
-  //==========================
-  viewModal = false;
-
-  viewPhoto() {
-    this.viewModal = true;
-    this.imageMenu = false;
-  }
-
-  closeView() {
-    this.viewModal = false;
-  }
-  triggerUpload() {
-  this.imageMenu = false;
-  document.getElementById('fileInput')?.click();
-}
 }
