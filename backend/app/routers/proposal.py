@@ -62,7 +62,33 @@ def update_proposal(proposal_id: int,
     db.commit()
     db.refresh(proposal)
     return proposal
+#rejection 
+@router.post("/reject/{proposal_id}")
+def reject_proposal(
+    proposal_id: int,
+    db: Session = Depends(get_db),
+    user = Depends(get_current_client)
+):
+    proposal = db.query(Proposal).filter(Proposal.id == proposal_id).first()
+    if not proposal:
+        raise HTTPException(status_code=404, detail="Proposal not found")
 
+    job = db.query(Job).filter(Job.id == proposal.job_id).first()
+    if not job:
+        raise HTTPException(status_code=404, detail="Job not found")
+
+    if job.client_id != user.id:
+        raise HTTPException(status_code=403, detail="Not your job")
+
+    if proposal.status != "pending":
+        raise HTTPException(status_code=400, detail="Already processed")
+
+    proposal.status = "rejected"
+
+    db.commit()
+    db.refresh(proposal)
+
+    return {"message": "Proposal rejected"}
 #acceptation
 @router.post("/accept/{proposal_id}")
 def accept_proposal(proposal_id: int,

@@ -213,7 +213,19 @@ export class ClientDashboard implements OnInit {
       }
     });
   }
-
+  rejectProposal(id: number) {
+  this.proposalService.reject(id).subscribe({
+    next: () => {
+      this.showToast('Proposal rejected', 'success');
+      this.loadJobs();
+      this.cdr.detectChanges();
+    },
+    error: (err) => {
+      this.showToast(err.error?.detail || 'Error', 'error');
+      this.cdr.detectChanges();
+    }
+  });
+}
   // =========================
   // POST JOB MODAL
   // =========================

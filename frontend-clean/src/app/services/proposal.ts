@@ -20,7 +20,9 @@ export class ProposalService {
   getByJob(jobId: number) {
     return this.http.get<any[]>(`http://localhost:8000/proposals/job/${jobId}`);
   }
-
+  reject(id: number) {
+    return this.http.post(`http://localhost:8000/proposals/reject/${id}`, {});
+  }
   accept(id: number) {
     return this.http.post(`http://localhost:8000/proposals/accept/${id}`, {});
   }

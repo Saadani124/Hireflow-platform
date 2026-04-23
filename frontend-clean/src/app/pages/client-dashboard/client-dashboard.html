@@ -271,6 +271,13 @@
                 (click)="acceptProposal(p.id)">
                 <span class="material-symbols-outlined">check</span> Accept
               </button>
+              <button
+                *ngIf="p.status === 'pending' && item.job.status === 'open'"
+                class="btn btn-danger btn-sm"
+                (click)="rejectProposal(p.id)">
+                <span class="material-symbols-outlined">close</span>
+                Reject
+              </button>
             </div>
           </div>
         </div>
