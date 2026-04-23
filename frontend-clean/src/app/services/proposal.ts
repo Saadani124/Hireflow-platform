@@ -24,4 +24,13 @@ export class ProposalService {
   accept(id: number) {
     return this.http.post(`http://localhost:8000/proposals/accept/${id}`, {});
   }
+  delete(id: number){
+    return this.http.delete(`http://localhost:8000/proposals/${id}`)
+  }
+  getMine(){
+    return this.http.get<any[]>('http://localhost:8000/proposals/me');
+  }
+  update(id: number, data: any) {
+    return this.http.put(`http://localhost:8000/proposals/${id}`, data);
+  }
 }

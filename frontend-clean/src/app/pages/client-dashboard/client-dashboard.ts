@@ -101,7 +101,6 @@ export class ClientDashboard implements OnInit {
       name: this.user.name,
       email: this.user.email
     });
-
     // Close menus when clicking anywhere on the page
     document.addEventListener('click', () => {
       this.imageMenu = false;

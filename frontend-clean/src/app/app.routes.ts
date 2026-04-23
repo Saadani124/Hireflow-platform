@@ -6,6 +6,7 @@ import { Home } from './pages/home/home';
 import { Profile } from './pages/profile/profile';
 import { ClientDashboard } from './pages/client-dashboard/client-dashboard';
 import { authGuard } from './core/guards/auth-guard';
+import { FreelancerDashboardComponent }from './pages/freelancer-dashboard/freelancer-dashboard';
 
 export const routes: Routes = [
   { path: '', component: Welcome },
@@ -16,6 +17,6 @@ export const routes: Routes = [
   { path: 'home', component: Home, canActivate: [authGuard] },
   { path: 'profile', component: Profile, canActivate: [authGuard] },
   { path: 'ClientDashboard', component: ClientDashboard, canActivate: [authGuard] },
-
+  { path : 'FreelancerDashboard', component: FreelancerDashboardComponent , canActivate:[authGuard]},
   { path: '', redirectTo: 'login', pathMatch: 'full' }
 ];

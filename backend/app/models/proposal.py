@@ -9,11 +9,12 @@ class Proposal(Base):
 
     id=Column(Integer,primary_key=True,index=True)
     job_id=Column(Integer,ForeignKey("jobs.id"),nullable=False)
+    job = relationship("Job")
     freelancer_id=Column(Integer,ForeignKey("users.id"),nullable=False)
     freelancer = relationship("User")
     message = Column(String(255), nullable=False)
     price=Column(Integer,nullable=False)
-
+    
     status = Column(String(50), default="pending")
     created_at=Column(DateTime,default=datetime.utcnow)
     

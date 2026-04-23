@@ -133,9 +133,12 @@ def delete_proposal(proposal_id: int, db: Session=Depends(get_db), user=Depends(
     return {"message":"Proposal deleted"}
 
 #freelancer consulte ses proposals
-@router.get("/me")
+@router.get("/me", response_model=list[ProposalResponse])
 def getmy_proposals(db:Session=Depends(get_db),
                     user=Depends(get_current_freelancer)):
 
-    proposals=db.query(Proposal).filter(Proposal.freelancer_id==user.id).all()
+    proposals=db.query(Proposal)\
+    .options(joinedload(Proposal.job))\
+    .filter(Proposal.freelancer_id == user.id)\
+    .all()
     return proposals

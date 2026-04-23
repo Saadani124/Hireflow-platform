@@ -265,7 +265,7 @@ export class Home implements OnInit {
     }
 
     else if (user.role === 'freelancer') {
-      this.router.navigate(['/freelancer-dashboard'], {
+      this.router.navigate(['/FreelancerDashboard'], {
         queryParams: { section: 'profile' }
       });
     }
@@ -289,7 +289,7 @@ export class Home implements OnInit {
     }
 
     else if (user.role === 'freelancer') {
-      this.router.navigate(['/freelancer-dashboard']); // future
+      this.router.navigate(['/FreelancerDashboard']); // future
     }
   }
   logout() {

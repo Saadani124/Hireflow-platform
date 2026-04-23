@@ -13,7 +13,12 @@ class UserMini(BaseModel):
 
     class Config:
         orm_mode = True
+class JobMini(BaseModel):
+    id: int
+    title: str
 
+    class Config:
+        orm_mode = True
 #bch nhasno l response mtaa l API
 class ProposalResponse(BaseModel):
     id: int
@@ -23,7 +28,7 @@ class ProposalResponse(BaseModel):
     status: str
 
     freelancer: UserMini  #REPLACE freelancer_id
-
+    job: JobMini
     class Config:
         orm_mode = True
 
