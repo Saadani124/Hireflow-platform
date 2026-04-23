@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session ,joinedload
 
 from app.db.session import get_db
 from app.models.proposal import Proposal
@@ -101,7 +101,7 @@ def accept_proposal(proposal_id: int,
     }
 
 # client consulte les propositions(chatgpt)
-@router.get("/job/{job_id}")
+@router.get("/job/{job_id}", response_model=list[ProposalResponse])
 def get_job_proposals(job_id: int,
                       db: Session=Depends(get_db),
                       user=Depends(get_current_client)):
@@ -112,7 +112,10 @@ def get_job_proposals(job_id: int,
     if job.client_id!=user.id:
         raise HTTPException(status_code=403,detail="Not your job")
 
-    proposals = db.query(Proposal).filter(Proposal.job_id==job_id).all()
+    proposals = db.query(Proposal)\
+.options(joinedload(Proposal.freelancer))\
+.filter(Proposal.job_id == job_id)\
+.all()
     return proposals
 
 #suppression (claude)

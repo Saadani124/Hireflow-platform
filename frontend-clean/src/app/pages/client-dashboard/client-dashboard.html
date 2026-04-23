@@ -245,10 +245,17 @@
 
         <div *ngFor="let p of item.proposals" class="proposal-card">
           <div class="proposal-avatar">
-            <span class="material-symbols-outlined">person</span>
+            <img
+                [src]="normalizeImage(p.freelancer?.profile_image)"
+                class="avatar-sm"
+              />
           </div>
           <div class="proposal-info">
-            <div class="proposal-name">Freelancer #{{ p.freelancer_id }}</div>
+            <div class="freelancer-info">
+              
+
+              <strong>{{ p.freelancer?.name }}</strong>
+            </div>
             <div class="proposal-meta">Proposed price: <strong>{{ p.price }} TND</strong></div>
             <div class="proposal-message">{{ p.message }}</div>
             <div style="display:flex; align-items:center; gap:10px; margin-top:10px">

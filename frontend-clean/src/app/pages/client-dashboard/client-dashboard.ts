@@ -8,6 +8,7 @@ import { Auth } from '../../services/auth';
 import { ActivatedRoute } from '@angular/router';
 import { Router } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, Validators, FormGroup } from '@angular/forms';
+import { normalizeImage } from '../../core/utils/image';
 
 @Component({
   selector: 'app-client-dashboard',
@@ -57,7 +58,7 @@ export class ClientDashboard implements OnInit {
   menuY = 0;
 
   viewModal = false;
-
+  normalizeImage = normalizeImage;
   // =========================
   // CONSTRUCTOR
   // =========================
