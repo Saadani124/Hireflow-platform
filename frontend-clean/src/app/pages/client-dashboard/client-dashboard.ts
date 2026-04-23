@@ -7,15 +7,17 @@ import { ProposalService } from '../../services/proposal';
 import { Auth } from '../../services/auth';
 import { ActivatedRoute } from '@angular/router';
 import { Router } from '@angular/router';
+import { ReactiveFormsModule, FormBuilder, Validators, FormGroup } from '@angular/forms';
 
 @Component({
   selector: 'app-client-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule],
   templateUrl: './client-dashboard.html',
   styleUrls: ['./client-dashboard.css']
 })
 export class ClientDashboard implements OnInit {
+  
 
   user: any = null;
 
@@ -47,14 +49,29 @@ export class ClientDashboard implements OnInit {
   toastMessage = '';
   toastType: 'success' | 'error' = 'success';
 
+  
+  profileForm!: FormGroup;
+  
+
   constructor(
     private jobService: JobService,
     private proposalService: ProposalService,
+    private fb: FormBuilder,
     private auth: Auth,
     private router: Router,
     private cdr: ChangeDetectorRef,
     private route: ActivatedRoute
-  ) {}
+  ) {
+    this.profileForm = this.fb.group({
+      name: ['', [Validators.required, Validators.minLength(3)]],
+      email: ['', [Validators.required, Validators.email]]
+    });
+  }
+
+
+  
+
+  
 
   ngOnInit() {
 
@@ -70,6 +87,14 @@ export class ClientDashboard implements OnInit {
     });
 
     this.loadJobs();
+
+    this.profileForm.patchValue({
+      name: this.user.name,
+      email: this.user.email
+      });
+      document.addEventListener('click', () => {
+        this.imageMenu = false;
+      });
   }
 
   // =========================
@@ -266,4 +291,72 @@ export class ClientDashboard implements OnInit {
     }, 2500);
     this.cdr.detectChanges();
   }
+
+
+  //=========================
+  // EDIT
+  //========================
+  editMode = false;
+  
+
+
+  toggleEdit() {
+    this.editMode = !this.editMode;
+
+    if (this.editMode) {
+      this.profileForm.patchValue({
+        name: this.user.name,
+        email: this.user.email
+      });
+    }
+  }
+  saveProfile() {
+
+  if (this.profileForm.invalid) return;
+
+      this.auth.updateProfile(this.profileForm.value).subscribe({
+        next: (updatedUser: any) => {
+          this.user = updatedUser;
+          localStorage.setItem('user', JSON.stringify(updatedUser));
+          this.editMode = false;
+
+          this.showToast('Profile updated', 'success');
+          this.cdr.detectChanges();
+        },
+        error: (err: any) => {
+          console.log(err);
+        }
+      });
+  }
+  imageMenu = false;
+  menuX = 0;
+  menuY = 0;
+  onImageClick(event: MouseEvent) {
+    event.stopPropagation();
+
+    this.imageMenu = true;
+    this.menuX = event.clientX + window.scrollX;
+    this.menuY = event.clientY + window.scrollY;
+  }
+  closeImageMenu() {
+    this.imageMenu = false;
+  }
+
+  //=========================
+  //VIEW PHOTO
+  //==========================
+  viewModal = false;
+
+  viewPhoto() {
+    this.viewModal = true;
+    this.imageMenu = false;
+  }
+
+  closeView() {
+    this.viewModal = false;
+  }
+  triggerUpload() {
+  this.imageMenu = false;
+  document.getElementById('fileInput')?.click();
+}
 }

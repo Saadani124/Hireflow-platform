@@ -55,4 +55,10 @@ export class Auth {
       formData
     );
   }
+  updateProfile(data: any) {
+    return this.http.put(
+      'http://localhost:8000/users/me',
+      data
+    );
+  }
 }

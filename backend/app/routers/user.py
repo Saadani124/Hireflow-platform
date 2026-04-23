@@ -7,6 +7,8 @@ from uuid import uuid4
 from app.db.session import get_db
 from app.models.user import User
 from app.core.dependencies import get_current_user
+from app.schemas.user import UpdateProfileRequest
+
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
@@ -50,3 +52,27 @@ def upload_profile_picture(
         "message": "Profile picture updated",
         "image_url": user.profile_image
     }
+
+@router.put("/me")
+def update_profile(
+    data: UpdateProfileRequest,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user)
+):
+    # 🔴 CHECK EMAIL UNIQUE
+    existing = db.query(User).filter(
+        User.email == data.email,
+        User.id != user.id
+    ).first()
+
+    if existing:
+        raise HTTPException(status_code=400, detail="Email already in use")
+
+    # 🔴 UPDATE FIELDS
+    user.name = data.name
+    user.email = data.email
+
+    db.commit()
+    db.refresh(user)
+
+    return user
