@@ -136,19 +136,12 @@
                 <td>{{ job.category }}</td>
                 <td><strong>{{ job.budget }} TND</strong></td>
                 <td><ng-container [ngTemplateOutlet]="statusBadge" [ngTemplateOutletContext]="{status: job.status}"></ng-container></td>
-                <td id="action">
+                <td>
                   <button *ngIf="job.status === 'open'" class="btn btn-teal btn-sm" (click)="showSection('proposals')">
                     <span class="material-symbols-outlined">description</span> Proposals
                   </button>
                   <button *ngIf="job.status === 'in_progress'" class="btn btn-success btn-sm" (click)="completeJob(job.id)">
                     <span class="material-symbols-outlined">check</span> Mark as Complete
-                  </button>
-                  <button
-                    *ngIf="job.status === 'open'"
-                    class="btn btn-danger btn-sm"
-                    (click)="deleteJobC(job.id)">
-                    <span class="material-symbols-outlined">delete</span>
-                    Delete
                   </button>
                 </td>
               </tr>
@@ -206,12 +199,19 @@
                 <td>{{ job.category }}</td>
                 <td><strong>{{ job.budget }} TND</strong></td>
                 <td><ng-container [ngTemplateOutlet]="statusBadge" [ngTemplateOutletContext]="{status: job.status}"></ng-container></td>
-                <td>
+                <td id="action">
                   <button *ngIf="job.status === 'open'" class="btn btn-teal btn-sm" (click)="showSection('proposals')">
                     <span class="material-symbols-outlined">description</span> Proposals
                   </button>
                   <button *ngIf="job.status === 'in_progress'" class="btn btn-complete btn-sm" (click)="completeJob(job.id)">
                     <span class="material-symbols-outlined">check</span> Complete
+                  </button>
+                  <button
+                    *ngIf="job.status === 'open'"
+                    class="btn btn-danger btn-sm"
+                    (click)="deleteJobC(job.id)">
+                    <span class="material-symbols-outlined">delete</span>
+                    Delete
                   </button>
                 </td>
               </tr>
