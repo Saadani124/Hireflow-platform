@@ -116,12 +116,14 @@ export class FreelancerDashboardComponent implements OnInit {
     this.applyingJob = { id: p.job_id, title: p.job?.title || 'Untitled Job' };
     this.proposalForm = { message: p.message, price: p.price };
     this.applyModalOpen = true;
+    this.cdr.detectChanges();
   }
 
   closeApplyModal() {
     this.applyModalOpen = false;
     this.applyingJob = null;
     this.editingProposal = null;
+    this.cdr.detectChanges();
   }
 
   submitProposal() {
@@ -142,6 +144,7 @@ export class FreelancerDashboardComponent implements OnInit {
         this.submittingProposal = false;
         this.closeApplyModal();
         this.loadProposals();
+        this.cdr.detectChanges();
       },
       error: (err: any) => {
         this.showToast(err?.error?.detail || 'Operation failed', 'error');
@@ -155,6 +158,7 @@ export class FreelancerDashboardComponent implements OnInit {
       next: () => {
         this.showToast('Application withdrawn.', 'success');
         this.loadProposals();
+        this.cdr.detectChanges();
       },
       error: () => this.showToast('Could not withdraw', 'error')
     });
@@ -203,6 +207,7 @@ export class FreelancerDashboardComponent implements OnInit {
           localStorage.setItem('user', JSON.stringify(freshUser));
           this.loadProposals();
           this.showToast('Profile picture updated!', 'success');
+          this.cdr.detectChanges();
         });
       },
       error: () => this.showToast('Upload failed', 'error')
