@@ -161,7 +161,20 @@ export class ClientDashboard implements OnInit {
       }
     });
   }
+  deleteJobC(id: number) {
 
+      if (!confirm('Are you sure you want to delete this job?')) return;
+
+      this.jobService.deleteJob(id).subscribe({
+        next: () => {
+          this.showToast('Job deleted', 'success');
+          this.loadJobs(); // 🔴 refresh list
+        },
+        error: (err: any) => {
+          this.showToast(err.error?.detail || 'Error', 'error');
+        }
+      });
+    }
   // =========================
   // PROPOSALS
   // =========================

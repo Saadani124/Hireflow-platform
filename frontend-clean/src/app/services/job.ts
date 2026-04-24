@@ -25,4 +25,7 @@ export class JobService {
   completeJob(id: number) {
     return this.http.post(`http://localhost:8000/jobs/complete/${id}`, {});
   }
+  deleteJobC(id: number) {
+    return this.http.delete(`http://localhost:8000/jobs/${id}`);
+  }
 }

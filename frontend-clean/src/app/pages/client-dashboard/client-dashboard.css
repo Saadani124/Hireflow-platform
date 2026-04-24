@@ -291,7 +291,7 @@ cursor: pointer;
 
 /* ========= TABLE ========= */
 .table-wrap { overflow-x: auto; }
-table { width: 100%; border-collapse: collapse; }
+table { width: 100%; border-collapse: collapse;}
 th {
   text-align: left;
   font-size: 12px;
@@ -306,7 +306,14 @@ td {
   font-size: 14px;
   border-top: 1px solid rgba(195, 198, 215, 0.3);
   vertical-align: middle;
-  color: #191c1e;
+  color: #191c1e;  
+}
+#action{
+  display: flex;
+  justify-content: space-evenly;
+}
+thead * ,tbody *{
+text-align: center;
 }
 tr:hover td { background: #f2f4f6; }
 
@@ -353,6 +360,7 @@ tr:hover td { background: #f2f4f6; }
 .btn-teal { background: #ccf0f4; color: #005e6e; }
 .btn-teal:hover { background: #b3e8ee; }
 .btn-complete { background: #e0f2fe; color: #0369a1; }
+.btn-success { background: #c7ffd7; color: #03a11b; }
 .btn-complete:hover { background: #bae6fd; }
 .btn-sm { padding: 6px 12px; font-size: 12px; }
 .btn .material-symbols-outlined { font-size: 16px; cursor: pointer;}

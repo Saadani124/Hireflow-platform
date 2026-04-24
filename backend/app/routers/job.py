@@ -7,6 +7,7 @@ from app.models.job import Job
 from app.schemas.job import JobCreate
 from app.schemas.job import JobResponse
 from app.models.proposal import Proposal
+from app.models.user import User
 
 from app.core.dependencies import get_current_client,get_current_freelancer,get_current_user
 
@@ -102,3 +103,25 @@ def delete_job(job_id: int,
     db.commit()
 
     return {"message": "Job and related proposals deleted"}
+
+@router.delete("/{job_id}")
+def delete_job(
+    job_id: int,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_client)
+):
+    job = db.query(Job).filter(Job.id == job_id).first()
+
+    if not job:
+        raise HTTPException(status_code=404, detail="Job not found")
+
+    if job.client_id != user.id:
+        raise HTTPException(status_code=403, detail="Not your job")
+
+    if job.status != "open":
+        raise HTTPException(status_code=400, detail="Cannot delete this job")
+
+    db.delete(job)
+    db.commit()
+
+    return {"message": "Job deleted"}
