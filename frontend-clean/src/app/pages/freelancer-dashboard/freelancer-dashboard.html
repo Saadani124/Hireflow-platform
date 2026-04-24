@@ -254,9 +254,9 @@
       <button class="btn btn-primary" (click)="submitProposal()" [disabled]="submittingProposal">
         <span class="material-symbols-outlined">send</span>
         {{ submittingProposal 
-    ? (editingProposal ? 'Updating...' : 'Submitting...') 
-    : (editingProposal ? 'Update' : 'Submit') 
-}}
+            ? (editingProposal ? 'Updating...' : 'Submitting...') 
+            : (editingProposal ? 'Update' : 'Submit') 
+        }}
       </button>
     </div>
   </div>
