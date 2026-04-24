@@ -265,6 +265,7 @@ cursor: pointer;
   font-size: 30px;
   font-weight: 700;
   color: #191c1e;
+  margin-left :10px;
 }
 .stat-label { font-size: 13px; color: #434655; margin-top: 2px; }
 
