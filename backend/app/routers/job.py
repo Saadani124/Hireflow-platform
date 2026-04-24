@@ -6,6 +6,7 @@ from app.db.session import get_db
 from app.models.job import Job
 from app.schemas.job import JobCreate
 from app.schemas.job import JobResponse
+from app.models.proposal import Proposal
 
 from app.core.dependencies import get_current_client,get_current_freelancer,get_current_user
 
@@ -81,3 +82,23 @@ def get_open_jobs(db: Session=Depends(get_db),
 
     jobs=db.query(Job).filter(Job.status=="open").all()
     return jobs
+
+
+#delete job
+@router.delete("/jobs/{job_id}")
+def delete_job(job_id: int,
+               db: Session = Depends(get_db),
+               user=Depends(get_current_client)):
+
+    job = db.query(Job).filter(Job.id == job_id).first()
+
+    if not job:
+        raise HTTPException(status_code=404, detail="Job not found")
+
+    # DELETE RELATED PROPOSALS FIRST
+    db.query(Proposal).filter(Proposal.job_id == job_id).delete()
+
+    db.delete(job)
+    db.commit()
+
+    return {"message": "Job and related proposals deleted"}
