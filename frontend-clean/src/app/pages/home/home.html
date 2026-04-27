@@ -53,25 +53,28 @@
     
     <!-- PRICE FILTER -->
     <div class="filter-group">
-      <h4 class="filter-label">Price (TND)</h4>
-      <div class="price-inputs">
+      <div class="filter-header">
+        <h4 class="filter-label">Price Range</h4>
+        <span class="price-display">{{ minPrice ?? absoluteMinPrice }} - {{ maxPrice ?? absoluteMaxPrice }} TND</span>
+      </div>
+      
+      <div class="range-slider-container">
+        <div class="slider-track-bg"></div>
+        <div class="slider-track-fill" [ngStyle]="sliderTrackStyle"></div>
         <input 
-          type="number" 
-          [(ngModel)]="minPrice" 
-          (change)="onPriceChange()" 
+          type="range" 
           [min]="absoluteMinPrice" 
-          [max]="maxPrice || absoluteMaxPrice"
-          placeholder="Min"
-          class="price-input">
-        <span class="price-separator">-</span>
+          [max]="absoluteMaxPrice" 
+          [value]="minPrice ?? absoluteMinPrice" 
+          (input)="onMinPriceChange($event)"
+          class="range-input range-min">
         <input 
-          type="number" 
-          [(ngModel)]="maxPrice" 
-          (change)="onPriceChange()" 
-          [min]="minPrice || absoluteMinPrice" 
-          [max]="absoluteMaxPrice"
-          placeholder="Max"
-          class="price-input">
+          type="range" 
+          [min]="absoluteMinPrice" 
+          [max]="absoluteMaxPrice" 
+          [value]="maxPrice ?? absoluteMaxPrice" 
+          (input)="onMaxPriceChange($event)"
+          class="range-input range-max">
       </div>
     </div>
 
@@ -79,12 +82,18 @@
     <div class="filter-group">
       <h4 class="filter-label">Categories</h4>
       <div class="checkbox-list">
-        <label class="checkbox-label">
+        <label class="custom-checkbox">
           <input type="checkbox" [checked]="selectedCategories.length === 0" (change)="toggleCategory('All')">
+          <span class="checkmark">
+            <span class="material-symbols-outlined check-icon">check</span>
+          </span>
           <span class="checkbox-text">All Categories</span>
         </label>
-        <label class="checkbox-label" *ngFor="let cat of jobCategories">
+        <label class="custom-checkbox" *ngFor="let cat of jobCategories">
           <input type="checkbox" [checked]="selectedCategories.includes(cat)" (change)="toggleCategory(cat)">
+          <span class="checkmark">
+            <span class="material-symbols-outlined check-icon">check</span>
+          </span>
           <span class="checkbox-text">{{ cat }}</span>
         </label>
       </div>

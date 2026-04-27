@@ -163,8 +163,40 @@ export class Home implements OnInit {
     this.applyFilters();
   }
 
-  onPriceChange() {
+  onMinPriceChange(event: any) {
+    let val = Number(event.target.value);
+    if (this.maxPrice !== null && val > this.maxPrice) {
+      val = this.maxPrice;
+      event.target.value = val;
+    }
+    this.minPrice = val;
     this.applyFilters();
+  }
+
+  onMaxPriceChange(event: any) {
+    let val = Number(event.target.value);
+    if (this.minPrice !== null && val < this.minPrice) {
+      val = this.minPrice;
+      event.target.value = val;
+    }
+    this.maxPrice = val;
+    this.applyFilters();
+  }
+
+  get sliderTrackStyle() {
+    const range = this.absoluteMaxPrice - this.absoluteMinPrice;
+    if (range === 0) return { left: '0%', width: '100%' };
+
+    const currentMin = this.minPrice ?? this.absoluteMinPrice;
+    const currentMax = this.maxPrice ?? this.absoluteMaxPrice;
+
+    const minPercent = ((currentMin - this.absoluteMinPrice) / range) * 100;
+    const maxPercent = ((currentMax - this.absoluteMinPrice) / range) * 100;
+
+    return {
+      left: `${minPercent}%`,
+      width: `${maxPercent - minPercent}%`
+    };
   }
 
   toggleCategory(cat: string) {
