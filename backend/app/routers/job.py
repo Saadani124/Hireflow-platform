@@ -32,10 +32,23 @@ def create_job(data:JobCreate,
     return job
 
 #list job endpoint
-@router.get("/",response_model=list[JobResponse])
-def list_jobs(db:Session=Depends(get_db),
-                user=Depends(get_current_user)):
+@router.get("/", response_model=list[JobResponse])
+def list_jobs(db: Session = Depends(get_db),
+              user = Depends(get_current_user)):
     jobs = db.query(Job).order_by(Job.created_at.desc()).all()
+    
+    # If user is a freelancer, check which jobs they applied to
+    if user and user.role == "freelancer":
+        # Get all proposal IDs for this freelancer that are not rejected
+        applied_job_ids = db.query(Proposal.job_id).filter(
+            Proposal.freelancer_id == user.id,
+            Proposal.status != "rejected"
+        ).all()
+        applied_job_ids = {row[0] for row in applied_job_ids}
+        
+        for job in jobs:
+            job.applied = job.id in applied_job_ids
+            
     return jobs
 #client consulte ses jobs
 @router.get("/me")

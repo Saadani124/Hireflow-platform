@@ -1,0 +1,490 @@
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="navbar-inner">
+    <div style="display:flex; align-items:center; gap:12px">
+      <div (click)="goHome()" class="logo" style="cursor: pointer;">
+        Hire<span>Flow</span>
+      </div>
+      <span class="admin-badge">Admin</span>
+    </div>
+
+    <!-- RIGHT SIDE -->
+    <div class="nav-right">
+      <span class="nav-admin-name">{{ user?.name || '—' }}</span>
+      <!-- PROFILE DROPDOWN -->
+      <div class="avatar-wrap">
+        <img
+          *ngIf="user?.profile_image"
+          [src]="normalizeImage(user?.profile_image)"
+          (click)="toggleMenu($event)"
+          class="avatar"
+          alt="profile">
+        <div *ngIf="!user?.profile_image" class="avatar avatar-initials" (click)="toggleMenu($event)">
+          {{ user?.name?.charAt(0)?.toUpperCase() || 'A' }}
+        </div>
+
+        <div *ngIf="menuOpen" class="dropdown">
+          <div (click)="showSection('profile')" class="dropdown-item">
+            <span class="material-symbols-outlined">person</span>
+            Profile
+          </div>
+          <div (click)="showSection('overview')" class="dropdown-item">
+            <span class="material-symbols-outlined">dashboard</span>
+            Dashboard
+          </div>
+          <div (click)="logout()" class="dropdown-item danger">
+            <span class="material-symbols-outlined">logout</span>
+            Logout
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div class="layout">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <span class="sidebar-label">Main</span>
+    <a class="nav-item" [class.active]="activeSection === 'overview'" (click)="showSection('overview')">
+      <span class="material-symbols-outlined">dashboard</span> Overview
+    </a>
+    <a class="nav-item" [class.active]="activeSection === 'users'" (click)="showSection('users')">
+      <span class="material-symbols-outlined">group</span> Users
+    </a>
+    <a class="nav-item" [class.active]="activeSection === 'jobs'" (click)="showSection('jobs')">
+      <span class="material-symbols-outlined">work</span> Jobs
+    </a>
+    <a class="nav-item" [class.active]="activeSection === 'proposals'" (click)="showSection('proposals')">
+      <span class="material-symbols-outlined">description</span> Proposals
+    </a>
+    <a class="nav-item" [class.active]="activeSection === 'profile'" (click)="showSection('profile')">
+      <span class="material-symbols-outlined">person</span> Profile
+    </a>
+    <a class="nav-item danger" (click)="logout()" style="color:#ba1a1a; margin-top: auto;">
+      <span class="material-symbols-outlined" style="color:#ba1a1a">logout</span> Logout
+    </a>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main" [formGroup]="searchForm">
+
+    <!-- ===== OVERVIEW ===== -->
+    <section *ngIf="activeSection === 'overview'" class="page-section">
+      <div class="page-header">
+        <h1>Overview</h1>
+        <p>Platform-wide statistics and activity</p>
+      </div>
+
+      <!-- Stat Cards -->
+      <div class="stats-grid">
+        <div class="stat-card c1">
+          <div class="stat-icon blue"><span class="material-symbols-outlined">group</span></div>
+          <div class="stat-value">{{ stats?.users ?? '—' }}</div>
+          <div class="stat-label">Total Users</div>
+        </div>
+        <div class="stat-card c2">
+          <div class="stat-icon teal"><span class="material-symbols-outlined">work</span></div>
+          <div class="stat-value">{{ stats?.jobs ?? '—' }}</div>
+          <div class="stat-label">Total Jobs</div>
+        </div>
+        <div class="stat-card c3">
+          <div class="stat-icon green"><span class="material-symbols-outlined">description</span></div>
+          <div class="stat-value">{{ stats?.proposals ?? '—' }}</div>
+          <div class="stat-label">Proposals</div>
+        </div>
+        <div class="stat-card c4">
+          <div class="stat-icon orange"><span class="material-symbols-outlined">lock_open</span></div>
+          <div class="stat-value">{{ stats?.job_status?.open ?? '—' }}</div>
+          <div class="stat-label">Open Jobs</div>
+        </div>
+        <div class="stat-card c5">
+          <div class="stat-icon purple"><span class="material-symbols-outlined">pending_actions</span></div>
+          <div class="stat-value">{{ stats?.job_status?.in_progress ?? '—' }}</div>
+          <div class="stat-label">In Progress</div>
+        </div>
+        <div class="stat-card c6">
+          <div class="stat-icon pink"><span class="material-symbols-outlined">check_circle</span></div>
+          <div class="stat-value">{{ stats?.job_status?.completed ?? '—' }}</div>
+          <div class="stat-label">Completed</div>
+        </div>
+      </div>
+
+      <!-- Overview Tables -->
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px">
+        <!-- Recent Users -->
+        <div class="section-card">
+          <div class="section-card-header">
+            <span class="section-card-title">Recent Users</span>
+            <button class="btn btn-ghost" (click)="showSection('users')">View all</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>User</th><th>Role</th></tr></thead>
+              <tbody>
+                <tr *ngIf="dataLoading">
+                  <td colspan="2"><div class="empty-state"><p>Loading...</p></div></td>
+                </tr>
+                <tr *ngFor="let u of allUsers.slice(-5).reverse()">
+                  <td>
+                    <div class="user-cell">
+                      <div class="table-avatar">
+                        <img *ngIf="u.profile_image" [src]="normalizeImage(u.profile_image)" [alt]="u.name" />
+                        <span *ngIf="!u.profile_image">{{ u.name?.charAt(0)?.toUpperCase() }}</span>
+                      </div>
+                      <div>
+                        <div class="user-name">{{ u.name }}</div>
+                        <div class="user-email">{{ u.email }}</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td><ng-container [ngTemplateOutlet]="roleBadgeTpl" [ngTemplateOutletContext]="{role: u.role}"></ng-container></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Recent Jobs -->
+        <div class="section-card">
+          <div class="section-card-header">
+            <span class="section-card-title">Recent Jobs</span>
+            <button class="btn btn-ghost" (click)="showSection('jobs')">View all</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Title</th><th>Status</th></tr></thead>
+              <tbody>
+                <tr *ngIf="dataLoading">
+                  <td colspan="2"><div class="empty-state"><p>Loading...</p></div></td>
+                </tr>
+                <tr *ngFor="let j of allJobs.slice(-5).reverse()">
+                  <td>
+                    <strong style="font-size:13px">{{ j.title }}</strong><br>
+                    <span style="font-size:11px; color:var(--on-surface-variant)">{{ j.category }}</span>
+                  </td>
+                  <td><ng-container [ngTemplateOutlet]="jobStatusBadgeTpl" [ngTemplateOutletContext]="{status: j.status}"></ng-container></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== USERS ===== -->
+    <section *ngIf="activeSection === 'users'" class="page-section">
+      <div class="page-header">
+        <h1>Users</h1>
+        <p>All registered users on the platform</p>
+      </div>
+      <div class="section-card">
+        <div class="section-card-header">
+          <span class="section-card-title">Users ({{ filteredUsers.length }})</span>
+          <div class="table-search">
+            <span class="material-symbols-outlined">search</span>
+            <input type="text" formControlName="userSearch" placeholder="Search users…" />
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>User</th>
+                <th>Role</th>
+                <th>Joined</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngIf="dataLoading">
+                <td colspan="4"><div class="empty-state"><p>Loading...</p></div></td>
+              </tr>
+              <tr *ngIf="!dataLoading && filteredUsers.length === 0">
+                <td colspan="4">
+                  <div class="empty-state">
+                    <span class="material-symbols-outlined">group_off</span>
+                    <p>No users found.</p>
+                  </div>
+                </td>
+              </tr>
+              <tr *ngFor="let u of filteredUsers">
+                <td>
+                  <div class="user-cell">
+                    <div class="table-avatar">
+                      <img *ngIf="u.profile_image" [src]="normalizeImage(u.profile_image)" [alt]="u.name" />
+                      <span *ngIf="!u.profile_image">{{ u.name?.charAt(0)?.toUpperCase() }}</span>
+                    </div>
+                    <div>
+                      <div class="user-name">{{ u.name }}</div>
+                      <div class="user-email">{{ u.email }}</div>
+                    </div>
+                  </div>
+                </td>
+                <td><ng-container [ngTemplateOutlet]="roleBadgeTpl" [ngTemplateOutletContext]="{role: u.role}"></ng-container></td>
+                <td style="color:var(--on-surface-variant); font-size:12px">{{ formatDate(u.created_at) }}</td>
+                <td>
+                  <button *ngIf="u.role !== 'admin'" class="btn btn-danger btn-sm" (click)="openConfirmDeleteUser(u.id)">
+                    <span class="material-symbols-outlined">delete</span>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== JOBS ===== -->
+    <section *ngIf="activeSection === 'jobs'" class="page-section">
+      <div class="page-header">
+        <h1>Jobs</h1>
+        <p>All posted jobs on the platform</p>
+      </div>
+      <div class="section-card">
+        <div class="section-card-header">
+          <span class="section-card-title">Jobs ({{ filteredJobs.length }})</span>
+          <div class="table-search">
+            <span class="material-symbols-outlined">search</span>
+            <input type="text" formControlName="jobSearch" placeholder="Search jobs…" />
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Category</th>
+                <th>Budget</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngIf="dataLoading">
+                <td colspan="5"><div class="empty-state"><p>Loading...</p></div></td>
+              </tr>
+              <tr *ngIf="!dataLoading && filteredJobs.length === 0">
+                <td colspan="5">
+                  <div class="empty-state">
+                    <span class="material-symbols-outlined">work_off</span>
+                    <p>No jobs found.</p>
+                  </div>
+                </td>
+              </tr>
+              <tr *ngFor="let j of filteredJobs">
+                <td>
+                  <strong>{{ j.title }}</strong><br>
+                  <span style="font-size:11px; color:var(--on-surface-variant)">{{ j.description | slice:0:50 }}…</span>
+                </td>
+                <td>
+                  <span style="font-size:12px; background:rgba(0,94,110,0.08); color:var(--tertiary); padding:3px 8px; border-radius:6px; font-weight:600">
+                    {{ j.category }}
+                  </span>
+                </td>
+                <td><strong>{{ j.budget }} TND</strong></td>
+                <td><ng-container [ngTemplateOutlet]="jobStatusBadgeTpl" [ngTemplateOutletContext]="{status: j.status}"></ng-container></td>
+                <td>
+                  <button class="btn btn-danger btn-sm" (click)="openConfirmDelete(j.id)">
+                    <span class="material-symbols-outlined">delete</span> Delete
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== PROPOSALS ===== -->
+    <section *ngIf="activeSection === 'proposals'" class="page-section">
+      <div class="page-header">
+        <h1>Proposals</h1>
+        <p>All submitted proposals</p>
+      </div>
+      <div class="section-card">
+        <div class="section-card-header">
+          <span class="section-card-title">Proposals ({{ filteredProposals.length }})</span>
+          <div class="table-search">
+            <span class="material-symbols-outlined">search</span>
+            <input type="text" formControlName="proposalSearch" placeholder="Search…" />
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Job Name</th>
+                <th>Freelancer Name</th>
+                <th>Price</th>
+                <th>Status</th>
+                <th>Message</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngIf="dataLoading">
+                <td colspan="5"><div class="empty-state"><p>Loading...</p></div></td>
+              </tr>
+              <tr *ngIf="!dataLoading && filteredProposals.length === 0">
+                <td colspan="5">
+                  <div class="empty-state">
+                    <span class="material-symbols-outlined">description</span>
+                    <p>No proposals.</p>
+                  </div>
+                </td>
+              </tr>
+              <tr *ngFor="let p of filteredProposals">
+                <td>
+                  <strong style="font-size:13px">{{ p.job_title }}</strong><br>
+                  <span style="font-size:11px; color:var(--on-surface-variant)">ID: #{{ p.job_id }}</span>
+                </td>
+                <td>
+                  <div class="user-cell">
+                    <span class="user-name">{{ p.freelancer_name }}</span>
+                  </div>
+                </td>
+                <td><strong>{{ p.price }} TND</strong></td>
+                <td>
+                  <span class="badge"
+                    [class.badge-pending]="p.status === 'pending'"
+                    [class.badge-accepted]="p.status === 'accepted'"
+                    [class.badge-rejected]="p.status === 'rejected'">
+                    <span class="badge-dot"></span>
+                    {{ p.status | titlecase }}
+                  </span>
+                </td>
+                <td style="max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:12px; color:var(--on-surface-variant)">
+                  {{ p.message }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== PROFILE ===== -->
+    <section *ngIf="activeSection === 'profile'" class="page-section">
+      <div class="page-header">
+        <h1>Profile</h1>
+        <p>Your account information</p>
+      </div>
+
+      <!-- Profile card -->
+      <div class="profile-card">
+
+        <!-- Avatar -->
+        <div class="profile-avatar">
+          <img
+            [src]="user.profile_image || 'http://localhost:8000/uploads/default.png'"
+            (click)="onImageClick($event)"
+            class="avatar" />
+        </div>
+
+        <!-- Info / edit form -->
+        <div style="flex:1">
+          <ng-container *ngIf="!editMode">
+            <div class="profile-name">{{ user.name }}</div>
+            <div class="profile-meta">{{ user.email }}</div>
+          </ng-container>
+
+          <ng-container *ngIf="editMode">
+            <form [formGroup]="profileForm">
+              <div class="form-group" style="margin-bottom:12px">
+                <label class="form-label">Name</label>
+                <input formControlName="name" class="form-input" />
+              </div>
+              <div class="form-group" style="margin-bottom:12px">
+                <label class="form-label">Email</label>
+                <input formControlName="email" class="form-input" />
+              </div>
+              <button class="btn btn-primary" (click)="saveProfile()">Save</button>
+            </form>
+          </ng-container>
+
+          <div class="profile-meta" style="margin-top:6px"><strong>Role:</strong> {{ user.role }}</div>
+        </div>
+
+        <span class="material-symbols-outlined edit-icon" style="cursor: pointer;" (click)="toggleEdit()">edit</span>
+      </div>
+
+      <!-- Hidden file input -->
+      <input id="fileInput" type="file" hidden (change)="uploadAvatar($event)" />
+
+    </section>
+
+  </main>
+</div>
+
+<!-- IMAGE CONTEXT MENU -->
+<div *ngIf="imageMenu"
+     class="image-menu"
+     [style.top.px]="menuY"
+     [style.left.px]="menuX">
+  <div (click)="viewPhoto()">View photo</div>
+  <div (click)="triggerUpload()">Change photo</div>
+</div>
+
+<!-- VIEW PHOTO MODAL -->
+<div *ngIf="viewModal" class="modal-overlay open" (click)="closeView()">
+  <img [src]="user.profile_image" class="big-image" (click)="$event.stopPropagation()" />
+</div>
+
+<!-- CONFIRM DELETE MODAL -->
+<div class="modal-overlay" [class.open]="confirmModalOpen" (click)="closeConfirm()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-icon"><span class="material-symbols-outlined">delete_forever</span></div>
+    <h3>Delete this job?</h3>
+    <p>This will permanently delete the job and all its associated proposals. This action cannot be undone.</p>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" (click)="closeConfirm()">Cancel</button>
+      <button class="btn btn-danger" (click)="confirmDelete()" [disabled]="deletingJob">
+        <span class="material-symbols-outlined">delete</span>
+        {{ deletingJob ? 'Deleting...' : 'Delete' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM DELETE USER MODAL -->
+<div class="modal-overlay" [class.open]="confirmUserModalOpen" (click)="closeConfirmUser()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-icon"><span class="material-symbols-outlined">person_off</span></div>
+    <h3>Delete this user?</h3>
+    <p>This will permanently delete the user and all their associated data (jobs, proposals, etc.). This action cannot be undone.</p>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" (click)="closeConfirmUser()">Cancel</button>
+      <button class="btn btn-danger" (click)="confirmDeleteUser()" [disabled]="deletingUser">
+        <span class="material-symbols-outlined">delete</span>
+        {{ deletingUser ? 'Deleting...' : 'Delete' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" [class.show]="toastVisible" [class.success]="toastType === 'success'" [class.error]="toastType === 'error'">
+  {{ toastMessage }}
+</div>
+
+<!-- ROLE BADGE TEMPLATE -->
+<ng-template #roleBadgeTpl let-role="role">
+  <span class="badge"
+    [class.badge-client]="role === 'client'"
+    [class.badge-freelancer]="role === 'freelancer'"
+    [class.badge-admin]="role === 'admin'">
+    {{ role | titlecase }}
+  </span>
+</ng-template>
+
+<!-- JOB STATUS BADGE TEMPLATE -->
+<ng-template #jobStatusBadgeTpl let-status="status">
+  <span class="badge"
+    [class.badge-open]="status === 'open'"
+    [class.badge-in-progress]="status === 'in_progress'"
+    [class.badge-completed]="status === 'completed'"
+    [class.badge-closed]="status === 'closed'">
+    <span class="badge-dot"></span>
+    {{ status === 'in_progress' ? 'In Progress' : (status | titlecase) }}
+  </span>
+</ng-template>

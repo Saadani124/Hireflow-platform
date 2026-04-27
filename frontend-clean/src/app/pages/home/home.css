@@ -1,5 +1,5 @@
 /* ─── FONTS ─────────────────────────────────────────────── */
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&family=Syne:wght@800&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
 
 /* ─── TOKENS ─────────────────────────────────────────────── */
@@ -59,13 +59,14 @@ h1, h2, h3, h4, h5, h6 {
 
 .logo {
   cursor: pointer;
-  font-family: 'Space Grotesk', sans-serif;
-  font-weight: 700;
-  font-size: 1.4rem;
-  letter-spacing: -0.025em;
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 1.5rem;
+  letter-spacing: -0.5px;
   color: var(--on-surface);
+  text-decoration: none;
 }
-.logo span { color: var(--tertiary); }
+.logo span { color: var(--accent); }
 
 .nav-right {
   display: flex;
@@ -474,11 +475,25 @@ h1, h2, h3, h4, h5, h6 {
 }
 .apply-btn:hover { background: rgba(37, 99, 235, 0.06); }
 
-.arrow-icon {
-  font-size: 16px;
-  transition: transform 0.2s;
-}
 .apply-btn:hover .arrow-icon { transform: translateX(3px); }
+
+.applied-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #1a6b3a; /* Success green */
+  font-family: 'Manrope', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 6px 10px;
+  background: rgba(26, 107, 58, 0.08);
+  border-radius: 8px;
+}
+.applied-status .material-symbols-outlined {
+  font-size: 18px;
+}
 
 /* ─── SKELETON ───────────────────────────────────────────── */
 .skeleton-card {

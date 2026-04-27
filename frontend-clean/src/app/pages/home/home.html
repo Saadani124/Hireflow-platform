@@ -141,12 +141,17 @@
         </div>
 
         <button
-          *ngIf="user?.role === 'freelancer'"
+          *ngIf="user?.role === 'freelancer' && !job.applied"
           (click)="apply(job)"
           class="apply-btn">
           Apply Now
           <span class="material-symbols-outlined arrow-icon">arrow_forward</span>
         </button>
+
+        <div *ngIf="user?.role === 'freelancer' && job.applied" class="applied-status">
+          <span class="material-symbols-outlined">check_circle</span>
+          Applied
+        </div>
       </div>
 
     </div>

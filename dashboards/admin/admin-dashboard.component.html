@@ -1,0 +1,370 @@
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div style="display:flex; align-items:center; gap:12px">
+    <a routerLink="/" class="logo">Hire<span>Flow</span></a>
+    <span class="admin-badge">Admin</span>
+  </div>
+  <div class="nav-right">
+    <span class="nav-admin-name">{{ user?.name || '—' }}</span>
+    <div class="avatar">
+      <img *ngIf="user?.profile_image" [src]="user.profile_image" style="width:100%;height:100%;object-fit:cover;border-radius:50%" alt="avatar" />
+      <span *ngIf="!user?.profile_image" class="material-symbols-outlined">person</span>
+    </div>
+    <button class="btn btn-danger" style="font-size:12px; padding:6px 12px" (click)="logout()">
+      <span class="material-symbols-outlined" style="font-size:14px">logout</span> Logout
+    </button>
+  </div>
+</nav>
+
+<div class="layout">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <span class="sidebar-label">Main</span>
+    <div class="nav-item" [class.active]="activeSection === 'overview'" (click)="showSection('overview')" data-section="overview">
+      <span class="material-symbols-outlined">dashboard</span> Overview
+    </div>
+    <div class="nav-item" [class.active]="activeSection === 'users'" (click)="showSection('users')" data-section="users">
+      <span class="material-symbols-outlined">group</span> Users
+    </div>
+    <div class="nav-item" [class.active]="activeSection === 'jobs'" (click)="showSection('jobs')" data-section="jobs">
+      <span class="material-symbols-outlined">work</span> Jobs
+    </div>
+    <div class="nav-item" [class.active]="activeSection === 'proposals'" (click)="showSection('proposals')" data-section="proposals">
+      <span class="material-symbols-outlined">description</span> Proposals
+    </div>
+    <span class="sidebar-label">System</span>
+    <div class="nav-item danger" (click)="logout()">
+      <span class="material-symbols-outlined">logout</span> Logout
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- ===== OVERVIEW ===== -->
+    <section *ngIf="activeSection === 'overview'" class="page-section">
+      <div class="page-header">
+        <h1>Overview</h1>
+        <p>Platform-wide statistics and activity</p>
+      </div>
+
+      <!-- Stat Cards -->
+      <div class="stats-grid">
+        <div class="stat-card c1">
+          <div class="stat-icon blue"><span class="material-symbols-outlined">group</span></div>
+          <div class="stat-value">{{ stats?.users ?? '—' }}</div>
+          <div class="stat-label">Total Users</div>
+        </div>
+        <div class="stat-card c2">
+          <div class="stat-icon teal"><span class="material-symbols-outlined">work</span></div>
+          <div class="stat-value">{{ stats?.jobs ?? '—' }}</div>
+          <div class="stat-label">Total Jobs</div>
+        </div>
+        <div class="stat-card c3">
+          <div class="stat-icon green"><span class="material-symbols-outlined">description</span></div>
+          <div class="stat-value">{{ stats?.proposals ?? '—' }}</div>
+          <div class="stat-label">Proposals</div>
+        </div>
+        <div class="stat-card c4">
+          <div class="stat-icon orange"><span class="material-symbols-outlined">lock_open</span></div>
+          <div class="stat-value">{{ stats?.job_status?.open ?? '—' }}</div>
+          <div class="stat-label">Open Jobs</div>
+        </div>
+        <div class="stat-card c5">
+          <div class="stat-icon purple"><span class="material-symbols-outlined">pending_actions</span></div>
+          <div class="stat-value">{{ stats?.job_status?.in_progress ?? '—' }}</div>
+          <div class="stat-label">In Progress</div>
+        </div>
+        <div class="stat-card c6">
+          <div class="stat-icon pink"><span class="material-symbols-outlined">check_circle</span></div>
+          <div class="stat-value">{{ stats?.job_status?.completed ?? '—' }}</div>
+          <div class="stat-label">Completed</div>
+        </div>
+      </div>
+
+      <!-- Overview Tables -->
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px">
+        <!-- Recent Users -->
+        <div class="section-card">
+          <div class="section-card-header">
+            <span class="section-card-title">Recent Users</span>
+            <button class="btn btn-ghost" (click)="showSection('users')">View all</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>User</th><th>Role</th></tr></thead>
+              <tbody>
+                <tr *ngIf="dataLoading">
+                  <td colspan="2"><div class="empty-state"><p>Loading...</p></div></td>
+                </tr>
+                <tr *ngFor="let u of allUsers.slice(-5).reverse()">
+                  <td>
+                    <div class="user-cell">
+                      <div class="table-avatar">
+                        <img *ngIf="u.profile_image" [src]="resolveImage(u.profile_image)" [alt]="u.name" />
+                        <span *ngIf="!u.profile_image">{{ u.name?.charAt(0)?.toUpperCase() }}</span>
+                      </div>
+                      <div>
+                        <div class="user-name">{{ u.name }}</div>
+                        <div class="user-email">{{ u.email }}</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td><ng-container [ngTemplateOutlet]="roleBadgeTpl" [ngTemplateOutletContext]="{role: u.role}"></ng-container></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Recent Jobs -->
+        <div class="section-card">
+          <div class="section-card-header">
+            <span class="section-card-title">Recent Jobs</span>
+            <button class="btn btn-ghost" (click)="showSection('jobs')">View all</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Title</th><th>Status</th></tr></thead>
+              <tbody>
+                <tr *ngIf="dataLoading">
+                  <td colspan="2"><div class="empty-state"><p>Loading...</p></div></td>
+                </tr>
+                <tr *ngFor="let j of allJobs.slice(-5).reverse()">
+                  <td>
+                    <strong style="font-size:13px">{{ j.title }}</strong><br>
+                    <span style="font-size:11px; color:var(--on-surface-variant)">{{ j.category }}</span>
+                  </td>
+                  <td><ng-container [ngTemplateOutlet]="jobStatusBadgeTpl" [ngTemplateOutletContext]="{status: j.status}"></ng-container></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== USERS ===== -->
+    <section *ngIf="activeSection === 'users'" class="page-section">
+      <div class="page-header">
+        <h1>Users</h1>
+        <p>All registered users on the platform</p>
+      </div>
+      <div class="section-card">
+        <div class="section-card-header">
+          <span class="section-card-title">Users ({{ filteredUsers.length }})</span>
+          <div class="table-search">
+            <span class="material-symbols-outlined">search</span>
+            <input type="text" [(ngModel)]="userSearch" (ngModelChange)="filterUsers()" placeholder="Search users…" />
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>User</th>
+                <th>Role</th>
+                <th>Joined</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngIf="dataLoading">
+                <td colspan="3"><div class="empty-state"><p>Loading...</p></div></td>
+              </tr>
+              <tr *ngIf="!dataLoading && filteredUsers.length === 0">
+                <td colspan="3">
+                  <div class="empty-state">
+                    <span class="material-symbols-outlined">group_off</span>
+                    <p>No users found.</p>
+                  </div>
+                </td>
+              </tr>
+              <tr *ngFor="let u of filteredUsers">
+                <td>
+                  <div class="user-cell">
+                    <div class="table-avatar">
+                      <img *ngIf="u.profile_image" [src]="resolveImage(u.profile_image)" [alt]="u.name" />
+                      <span *ngIf="!u.profile_image">{{ u.name?.charAt(0)?.toUpperCase() }}</span>
+                    </div>
+                    <div>
+                      <div class="user-name">{{ u.name }}</div>
+                      <div class="user-email">{{ u.email }}</div>
+                    </div>
+                  </div>
+                </td>
+                <td><ng-container [ngTemplateOutlet]="roleBadgeTpl" [ngTemplateOutletContext]="{role: u.role}"></ng-container></td>
+                <td style="color:var(--on-surface-variant); font-size:12px">{{ formatDate(u.created_at) }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== JOBS ===== -->
+    <section *ngIf="activeSection === 'jobs'" class="page-section">
+      <div class="page-header">
+        <h1>Jobs</h1>
+        <p>All posted jobs on the platform</p>
+      </div>
+      <div class="section-card">
+        <div class="section-card-header">
+          <span class="section-card-title">Jobs ({{ filteredJobs.length }})</span>
+          <div class="table-search">
+            <span class="material-symbols-outlined">search</span>
+            <input type="text" [(ngModel)]="jobSearch" (ngModelChange)="filterJobs()" placeholder="Search jobs…" />
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Category</th>
+                <th>Budget</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngIf="dataLoading">
+                <td colspan="5"><div class="empty-state"><p>Loading...</p></div></td>
+              </tr>
+              <tr *ngIf="!dataLoading && filteredJobs.length === 0">
+                <td colspan="5">
+                  <div class="empty-state">
+                    <span class="material-symbols-outlined">work_off</span>
+                    <p>No jobs found.</p>
+                  </div>
+                </td>
+              </tr>
+              <tr *ngFor="let j of filteredJobs">
+                <td>
+                  <strong>{{ j.title }}</strong><br>
+                  <span style="font-size:11px; color:var(--on-surface-variant)">{{ j.description | slice:0:50 }}…</span>
+                </td>
+                <td>
+                  <span style="font-size:12px; background:rgba(0,94,110,0.08); color:var(--tertiary); padding:3px 8px; border-radius:6px; font-weight:600">
+                    {{ j.category }}
+                  </span>
+                </td>
+                <td><strong>{{ j.budget }} TND</strong></td>
+                <td><ng-container [ngTemplateOutlet]="jobStatusBadgeTpl" [ngTemplateOutletContext]="{status: j.status}"></ng-container></td>
+                <td>
+                  <button class="btn btn-danger" (click)="openConfirmDelete(j.id)">
+                    <span class="material-symbols-outlined">delete</span> Delete
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== PROPOSALS ===== -->
+    <section *ngIf="activeSection === 'proposals'" class="page-section">
+      <div class="page-header">
+        <h1>Proposals</h1>
+        <p>All submitted proposals</p>
+      </div>
+      <div class="section-card">
+        <div class="section-card-header">
+          <span class="section-card-title">Proposals ({{ filteredProposals.length }})</span>
+          <div class="table-search">
+            <span class="material-symbols-outlined">search</span>
+            <input type="text" [(ngModel)]="proposalSearch" (ngModelChange)="filterProposals()" placeholder="Search…" />
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Job ID</th>
+                <th>Freelancer ID</th>
+                <th>Price</th>
+                <th>Status</th>
+                <th>Message</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngIf="dataLoading">
+                <td colspan="5"><div class="empty-state"><p>Loading...</p></div></td>
+              </tr>
+              <tr *ngIf="!dataLoading && filteredProposals.length === 0">
+                <td colspan="5">
+                  <div class="empty-state">
+                    <span class="material-symbols-outlined">description</span>
+                    <p>No proposals.</p>
+                  </div>
+                </td>
+              </tr>
+              <tr *ngFor="let p of filteredProposals">
+                <td>
+                  <span style="font-size:12px; background:var(--surface-low); padding:3px 8px; border-radius:6px; font-weight:600">#{{ p.job_id }}</span>
+                </td>
+                <td><span style="font-size:12px; color:var(--on-surface-variant)">Freelancer #{{ p.freelancer_id }}</span></td>
+                <td><strong>{{ p.price }} TND</strong></td>
+                <td>
+                  <span class="badge"
+                    [class.badge-pending]="p.status === 'pending'"
+                    [class.badge-accepted]="p.status === 'accepted'"
+                    [class.badge-rejected]="p.status === 'rejected'">
+                    {{ p.status | titlecase }}
+                  </span>
+                </td>
+                <td style="max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:12px; color:var(--on-surface-variant)">
+                  {{ p.message }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- CONFIRM DELETE MODAL -->
+<div class="modal-overlay" [class.open]="confirmModalOpen" (click)="closeConfirm()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-icon"><span class="material-symbols-outlined">delete_forever</span></div>
+    <h3>Delete this job?</h3>
+    <p>This will permanently delete the job and all its associated proposals. This action cannot be undone.</p>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" (click)="closeConfirm()">Cancel</button>
+      <button class="btn btn-danger" (click)="confirmDelete()" [disabled]="deletingJob">
+        <span class="material-symbols-outlined">delete</span>
+        {{ deletingJob ? 'Deleting...' : 'Delete' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" [class.show]="toastVisible" [class.success]="toastType === 'success'" [class.error]="toastType === 'error'">
+  {{ toastMessage }}
+</div>
+
+<!-- ROLE BADGE TEMPLATE -->
+<ng-template #roleBadgeTpl let-role="role">
+  <span class="badge"
+    [class.badge-client]="role === 'client'"
+    [class.badge-freelancer]="role === 'freelancer'"
+    [class.badge-admin]="role === 'admin'">
+    {{ role | titlecase }}
+  </span>
+</ng-template>
+
+<!-- JOB STATUS BADGE TEMPLATE -->
+<ng-template #jobStatusBadgeTpl let-status="status">
+  <span class="badge"
+    [class.badge-open]="status === 'open'"
+    [class.badge-in-progress]="status === 'in_progress'"
+    [class.badge-completed]="status === 'completed'"
+    [class.badge-closed]="status === 'closed'">
+    <span class="badge-dot"></span>
+    {{ status === 'in_progress' ? 'In Progress' : (status | titlecase) }}
+  </span>
+</ng-template>

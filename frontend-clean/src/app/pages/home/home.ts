@@ -100,7 +100,10 @@ export class Home implements OnInit {
     this.jobService.getJobs().subscribe({
       next: (res: any[]) => {
 
-        this.jobs = res.filter(job => job.status === 'open');
+        this.jobs = res.filter(job => job.status === 'open').sort((a, b) => {
+          if (a.applied === b.applied) return 0;
+          return a.applied ? 1 : -1;
+        });
 
         this.applyFilters();
 
@@ -259,7 +262,7 @@ export class Home implements OnInit {
     }
 
     else if (user.role === 'admin') {
-      this.router.navigate(['/admin-dashboard'], {
+      this.router.navigate(['/AdminDashboard'], {
         queryParams: { section: 'profile' }
       });
     }
@@ -285,7 +288,7 @@ export class Home implements OnInit {
     }
 
     else if (user.role === 'admin') {
-      this.router.navigate(['/admin-dashboard']); // future
+      this.router.navigate(['/AdminDashboard']); // matched with routes
     }
 
     else if (user.role === 'freelancer') {
@@ -320,6 +323,12 @@ export class Home implements OnInit {
       next: () => {
         this.applyLoading = false;
         this.applySuccess = 'Application sent successfully';
+        
+        // Update local state immediately
+        if (this.selectedJob) {
+          this.selectedJob.applied = true;
+        }
+
         this.cdr.detectChanges();
         setTimeout(() => {
           this.closeModal();

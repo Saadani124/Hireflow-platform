@@ -7,6 +7,7 @@ import { Profile } from './pages/profile/profile';
 import { ClientDashboard } from './pages/client-dashboard/client-dashboard';
 import { authGuard } from './core/guards/auth-guard';
 import { FreelancerDashboardComponent }from './pages/freelancer-dashboard/freelancer-dashboard';
+import { AdminDashboardComponent } from './pages/admin-dashboard/admin-dashboard';
 import { roleGuard } from './core/guards/role-guard';
 
 export const routes: Routes = [
@@ -19,5 +20,6 @@ export const routes: Routes = [
   { path: 'profile', component: Profile, canActivate: [authGuard] },
   { path: 'ClientDashboard', component: ClientDashboard, canActivate: [roleGuard], data: { role: 'client' } },
   { path : 'FreelancerDashboard', component: FreelancerDashboardComponent , canActivate:[roleGuard], data: { role: 'freelancer' }},
+  { path: 'AdminDashboard', component: AdminDashboardComponent, canActivate:[roleGuard], data: { role: 'admin' } },
   { path: '', redirectTo: 'login', pathMatch: 'full' }
 ];

@@ -15,3 +15,4 @@ class JobResponse(BaseModel):
     budget: int
     status: str
     category: str
+    applied: bool = False
