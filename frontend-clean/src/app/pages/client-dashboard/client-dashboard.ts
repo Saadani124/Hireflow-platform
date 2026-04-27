@@ -182,7 +182,8 @@ export class ClientDashboard implements OnInit {
   loadProposals() {
     this.proposalsLoading = true;
 
-    const jobs = this.myJobs.filter(j => j.status === 'open' || j.status === 'in_progress');
+    // Include all jobs to allow sorting as requested
+    const jobs = this.myJobs;
     const results: any[] = [];
     let count = 0;
 
@@ -200,13 +201,45 @@ export class ClientDashboard implements OnInit {
           count++;
 
           if (count === jobs.length) {
-            this.activeJobsWithProposals = results;
+            // SORTING LOGIC
+            this.activeJobsWithProposals = results.sort((a, b) => {
+              const getPriority = (item: any) => {
+                const jobStatus = item.job.status;
+                const proposals = item.proposals || [];
+
+                // 1. Pending proposals (Priority 0)
+                if (proposals.some((p: any) => p.status === 'pending')) return 0;
+                
+                // 2. Rejected proposals AND open status (Priority 1)
+                if (proposals.some((p: any) => p.status === 'rejected') && jobStatus === 'open') return 1;
+
+                // 3. In Progress status (Priority 2)
+                if (jobStatus === 'in_progress') return 2;
+
+                // 4. Without proposals (Priority 3)
+                if (proposals.length === 0 && jobStatus === 'open') return 3;
+
+                // 5. Completed status (Priority 4)
+                if (jobStatus === 'completed') return 4;
+
+                return 5; // Default for anything else
+              };
+
+              return getPriority(a) - getPriority(b);
+            });
+            
+            // Apply the same sorted order to myJobs
+            this.myJobs = this.activeJobsWithProposals.map(item => item.job);
+            
             this.proposalsLoading = false;
           }
           this.cdr.detectChanges();
         },
         error: () => {
           count++;
+          if (count === jobs.length) {
+            this.proposalsLoading = false;
+          }
           this.cdr.detectChanges();
         }
       });
