@@ -25,8 +25,10 @@ export class AdminDashboardComponent implements OnInit {
   dataLoading = false;
   confirmModalOpen = false;
   confirmUserModalOpen = false;
+  confirmProposalModalOpen = false;
   deletingJob = false;
   deletingUser = false;
+  deletingProposal = false;
 
   // ---- Data ----
   stats: any = null;
@@ -53,6 +55,7 @@ export class AdminDashboardComponent implements OnInit {
   // ---- Delete ----
   deleteJobId: number | null = null;
   deleteUserId: number | null = null;
+  deleteProposalId: number | null = null;
 
   // ---- Toast ----
   toastMessage = '';
@@ -198,6 +201,12 @@ export class AdminDashboardComponent implements OnInit {
     this.cdr.detectChanges();
   }
 
+  openConfirmDeleteProposal(proposalId: number) {
+    this.deleteProposalId = proposalId;
+    this.confirmProposalModalOpen = true;
+    this.cdr.detectChanges();
+  }
+
   closeConfirm() { 
     this.deleteJobId = null; 
     this.confirmModalOpen = false; 
@@ -207,6 +216,12 @@ export class AdminDashboardComponent implements OnInit {
   closeConfirmUser() {
     this.deleteUserId = null;
     this.confirmUserModalOpen = false;
+    this.cdr.detectChanges();
+  }
+
+  closeConfirmProposal() {
+    this.deleteProposalId = null;
+    this.confirmProposalModalOpen = false;
     this.cdr.detectChanges();
   }
 
@@ -241,6 +256,24 @@ export class AdminDashboardComponent implements OnInit {
       error: (err: any) => {
         this.showToast(err.error?.detail || 'Failed to delete user.', 'error');
         this.deletingUser = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  confirmDeleteProposal() {
+    if (!this.deleteProposalId) return;
+    this.deletingProposal = true;
+    this.adminService.deleteProposal(this.deleteProposalId).subscribe({
+      next: () => {
+        this.showToast('Proposal deleted successfully.', 'success');
+        this.deletingProposal = false;
+        this.closeConfirmProposal();
+        this.loadAdminData();
+      },
+      error: (err: any) => {
+        this.showToast(err.error?.detail || 'Failed to delete proposal.', 'error');
+        this.deletingProposal = false;
         this.cdr.detectChanges();
       }
     });

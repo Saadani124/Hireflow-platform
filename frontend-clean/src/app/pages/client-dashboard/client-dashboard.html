@@ -2,14 +2,16 @@
 <nav class="navbar">
   <div class="navbar-inner">
 
-    <!-- LOGO -->
-    <div (click)="goHome()" class="logo">
-    Hire<span>Flow</span>
+    <div style="display:flex; align-items:center; gap:12px">
+      <div (click)="goHome()" class="logo" style="cursor: pointer;">
+        Hire<span>Flow</span>
+      </div>
+      <span class="client-badge">Client</span>
     </div>
 
     <!-- RIGHT SIDE -->
     <div class="nav-right">
-
+      <span class="nav-user-name">{{ user?.name || '—' }}</span>
       <!-- PROFILE DROPDOWN -->
       <div class="avatar-wrap">
         <img

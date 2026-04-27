@@ -43,4 +43,8 @@ export class AdminService {
   deleteUser(id: number): Observable<any> {
     return this.http.delete(`${this.BASE}/users/${id}`);
   }
+
+  deleteProposal(id: number): Observable<any> {
+    return this.http.delete(`${this.BASE}/proposals/${id}`);
+  }
 }

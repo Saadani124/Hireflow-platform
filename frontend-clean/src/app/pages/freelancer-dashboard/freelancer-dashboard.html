@@ -1,8 +1,15 @@
 <!-- NAVBAR -->
 <nav class="navbar">
   <div class="navbar-inner">
-    <a routerLink="/home" class="logo">Hire<span>Flow</span></a>
+    <div style="display:flex; align-items:center; gap:12px">
+      <a routerLink="/home" class="logo" style="cursor: pointer; text-decoration: none;">
+        Hire<span>Flow</span>
+      </a>
+      <span class="freelancer-badge">Freelancer</span>
+    </div>
+    
     <div class="nav-right">
+      <span class="nav-user-name">{{ user?.name || '—' }}</span>
       <div class="avatar-wrap">
         <img
           *ngIf="user?.profile_image"

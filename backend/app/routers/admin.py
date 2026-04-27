@@ -120,3 +120,19 @@ def delete_user(user_id: int,
     db.commit()
 
     return {"message": "User and related data deleted"}
+
+#delete proposal
+@router.delete("/proposals/{proposal_id}")
+def delete_proposal(proposal_id: int,
+                    db: Session = Depends(get_db),
+                    user=Depends(get_current_admin)):
+
+    proposal = db.query(Proposal).filter(Proposal.id == proposal_id).first()
+
+    if not proposal:
+        raise HTTPException(status_code=404, detail="Proposal not found")
+
+    db.delete(proposal)
+    db.commit()
+
+    return {"message": "Proposal deleted"}

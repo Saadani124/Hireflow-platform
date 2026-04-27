@@ -225,7 +225,7 @@
                 <td style="color:var(--on-surface-variant); font-size:12px">{{ formatDate(u.created_at) }}</td>
                 <td>
                   <button *ngIf="u.role !== 'admin'" class="btn btn-danger btn-sm" (click)="openConfirmDeleteUser(u.id)">
-                    <span class="material-symbols-outlined">delete</span>
+                    <span class="material-symbols-outlined">delete</span> Delete
                   </button>
                 </td>
               </tr>
@@ -319,6 +319,7 @@
                 <th>Price</th>
                 <th>Status</th>
                 <th>Message</th>
+                <th>Action</th>
               </tr>
             </thead>
             <tbody>
@@ -355,6 +356,11 @@
                 </td>
                 <td style="max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:12px; color:var(--on-surface-variant)">
                   {{ p.message }}
+                </td>
+                <td>
+                  <button class="btn btn-danger btn-sm" (click)="openConfirmDeleteProposal(p.id)">
+                    <span class="material-symbols-outlined">delete</span> Delete
+                  </button>
                 </td>
               </tr>
             </tbody>
@@ -457,6 +463,22 @@
       <button class="btn btn-danger" (click)="confirmDeleteUser()" [disabled]="deletingUser">
         <span class="material-symbols-outlined">delete</span>
         {{ deletingUser ? 'Deleting...' : 'Delete' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM DELETE PROPOSAL MODAL -->
+<div class="modal-overlay" [class.open]="confirmProposalModalOpen" (click)="closeConfirmProposal()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-icon"><span class="material-symbols-outlined">delete_forever</span></div>
+    <h3>Delete this proposal?</h3>
+    <p>This will permanently delete the proposal. This action cannot be undone.</p>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" (click)="closeConfirmProposal()">Cancel</button>
+      <button class="btn btn-danger" (click)="confirmDeleteProposal()" [disabled]="deletingProposal">
+        <span class="material-symbols-outlined">delete</span>
+        {{ deletingProposal ? 'Deleting...' : 'Delete' }}
       </button>
     </div>
   </div>
