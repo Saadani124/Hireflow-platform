@@ -98,25 +98,6 @@ def get_open_jobs(db: Session=Depends(get_db),
     return jobs
 
 
-#delete job
-@router.delete("/jobs/{job_id}")
-def delete_job(job_id: int,
-               db: Session = Depends(get_db),
-               user=Depends(get_current_client)):
-
-    job = db.query(Job).filter(Job.id == job_id).first()
-
-    if not job:
-        raise HTTPException(status_code=404, detail="Job not found")
-
-    # DELETE RELATED PROPOSALS FIRST
-    db.query(Proposal).filter(Proposal.job_id == job_id).delete()
-
-    db.delete(job)
-    db.commit()
-
-    return {"message": "Job and related proposals deleted"}
-
 @router.delete("/{job_id}")
 def delete_job(
     job_id: int,

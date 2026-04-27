@@ -96,6 +96,10 @@ export class FreelancerDashboardComponent implements OnInit {
   // PROPOSALS
   // =========================
 
+  /**
+   * Fetches all proposals submitted by the current freelancer
+   * and updates the local state.
+   */
   loadProposals() {
     this.proposalsLoading = true;
     this.proposalService.getMine().subscribe({

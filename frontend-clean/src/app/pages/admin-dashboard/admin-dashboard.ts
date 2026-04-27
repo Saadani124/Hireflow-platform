@@ -113,6 +113,10 @@ export class AdminDashboardComponent implements OnInit {
     });
   }
 
+  /**
+   * Fetches all platform data (users, jobs, proposals, stats) simultaneously
+   * via the admin-specific backend endpoints.
+   */
   loadAdminData() {
     this.dataLoading = true;
 

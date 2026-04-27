@@ -623,13 +623,7 @@ h1, h2, h3, h4, h5, h6 {
   gap: 12px;
 }
 
-/* INPUTS */
-.modal-input {
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  width: 100%;
-}
+
 
 /* BUTTONS */
 .modal-actions {
@@ -653,16 +647,7 @@ h1, h2, h3, h4, h5, h6 {
   background: #2563eb;
   color: white;
 }
-.modal textarea {
-  min-height: 80px;
-  resize: vertical;
-}
 
-.modal select {
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-}
 .error-banner {
   background: #fee2e2;
   color: #991b1b;
@@ -685,29 +670,7 @@ small {
 }
 
 
-.toast.show { transform: translateY(0); opacity: 1; }
-.toast.success { background: #1a6b3a; }
-.toast.error { background: #ba1a1a; }
-.toast {
-  position: fixed;
-  bottom: 24px;
-  right: 24px;
-  z-index: 999;
-  background: #191c1e;
-  color: #ffffff;
-  padding: 14px 20px;
-  border-radius: 12px;
-  font-size: 14px;
-  font-weight: 500;
-  box-shadow: 0 8px 24px rgba(25, 28, 30, 0.25);
-  transform: translateY(100px);
-  opacity: 0;
-  transition: all 0.3s;
-  pointer-events: none;
-}
-.toast.show { transform: translateY(0); opacity: 1; }
-.toast.success { background: #1a6b3a; }
-.toast.error { background: #ba1a1a; }
+
 /* ========= MODAL ========= */
 .modal-overlay {
   position: fixed;

@@ -1,7 +1,6 @@
-from fastapi import Depends, HTTPException
-from app.core.dependencies import get_current_admin
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+from app.core.dependencies import get_current_admin
 
 from app.db.session import get_db
 from app.models.user import User

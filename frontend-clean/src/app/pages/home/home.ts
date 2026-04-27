@@ -61,10 +61,9 @@ export class Home implements OnInit {
 
   submittingJob = false;
 
-  toastVisible = false;
-  toastMessage = '';
-  toastType: 'success' | 'error' = 'success';
-  
+  // =========================
+  // CONSTRUCTOR
+  // =========================
   constructor(
     private jobService: JobService,
     private cdr: ChangeDetectorRef,
@@ -80,6 +79,9 @@ export class Home implements OnInit {
     });
   }
 
+  // =========================
+  // INIT
+  // =========================
   ngOnInit() {
 
   // 1. Load user FIRST
@@ -94,6 +96,9 @@ export class Home implements OnInit {
   this.loadJobs();
 }
 
+  // =========================
+  // JOB LOADING & FILTERING
+  // =========================
   loadJobs() {
     this.loading = true;
 
@@ -348,17 +353,6 @@ export class Home implements OnInit {
   closeModal() {
     this.showApplyModal = false;
     document.body.classList.remove('no-scroll');
-  }
-  
-  showToast(message: string, type: 'success' | 'error') {
-    this.toastMessage = message;
-    this.toastType = type;
-    this.toastVisible = true;
-
-    setTimeout(() => {
-      this.toastVisible = false;
-    }, 2500);
-    this.cdr.detectChanges();
   }
   
   private normalizeImageUrl(url: string): string {

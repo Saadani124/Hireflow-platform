@@ -179,6 +179,11 @@ export class ClientDashboard implements OnInit {
   // PROPOSALS
   // =========================
 
+  /**
+   * Fetches proposals for all jobs and maps them to their respective jobs.
+   * After fetching, it sorts the jobs based on a priority system to ensure
+   * jobs requiring immediate attention (like pending proposals) appear first.
+   */
   loadProposals() {
     this.proposalsLoading = true;
 
@@ -200,29 +205,31 @@ export class ClientDashboard implements OnInit {
           results.push({ job, proposals });
           count++;
 
+          // Once all proposals for all jobs are fetched, apply sorting
           if (count === jobs.length) {
-            // SORTING LOGIC
+            
+            // SORTING LOGIC: Prioritize jobs needing attention
             this.activeJobsWithProposals = results.sort((a, b) => {
               const getPriority = (item: any) => {
                 const jobStatus = item.job.status;
                 const proposals = item.proposals || [];
 
-                // 1. Pending proposals (Priority 0)
+                // Priority 0 (Highest): Jobs with new proposals waiting for review
                 if (proposals.some((p: any) => p.status === 'pending')) return 0;
                 
-                // 2. Rejected proposals AND open status (Priority 1)
+                // Priority 1: Open jobs where previous proposals were rejected
                 if (proposals.some((p: any) => p.status === 'rejected') && jobStatus === 'open') return 1;
 
-                // 3. In Progress status (Priority 2)
+                // Priority 2: Active jobs currently being worked on
                 if (jobStatus === 'in_progress') return 2;
 
-                // 4. Without proposals (Priority 3)
+                // Priority 3: Open jobs that haven't received any applications yet
                 if (proposals.length === 0 && jobStatus === 'open') return 3;
 
-                // 5. Completed status (Priority 4)
+                // Priority 4 (Lowest): Finished jobs
                 if (jobStatus === 'completed') return 4;
 
-                return 5; // Default for anything else
+                return 5; // Fallback default
               };
 
               return getPriority(a) - getPriority(b);
