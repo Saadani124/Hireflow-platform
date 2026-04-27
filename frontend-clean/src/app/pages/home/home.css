@@ -181,12 +181,7 @@ h1, h2, h3, h4, h5, h6 {
 .dropdown-item.danger { color: #ba1a1a; }
 .dropdown-item.danger .material-symbols-outlined { color: #ba1a1a; }
 
-/* ─── MAIN ───────────────────────────────────────────────── */
-.main-content {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2.5rem 1.5rem 5rem;
-}
+
 
 /* ─── HERO ───────────────────────────────────────────────── */
 .hero-section {
@@ -246,75 +241,124 @@ h1, h2, h3, h4, h5, h6 {
 }
 .search-input::placeholder { color: var(--on-surface-variant); }
 
-/* ─── FILTERS ─────────────────────────────────────────────── */
-.filter-section {
-  margin-bottom: 2.5rem;
-}
-
-.filter-scroll-wrapper {
-  position: relative;
-}
-
-/* Fade-out edges to hint at scrollability */
-.filter-scroll-wrapper::before,
-.filter-scroll-wrapper::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 48px;
-  z-index: 2;
-  pointer-events: none;
-}
-.filter-scroll-wrapper::before {
-  left: 0;
-  background: linear-gradient(to right, var(--surface), transparent);
-}
-.filter-scroll-wrapper::after {
-  right: 0;
-  background: linear-gradient(to left, var(--surface), transparent);
-}
-
-.filter-chips {
+/* ─── HOME LAYOUT ─────────────────────────────────────────── */
+.layout {
   display: flex;
-  gap: 0.5rem;
-  overflow-x: auto;
-  scroll-behavior: smooth;
-  padding-inline:30px !important;
-  padding: 4px 2px 10px;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
+  flex: 1;
+  min-height: calc(100vh - 64px);
 }
-.filter-chips::-webkit-scrollbar { display: none; }
 
+/* ─── SIDEBAR FILTERS ─────────────────────────────────────── */
+.sidebar {
+  width: 260px;
+  flex-shrink: 0;
+  background: var(--surface-container-lowest);
+  border-right: 1px solid rgba(195, 198, 215, 0.35);
+  padding: 1.5rem;
+  position: sticky;
+  top: 64px;
+  height: calc(100vh - 64px);
+  overflow-y: auto;
+}
 
-.chip {
-  padding: 0.45rem 1rem;
-  border-radius: 9999px;
-  font-family: 'Manrope', sans-serif;
-  font-size: 0.75rem;
+.sidebar-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--on-surface);
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(195, 198, 215, 0.25);
+}
+
+.filter-group {
+  margin-bottom: 2rem;
+}
+
+.filter-group:last-child {
+  margin-bottom: 0;
+}
+
+.filter-label {
+  font-size: 0.875rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
-  border: none;
+  letter-spacing: 0.05em;
+  color: var(--on-surface-variant);
+  margin-bottom: 1rem;
+}
+
+/* PRICE INPUTS */
+.price-inputs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.price-input {
+  width: 100%;
+  padding: 0.6rem;
+  border-radius: 8px;
+  border: 1.5px solid var(--outline-variant);
+  background: var(--surface-bright);
+  font-family: 'Manrope', sans-serif;
+  font-size: 0.9rem;
+  color: var(--on-surface);
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.price-input:focus {
+  border-color: var(--primary-container);
+  background: var(--surface-container-lowest);
+}
+
+.price-separator {
+  color: var(--on-surface-variant);
+  font-weight: 600;
+}
+
+/* CHECKBOX LIST */
+.checkbox-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   cursor: pointer;
-  white-space: nowrap;
-  flex-shrink: 0;
-  transition: all 0.2s;
-}
-.chip:hover { transform: translateY(-1px); }
-
-.chip-active {
-  background: var(--primary-container);
-  color: var(--on-primary);
+  group-hover: text-primary;
 }
 
-.chip-inactive {
-  background: var(--secondary-container);
-  color: var(--on-secondary-container);
+.checkbox-label input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  border: 1.5px solid var(--outline-variant);
+  accent-color: var(--primary-container);
+  cursor: pointer;
 }
-.chip-inactive:hover {
-  background: var(--surface-container-high);
+
+.checkbox-text {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--on-surface);
+  transition: color 0.2s;
+}
+
+.checkbox-label:hover .checkbox-text {
+  color: var(--primary-container);
+}
+
+/* ─── MAIN CONTENT AREA ───────────────────────────────────── */
+.main {
+  flex: 1;
+  padding: 2.5rem 3rem;
+  background: var(--surface-bright);
+  min-width: 0;
 }
 
 /* ─── GRID ───────────────────────────────────────────────── */
@@ -563,51 +607,11 @@ h1, h2, h3, h4, h5, h6 {
   color: var(--on-surface-variant);
 }
 
-/* ─── BOTTOM NAV (mobile) ────────────────────────────────── */
-.bottom-nav {
-  display: none;
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 50;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(12px);
-  border-top: 1px solid var(--outline-variant);
-  padding: 0.5rem 1rem 1.25rem;
-  justify-content: space-around;
-  align-items: center;
-}
-
-.bottom-btn {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 3px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 6px 16px;
-  border-radius: 12px;
-  font-family: 'Manrope', sans-serif;
-  font-size: 0.65rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--on-surface-variant);
-  transition: background 0.2s, color 0.2s;
-}
-.bottom-btn .material-symbols-outlined { font-size: 24px; }
-.bottom-btn.active {
-  color: var(--primary-container);
-  background: rgba(37, 99, 235, 0.06);
-}
-.bottom-btn:hover { background: var(--surface-container-low); }
-
-@media (max-width: 767px) {
-  .bottom-nav { display: flex; }
+@media (max-width: 900px) {
+  .layout { flex-direction: column; }
+  .sidebar { width: 100%; position: relative; top: 0; height: auto; border-right: none; border-bottom: 1px solid rgba(195, 198, 215, 0.35); }
+  .main { padding: 1.5rem; }
   .nav-links, .icon-btn { display: none; }
-  .main-content { padding-bottom: 6rem; }
 }
 /* MODAL BACKGROUND */
 

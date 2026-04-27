@@ -23,7 +23,14 @@ export class Home implements OnInit {
   user: any = null;
   menuOpen = false;
   search = '';
-  selectedCategory = 'All';
+  selectedCategories: string[] = [];
+  
+  // Price filtering
+  minPrice: number | null = null;
+  maxPrice: number | null = null;
+  absoluteMinPrice = 0;
+  absoluteMaxPrice = 0;
+
   loading = true;
 
   skeletons = [1, 2, 3];
@@ -110,6 +117,14 @@ export class Home implements OnInit {
           return a.applied ? 1 : -1;
         });
 
+        if (this.jobs.length > 0) {
+          const budgets = this.jobs.map(j => j.budget || 0);
+          this.absoluteMinPrice = Math.min(...budgets);
+          this.absoluteMaxPrice = Math.max(...budgets);
+          this.minPrice = this.absoluteMinPrice;
+          this.maxPrice = this.absoluteMaxPrice;
+        }
+
         this.applyFilters();
 
         this.loading = false;
@@ -133,10 +148,14 @@ export class Home implements OnInit {
         job.description.toLowerCase().includes(this.search.toLowerCase());
 
       const matchesCategory =
-        this.selectedCategory === 'All' ||
-        job.category === this.selectedCategory;
+        this.selectedCategories.length === 0 ||
+        this.selectedCategories.includes(job.category);
 
-      return matchesSearch && matchesCategory;
+      const jobBudget = job.budget || 0;
+      const matchesMin = this.minPrice !== null ? jobBudget >= this.minPrice : true;
+      const matchesMax = this.maxPrice !== null ? jobBudget <= this.maxPrice : true;
+
+      return matchesSearch && matchesCategory && matchesMin && matchesMax;
     });
   }
 
@@ -144,8 +163,21 @@ export class Home implements OnInit {
     this.applyFilters();
   }
 
-  selectCategory(cat: string) {
-    this.selectedCategory = cat;
+  onPriceChange() {
+    this.applyFilters();
+  }
+
+  toggleCategory(cat: string) {
+    if (cat === 'All') {
+      this.selectedCategories = [];
+    } else {
+      const idx = this.selectedCategories.indexOf(cat);
+      if (idx > -1) {
+        this.selectedCategories.splice(idx, 1);
+      } else {
+        this.selectedCategories.push(cat);
+      }
+    }
     this.applyFilters();
   }
 
