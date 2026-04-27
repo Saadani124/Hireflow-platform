@@ -127,12 +127,14 @@
                   </span>
                 </td>
                 <td>
-                  <button *ngIf="p.status === 'pending'" class="btn btn-ghost btn-sm" (click)="editProposal(p)">
-                    <span class="material-symbols-outlined">edit</span> Edit
-                  </button>
-                  <button *ngIf="p.status === 'pending'" class="btn btn-danger btn-sm" (click)="deleteProposal(p.id)">
-                    <span class="material-symbols-outlined">delete</span> Withdraw
-                  </button>
+                  <div style="display:flex; gap:8px; flex-wrap:wrap">
+                    <button *ngIf="p.status === 'pending'" class="btn btn-ghost btn-sm" (click)="editProposal(p)">
+                      <span class="material-symbols-outlined">edit</span> Edit
+                    </button>
+                    <button *ngIf="p.status === 'pending'" class="btn btn-danger btn-sm" (click)="deleteProposal(p.id)">
+                      <span class="material-symbols-outlined">delete</span> Withdraw
+                    </button>
+                  </div>
                 </td>
               </tr>
             </tbody>

@@ -50,12 +50,13 @@
 .admin-badge {
   background: rgba(255, 255, 255, 0.12);
   color: rgba(255, 255, 255, 0.8);
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
-  padding: 3px 10px;
+  padding: 2px 8px;
   border-radius: 9999px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
+  margin-top: 2px;
 }
 
 .nav-right { display: flex; align-items: center; gap: 10px; }

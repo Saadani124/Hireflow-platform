@@ -3,8 +3,10 @@
   <div class="navbar-inner">
 
     <!-- LOGO -->
-    <div class="logo">
-      <a (click)="goHome()" class="logo">Hire<span>Flow</span></a>
+    <div style="display:flex; align-items:center; gap:12px">
+      <div (click)="goHome()" class="logo" style="cursor: pointer;">
+        Hire<span>Flow</span>
+      </div>
     </div>
 
     <!-- RIGHT SIDE -->
@@ -15,6 +17,8 @@
         <span class="material-symbols-outlined">add</span>
         Post a Job
       </button>
+
+      <span class="nav-user-name">{{ user?.name || '—' }}</span>
 
       <!-- PROFILE DROPDOWN -->
       <div class="avatar-wrap">
