@@ -39,6 +39,15 @@ export class FreelancerDashboardComponent implements OnInit {
   get acceptedCount() { return this.myProposals.filter(p => p.status === 'accepted').length; }
   get pendingCount()  { return this.myProposals.filter(p => p.status === 'pending').length; }
 
+  // Status priority: pending first, accepted next, completed next, rejected last
+  private statusPriority: Record<string, number> = { pending: 0, accepted: 1, completed: 2, rejected: 3 };
+
+  get sortedProposals() {
+    return [...this.myProposals].sort((a, b) =>
+      (this.statusPriority[a.status] ?? 99) - (this.statusPriority[b.status] ?? 99)
+    );
+  }
+
   // ---- Toast ----
   toastMessage = '';
   toastType = '';
