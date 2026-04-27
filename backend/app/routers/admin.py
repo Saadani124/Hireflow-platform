@@ -1,13 +1,21 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+from pydantic import BaseModel
 from app.core.dependencies import get_current_admin
 
 from app.db.session import get_db
 from app.models.user import User
 from app.models.job import Job
 from app.models.proposal import Proposal
+from app.models.report import Report
+from app.models.notification import Notification
 
 router = APIRouter(prefix="/admin", tags=["Admin"])
+
+
+class AdminDeleteBody(BaseModel):
+    admin_message: str
+
 
 #stats
 @router.get("/stats")
@@ -54,7 +62,6 @@ def get_all_proposals(db: Session = Depends(get_db),
                       user = Depends(get_current_admin)):
 
     proposals = db.query(Proposal).all()
-    # Manual enrichment since they are objects
     res = []
     for p in proposals:
         res.append({
@@ -66,13 +73,15 @@ def get_all_proposals(db: Session = Depends(get_db),
             "message": p.message,
             "price": p.price,
             "status": p.status,
-            "created_at": p.created_at
+            "created_at": p.created_at,
+            "report_count": p.report_count if hasattr(p, "report_count") else 0
         })
     return res
 
-#delete job
+#delete job (admin — requires a message sent to the client)
 @router.delete("/jobs/{job_id}")
 def delete_job(job_id: int,
+               body: AdminDeleteBody,
                db: Session = Depends(get_db),
                user=Depends(get_current_admin)):
 
@@ -81,10 +90,27 @@ def delete_job(job_id: int,
     if not job:
         raise HTTPException(status_code=404, detail="Job not found")
 
+    client_id = job.client_id
+    job_title = job.title
+
+    # Clear reports for this job
+    db.query(Report).filter(Report.target_type == "job", Report.target_id == job_id).delete()
+
     # DELETE RELATED PROPOSALS FIRST
     db.query(Proposal).filter(Proposal.job_id == job_id).delete()
 
     db.delete(job)
+    db.commit()
+
+    # Notify the client
+    notif = Notification(
+        user_id=client_id,
+        type="deleted_job",
+        title=f"Your job '{job_title}' was removed",
+        message=f"Admin message: {body.admin_message}",
+        link="/client-dashboard?section=my-jobs"
+    )
+    db.add(notif)
     db.commit()
 
     return {"message": "Job and related proposals deleted"}
@@ -100,30 +126,36 @@ def delete_user(user_id: int,
     if not target_user:
         raise HTTPException(status_code=404, detail="User not found")
 
-    # prevent admin from deleting other admins (or themselves)
     if target_user.role == "admin":
         raise HTTPException(status_code=400, detail="You cannot delete an administrative account")
 
-    # DELETE RELATED DATA (Jobs if client, Proposals if freelancer)
     if target_user.role == "client":
-        # Delete client's jobs and their proposals
         client_jobs = db.query(Job).filter(Job.client_id == user_id).all()
         for j in client_jobs:
+            db.query(Report).filter(Report.target_type == "job", Report.target_id == j.id).delete()
             db.query(Proposal).filter(Proposal.job_id == j.id).delete()
             db.delete(j)
-    
+
     elif target_user.role == "freelancer":
-        # Delete freelancer's proposals
+        db.query(Report).filter(Report.target_type == "proposal",
+                                Report.target_id.in_(
+                                    db.query(Proposal.id).filter(Proposal.freelancer_id == user_id)
+                                )).delete(synchronize_session=False)
         db.query(Proposal).filter(Proposal.freelancer_id == user_id).delete()
+
+    # Clear reports filed BY this user and notifications FOR this user
+    db.query(Report).filter(Report.reporter_id == user_id).delete()
+    db.query(Notification).filter(Notification.user_id == user_id).delete()
 
     db.delete(target_user)
     db.commit()
 
     return {"message": "User and related data deleted"}
 
-#delete proposal
+#delete proposal (admin — requires a message sent to the freelancer)
 @router.delete("/proposals/{proposal_id}")
 def delete_proposal(proposal_id: int,
+                    body: AdminDeleteBody,
                     db: Session = Depends(get_db),
                     user=Depends(get_current_admin)):
 
@@ -132,7 +164,26 @@ def delete_proposal(proposal_id: int,
     if not proposal:
         raise HTTPException(status_code=404, detail="Proposal not found")
 
+    freelancer_id = proposal.freelancer_id
+    job = db.query(Job).filter(Job.id == proposal.job_id).first()
+    job_title = job.title if job else f"Job #{proposal.job_id}"
+
+    # Clear reports for this proposal
+    db.query(Report).filter(Report.target_type == "proposal", Report.target_id == proposal_id).delete()
+
     db.delete(proposal)
     db.commit()
 
+    # Notify the freelancer
+    notif = Notification(
+        user_id=freelancer_id,
+        type="deleted_proposal",
+        title=f"Your proposal for '{job_title}' was removed",
+        message=f"Admin message: {body.admin_message}",
+        link="/freelancer-dashboard?section=applications"
+    )
+    db.add(notif)
+    db.commit()
+
     return {"message": "Proposal deleted"}
+

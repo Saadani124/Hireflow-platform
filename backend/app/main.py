@@ -10,6 +10,8 @@ from app.routers import test
 from app.routers import job
 from app.routers import proposal
 from app.routers import admin
+from app.routers import report
+from app.routers import notification
 
 #added by aziz
 from fastapi.middleware.cors import CORSMiddleware
@@ -45,6 +47,8 @@ app.include_router(test.router)
 app.include_router(job.router)
 app.include_router(proposal.router)
 app.include_router(admin.router)
+app.include_router(report.router)
+app.include_router(notification.router)
 
 #creation des tables
 Base.metadata.create_all(bind=engine)

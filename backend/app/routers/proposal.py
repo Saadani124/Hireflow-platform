@@ -4,6 +4,8 @@ from sqlalchemy.orm import Session ,joinedload
 from app.db.session import get_db
 from app.models.proposal import Proposal
 from app.models.job import Job
+from app.models.user import User
+from app.models.notification import Notification
 from app.schemas.proposal import ProposalCreate
 from app.schemas.proposal import ProposalResponse
 
@@ -38,6 +40,20 @@ def apply_to_job(data: ProposalCreate,
     db.add(proposal)
     db.commit()
     db.refresh(proposal)
+
+    # Notify the job's client about the new proposal
+    job_owner = db.query(User).filter(User.id == job.client_id).first()
+    if job_owner:
+        notif = Notification(
+            user_id=job_owner.id,
+            type="new_proposal",
+            title=f"New proposal on '{job.title}'",
+            message=f"{user.name} submitted a proposal for your job '{job.title}'.",
+            link=f"/client-dashboard?section=proposals&job_id={job.id}"
+        )
+        db.add(notif)
+        db.commit()
+
     return proposal
 
 #modifier l'application
@@ -114,13 +130,24 @@ def accept_proposal(proposal_id: int,
     proposal.status="accepted"
     job.status="in_progress"
 
-    # FAUTE: les autres propositions du même job n'étaient pas rejetées après acceptation
     db.query(Proposal).filter(
         Proposal.job_id==proposal.job_id,
         Proposal.id!=proposal_id).update({"status":"rejected"})
 
     db.commit()
     db.refresh(proposal)
+
+    # Notify the freelancer that their proposal was accepted
+    notif = Notification(
+        user_id=proposal.freelancer_id,
+        type="accepted",
+        title=f"Your proposal was accepted!",
+        message=f"Congratulations! Your proposal for '{job.title}' has been accepted.",
+        link=f"/freelancer-dashboard?section=applications"
+    )
+    db.add(notif)
+    db.commit()
+
     return {
         "job_id":job.id,
         "message":"Proposal accepted"
