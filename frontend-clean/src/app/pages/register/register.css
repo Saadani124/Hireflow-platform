@@ -1,0 +1,249 @@
+:root {
+  --navy: #0d1b2a;
+  --navy2: #1b2d42;
+  --blue: #2563eb;
+  --accent: #06b6d4;
+  --white: #fff;
+  --gray: #64748b;
+  --error: #ef4444;
+}
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+.register-page {
+  font-family: 'DM Sans', sans-serif;
+  min-height: 100vh;
+  background: var(--navy);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.page-wrap {
+  display: flex;
+  gap: 0;
+  width: 100%;
+  max-width: 900px;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 25px 60px rgba(13, 27, 42, 0.15);
+}
+
+.left-panel {
+  flex: 0 0 38%;
+  background: linear-gradient(160deg, #1e3a5f, #0d1b2a);
+  padding: 3rem 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  position: relative;
+  overflow: hidden;
+}
+.left-panel::before {
+  content: '';
+  position: absolute;
+  top: -80px;
+  right: -80px;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(37, 99, 235, 0.3), transparent 70%);
+}
+.logo {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 1.5rem;
+  color: #fff;
+  text-decoration: none;
+  position: relative;
+  z-index: 1;
+}
+.logo span {
+  color: var(--accent);
+}
+.left-content {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.left-content h2 {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 1.8rem;
+  color: #fff;
+  line-height: 1.25;
+  margin-bottom: 1rem;
+  letter-spacing: -0.4px;
+}
+.left-content h2 em {
+  color: var(--accent);
+  font-style: normal;
+}
+.left-content p {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.88rem;
+  line-height: 1.65;
+}
+.role-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  margin-top: 1.5rem;
+}
+.role-card {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 0.85rem 1rem;
+}
+.role-card strong {
+  display: block;
+  color: #fff;
+  font-size: 0.88rem;
+  font-weight: 600;
+  font-family: 'Syne', sans-serif;
+}
+.role-card span {
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 0.78rem;
+}
+
+.right-panel {
+  flex: 1;
+  background: #fff;
+  padding: 2.8rem;
+}
+.right-panel h1 {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 1.8rem;
+  color: #0f172a;
+  margin-bottom: 0.3rem;
+  letter-spacing: -0.5px;
+}
+.right-panel .sub {
+  color: var(--gray);
+  font-size: 0.88rem;
+  margin-bottom: 1.8rem;
+}
+
+.error-banner {
+  background: #fef2f2;
+  border: 1px solid #fca5a5;
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #b91c1c;
+  font-size: 0.86rem;
+  font-weight: 500;
+}
+
+.grid2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+.field {
+  margin-bottom: 1rem;
+}
+.field.full {
+  grid-column: 1/-1;
+}
+label {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 0.35rem;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+input,
+select,
+textarea {
+  width: 100%;
+  padding: 0.78rem 0.9rem;
+  border-radius: 9px;
+  border: 1.5px solid var(--navy);
+  background: #fff;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.92rem;
+  color: #0f172a;
+  outline: none;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+input:focus,
+select:focus {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  cursor: pointer;
+}
+
+.submit-btn {
+  width: 100%;
+  padding: 0.88rem;
+  background: var(--blue);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  margin-top: 0.5rem;
+  transition:
+    background 0.2s,
+    transform 0.15s,
+    box-shadow 0.2s;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);
+}
+.submit-btn:hover {
+  background: #1d4ed8;
+  transform: translateY(-1px);
+}
+
+.bottom-link {
+  text-align: center;
+  margin-top: 1.2rem;
+  font-size: 0.86rem;
+  color: var(--gray);
+}
+.bottom-link a {
+  color: var(--blue);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+@media (max-width: 640px) {
+  .page-wrap {
+    flex-direction: column;
+  }
+  .left-panel {
+    display: none;
+  }
+  .right-panel {
+    padding: 2rem;
+  }
+}
+small {
+  color: #dc2626;
+  font-size: 12px;
+  display: block;
+  margin-top: 4px;
+}

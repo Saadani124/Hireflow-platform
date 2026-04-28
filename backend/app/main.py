@@ -10,6 +10,13 @@ from app.routers import test
 from app.routers import job
 from app.routers import proposal
 from app.routers import admin
+from app.routers import report
+from app.routers import notification
+
+#added by aziz
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from app.routers import user
 
 # IMPORTANT: Models must be imported before Base.metadata.create_all
 # This ensures SQLAlchemy "knows" about your tables before trying to create them.
@@ -19,11 +26,27 @@ from app.routers import admin
 app = FastAPI(title="HireFlow API") #hedhi tji kbal kol chy
 
 
+
+
+#added by aziz
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
+app.include_router(user.router)
+
+#tb3 talel
 app.include_router(auth.router)
 app.include_router(test.router)
 app.include_router(job.router)
 app.include_router(proposal.router)
 app.include_router(admin.router)
+app.include_router(report.router)
+app.include_router(notification.router)
 
 #creation des tables
 Base.metadata.create_all(bind=engine)

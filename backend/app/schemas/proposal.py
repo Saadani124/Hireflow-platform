@@ -6,12 +6,29 @@ class ProposalCreate(BaseModel):
     message: str
     price: int
 
+class UserMini(BaseModel):
+    id: int
+    name: str
+    profile_image: str | None
+
+    class Config:
+        from_attributes = True
+class JobMini(BaseModel):
+    id: int
+    title: str
+
+    class Config:
+        from_attributes = True
 #bch nhasno l response mtaa l API
 class ProposalResponse(BaseModel):
     id: int
     job_id: int
-    freelancer_id: int
     message: str
     price: int
     status: str
+
+    freelancer: UserMini  #REPLACE freelancer_id
+    job: JobMini
+    class Config:
+        from_attributes = True
 

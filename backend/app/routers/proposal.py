@@ -1,9 +1,12 @@
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
+from datetime import datetime
+from sqlalchemy.orm import Session ,joinedload
 
 from app.db.session import get_db
 from app.models.proposal import Proposal
 from app.models.job import Job
+from app.models.user import User
+from app.models.notification import Notification
 from app.schemas.proposal import ProposalCreate
 from app.schemas.proposal import ProposalResponse
 
@@ -26,8 +29,19 @@ def apply_to_job(data: ProposalCreate,
     exist = db.query(Proposal).filter(
         Proposal.job_id==data.job_id,
         Proposal.freelancer_id==user.id).first()
+    
     if exist:
-        raise HTTPException(status_code=400,detail="Already applied")
+        if exist.status != "rejected":
+            raise HTTPException(status_code=400,detail="Already applied")
+        else:
+            # If rejected, allow re-applying by updating the existing proposal
+            exist.message = data.message
+            exist.price = data.price
+            exist.status = "pending"
+            exist.created_at = datetime.now()
+            db.commit()
+            db.refresh(exist)
+            return exist
 
     proposal = Proposal(
         job_id=data.job_id,
@@ -38,6 +52,20 @@ def apply_to_job(data: ProposalCreate,
     db.add(proposal)
     db.commit()
     db.refresh(proposal)
+
+    # Notify the job's client about the new proposal
+    job_owner = db.query(User).filter(User.id == job.client_id).first()
+    if job_owner:
+        notif = Notification(
+            user_id=job_owner.id,
+            type="new_proposal",
+            title=f"New proposal on '{job.title}'",
+            message=f"{user.name} submitted a proposal for your job '{job.title}'.",
+            link=f"/client-dashboard?section=proposals&job_id={job.id}"
+        )
+        db.add(notif)
+        db.commit()
+
     return proposal
 
 # #modifier l'application
@@ -57,12 +85,38 @@ def apply_to_job(data: ProposalCreate,
 #     if proposal.status!="pending":
 #         raise HTTPException(status_code=400,detail="Cannot edit a processed proposal")
 
-#     proposal.message=data.message
-#     proposal.price=data.price
-#     db.commit()
-#     db.refresh(proposal)
-#     return proposal
+    proposal.message=data.message
+    proposal.price=data.price
+    db.commit()
+    db.refresh(proposal)
+    return proposal
+#rejection 
+@router.post("/reject/{proposal_id}")
+def reject_proposal(
+    proposal_id: int,
+    db: Session = Depends(get_db),
+    user = Depends(get_current_client)
+):
+    proposal = db.query(Proposal).filter(Proposal.id == proposal_id).first()
+    if not proposal:
+        raise HTTPException(status_code=404, detail="Proposal not found")
 
+    job = db.query(Job).filter(Job.id == proposal.job_id).first()
+    if not job:
+        raise HTTPException(status_code=404, detail="Job not found")
+
+    if job.client_id != user.id:
+        raise HTTPException(status_code=403, detail="Not your job")
+
+    if proposal.status != "pending":
+        raise HTTPException(status_code=400, detail="Already processed")
+
+    proposal.status = "rejected"
+
+    db.commit()
+    db.refresh(proposal)
+
+    return {"message": "Proposal rejected"}
 #acceptation
 @router.post("/accept/{proposal_id}")
 def accept_proposal(proposal_id: int,
@@ -88,20 +142,31 @@ def accept_proposal(proposal_id: int,
     proposal.status="accepted"
     job.status="in_progress"
 
-    # FAUTE: les autres propositions du même job n'étaient pas rejetées après acceptation
     db.query(Proposal).filter(
         Proposal.job_id==proposal.job_id,
         Proposal.id!=proposal_id).update({"status":"rejected"})
 
     db.commit()
     db.refresh(proposal)
+
+    # Notify the freelancer that their proposal was accepted
+    notif = Notification(
+        user_id=proposal.freelancer_id,
+        type="accepted",
+        title=f"Your proposal was accepted!",
+        message=f"Congratulations! Your proposal for '{job.title}' has been accepted.",
+        link=f"/freelancer-dashboard?section=applications"
+    )
+    db.add(notif)
+    db.commit()
+
     return {
         "job_id":job.id,
         "message":"Proposal accepted"
     }
 
 # client consulte les propositions(chatgpt)
-@router.get("/job/{job_id}")
+@router.get("/job/{job_id}", response_model=list[ProposalResponse])
 def get_job_proposals(job_id: int,
                       db: Session=Depends(get_db),
                       user=Depends(get_current_client)):
@@ -112,7 +177,10 @@ def get_job_proposals(job_id: int,
     if job.client_id!=user.id:
         raise HTTPException(status_code=403,detail="Not your job")
 
-    proposals = db.query(Proposal).filter(Proposal.job_id==job_id).all()
+    proposals = db.query(Proposal)\
+.options(joinedload(Proposal.freelancer))\
+.filter(Proposal.job_id == job_id)\
+.all()
     return proposals
 
 #suppression (claude)
@@ -130,9 +198,12 @@ def delete_proposal(proposal_id: int, db: Session=Depends(get_db), user=Depends(
     return {"message":"Proposal deleted"}
 
 #freelancer consulte ses proposals
-@router.get("/me")
+@router.get("/me", response_model=list[ProposalResponse])
 def getmy_proposals(db:Session=Depends(get_db),
                     user=Depends(get_current_freelancer)):
 
-    proposals=db.query(Proposal).filter(Proposal.freelancer_id==user.id).all()
+    proposals=db.query(Proposal)\
+    .options(joinedload(Proposal.job))\
+    .filter(Proposal.freelancer_id == user.id)\
+    .all()
     return proposals

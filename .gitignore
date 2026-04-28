@@ -1,26 +1,36 @@
-# Python
+# ======================
+# Python / FastAPI
+# ======================
 __pycache__/
-*.pyc
+*.py[cod]
 *.pyo
 *.pyd
 *.sqlite3
-.env
+*.db
+
+
 venv/
 .venv/
-.env.*
 
-# FastAPI
 *.log
 
-# Angular
+# ======================
+# Angular / Node
+# ======================
 node_modules/
 dist/
 .angular/
 *.tsbuildinfo
+coverage/
 
+# ======================
+# IDE
+# ======================
+.vscode/
+.idea/
+
+# ======================
 # OS
+# ======================
 .DS_Store
 Thumbs.db
-
-# VSCode (optional)
-.vscode/

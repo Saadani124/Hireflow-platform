@@ -29,7 +29,8 @@ def register(data: registerSchema, db: Session = Depends(get_db)):
         name=data.name,
         email=data.email,
         password_hash=hash_password(data.password),
-        role=data.role
+        role=data.role,
+        profile_image="/uploads/default.png"
     )
     db.add(user)
     db.commit()

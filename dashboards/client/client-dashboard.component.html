@@ -1,0 +1,348 @@
+<!-- NAVBAR -->
+<nav class="navbar">
+  <a routerLink="/home" class="logo">Hire<span>Flow</span></a>
+  <div class="nav-right">
+    <button class="nav-btn" title="Notifications">
+      <span class="material-symbols-outlined">notifications</span>
+    </button>
+    <div class="avatar-wrap">
+      <div class="avatar" (click)="toggleMenu()">
+        <img *ngIf="user?.profile_image" [src]="user.profile_image" alt="avatar" />
+        <span *ngIf="!user?.profile_image" class="avatar-fallback">{{ user?.name?.charAt(0)?.toUpperCase() || '?' }}</span>
+      </div>
+      <div class="dropdown" [class.open]="menuOpen">
+        <div class="dropdown-item" (click)="showSection('profile')">
+          <span class="material-symbols-outlined">person</span> Profile
+        </div>
+        <div class="dropdown-item" (click)="showSection('overview')">
+          <span class="material-symbols-outlined">dashboard</span> Dashboard
+        </div>
+        <div class="dropdown-item danger" (click)="logout()">
+          <span class="material-symbols-outlined">logout</span> Logout
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- LAYOUT -->
+<div class="layout">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <span class="sidebar-label">Main</span>
+    <a class="nav-item" [class.active]="activeSection === 'overview'" (click)="showSection('overview')" data-section="overview">
+      <span class="material-symbols-outlined">dashboard</span> Overview
+    </a>
+    <a class="nav-item" [class.active]="activeSection === 'my-jobs'" (click)="showSection('my-jobs')" data-section="my-jobs">
+      <span class="material-symbols-outlined">work</span> My Jobs
+    </a>
+    <a class="nav-item" [class.active]="activeSection === 'proposals'" (click)="showSection('proposals')" data-section="proposals">
+      <span class="material-symbols-outlined">description</span> Proposals
+    </a>
+    <span class="sidebar-label">Account</span>
+    <a class="nav-item" [class.active]="activeSection === 'profile'" (click)="showSection('profile')" data-section="profile">
+      <span class="material-symbols-outlined">manage_accounts</span> Profile
+    </a>
+    <a class="nav-item danger" (click)="logout()" style="color:var(--error); margin-top: auto;">
+      <span class="material-symbols-outlined" style="color:var(--error)">logout</span> Logout
+    </a>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main">
+
+    <!-- ===== OVERVIEW ===== -->
+    <section *ngIf="activeSection === 'overview'" class="page-section">
+      <div class="page-header">
+        <h1>Overview</h1>
+        <p>Welcome back, {{ user?.name || '...' }}!</p>
+      </div>
+
+      <!-- Stat Cards -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon blue"><span class="material-symbols-outlined">work</span></div>
+          <div class="stat-value">{{ myJobs.length }}</div>
+          <div class="stat-label">Jobs Posted</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon teal"><span class="material-symbols-outlined">lock_open</span></div>
+          <div class="stat-value">{{ openCount }}</div>
+          <div class="stat-label">Open Jobs</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon orange"><span class="material-symbols-outlined">pending_actions</span></div>
+          <div class="stat-value">{{ inProgressCount }}</div>
+          <div class="stat-label">In Progress</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon green"><span class="material-symbols-outlined">check_circle</span></div>
+          <div class="stat-value">{{ completedCount }}</div>
+          <div class="stat-label">Completed</div>
+        </div>
+      </div>
+
+      <!-- Recent Jobs Table -->
+      <div class="section-card">
+        <div class="section-card-header">
+          <span class="section-card-title">Recent Jobs</span>
+          <button class="btn btn-primary btn-sm" (click)="openPostModal()">
+            <span class="material-symbols-outlined">add</span> Post a Job
+          </button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Category</th>
+                <th>Budget</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngIf="loading">
+                <td colspan="5">
+                  <div class="empty-state">
+                    <span class="material-symbols-outlined">hourglass_empty</span>
+                    <p>Loading...</p>
+                  </div>
+                </td>
+              </tr>
+              <tr *ngIf="!loading && myJobs.length === 0">
+                <td colspan="5">
+                  <div class="empty-state">
+                    <span class="material-symbols-outlined">work_off</span>
+                    <p>No jobs yet. Post your first job!</p>
+                  </div>
+                </td>
+              </tr>
+              <tr *ngFor="let job of myJobs.slice(0, 5)">
+                <td><strong>{{ job.title }}</strong></td>
+                <td>{{ job.category }}</td>
+                <td><strong>{{ job.budget }} TND</strong></td>
+                <td><ng-container [ngTemplateOutlet]="statusBadge" [ngTemplateOutletContext]="{status: job.status}"></ng-container></td>
+                <td>
+                  <button *ngIf="job.status === 'open'" class="btn btn-teal btn-sm" (click)="showSection('proposals')">
+                    <span class="material-symbols-outlined">description</span> Proposals
+                  </button>
+                  <button *ngIf="job.status === 'in_progress'" class="btn btn-complete btn-sm" (click)="completeJob(job.id)">
+                    <span class="material-symbols-outlined">check</span> Complete
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== MY JOBS ===== -->
+    <section *ngIf="activeSection === 'my-jobs'" class="page-section">
+      <div class="page-header">
+        <h1>My Jobs</h1>
+        <p>Manage all the jobs you've posted</p>
+      </div>
+      <div style="display:flex; justify-content:flex-end; margin-bottom:16px">
+        <button class="btn btn-primary" (click)="openPostModal()">
+          <span class="material-symbols-outlined">add</span> Post New Job
+        </button>
+      </div>
+      <div class="section-card" style="padding:0; overflow:hidden">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th style="padding:16px 12px">Title</th>
+                <th>Category</th>
+                <th>Budget</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngIf="loading">
+                <td colspan="5">
+                  <div class="empty-state">
+                    <span class="material-symbols-outlined">hourglass_empty</span>
+                    <p>Loading...</p>
+                  </div>
+                </td>
+              </tr>
+              <tr *ngIf="!loading && myJobs.length === 0">
+                <td colspan="5">
+                  <div class="empty-state">
+                    <span class="material-symbols-outlined">work_off</span>
+                    <p>No jobs posted yet.</p>
+                  </div>
+                </td>
+              </tr>
+              <tr *ngFor="let job of myJobs">
+                <td>
+                  <strong>{{ job.title }}</strong><br>
+                  <span style="font-size:12px; color:var(--on-surface-variant)">{{ job.description | slice:0:60 }}…</span>
+                </td>
+                <td>{{ job.category }}</td>
+                <td><strong>{{ job.budget }} TND</strong></td>
+                <td><ng-container [ngTemplateOutlet]="statusBadge" [ngTemplateOutletContext]="{status: job.status}"></ng-container></td>
+                <td>
+                  <button *ngIf="job.status === 'open'" class="btn btn-teal btn-sm" (click)="showSection('proposals')">
+                    <span class="material-symbols-outlined">description</span> Proposals
+                  </button>
+                  <button *ngIf="job.status === 'in_progress'" class="btn btn-complete btn-sm" (click)="completeJob(job.id)">
+                    <span class="material-symbols-outlined">check</span> Complete
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== PROPOSALS ===== -->
+    <section *ngIf="activeSection === 'proposals'" class="page-section">
+      <div class="page-header">
+        <h1>Proposals</h1>
+        <p>Review proposals on your jobs</p>
+      </div>
+
+      <div *ngIf="proposalsLoading" class="empty-state">
+        <span class="material-symbols-outlined">hourglass_empty</span>
+        <p>Loading proposals...</p>
+      </div>
+
+      <div *ngIf="!proposalsLoading && activeJobsWithProposals.length === 0" class="empty-state">
+        <span class="material-symbols-outlined">description</span>
+        <p>No active jobs to show proposals for.</p>
+      </div>
+
+      <div *ngFor="let item of activeJobsWithProposals" class="section-card">
+        <div class="section-card-header">
+          <span class="section-card-title">{{ item.job.title }}</span>
+          <span class="badge" [class.badge-open]="item.job.status === 'open'" [class.badge-in-progress]="item.job.status === 'in_progress'">
+            {{ item.proposals.length }} proposal{{ item.proposals.length !== 1 ? 's' : '' }}
+          </span>
+        </div>
+
+        <div *ngIf="item.proposals.length === 0" class="empty-state" style="padding:20px">
+          <p>No proposals yet.</p>
+        </div>
+
+        <div *ngFor="let p of item.proposals" class="proposal-card">
+          <div class="proposal-avatar">
+            <span class="material-symbols-outlined">person</span>
+          </div>
+          <div class="proposal-info">
+            <div class="proposal-name">Freelancer #{{ p.freelancer_id }}</div>
+            <div class="proposal-meta">Proposed price: <strong>{{ p.price }} TND</strong></div>
+            <div class="proposal-message">{{ p.message }}</div>
+            <div style="display:flex; align-items:center; gap:10px; margin-top:10px">
+              <span class="badge"
+                [class.badge-pending]="p.status === 'pending'"
+                [class.badge-accepted]="p.status === 'accepted'"
+                [class.badge-rejected]="p.status === 'rejected'">
+                {{ p.status | titlecase }}
+              </span>
+              <button
+                *ngIf="p.status === 'pending' && item.job.status === 'open'"
+                class="btn btn-primary btn-sm"
+                (click)="acceptProposal(p.id)">
+                <span class="material-symbols-outlined">check</span> Accept
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== PROFILE ===== -->
+    <section *ngIf="activeSection === 'profile'" class="page-section">
+      <div class="page-header">
+        <h1>Profile</h1>
+        <p>Your account information</p>
+      </div>
+      <div class="profile-card">
+        <div class="profile-avatar">
+          <img *ngIf="user?.profile_image" [src]="user.profile_image" alt="avatar" style="width:100%;height:100%;object-fit:cover" />
+          <span *ngIf="!user?.profile_image" class="material-symbols-outlined" style="font-size:36px; color:var(--on-surface-variant)">person</span>
+        </div>
+        <div>
+          <div class="profile-name">{{ user?.name || '—' }}</div>
+          <div class="profile-meta">{{ user?.email || '—' }}</div>
+          <div class="profile-meta" style="margin-top:2px"><strong>Role:</strong> Client</div>
+          <div class="profile-upload" style="margin-top:12px">
+            <label class="btn btn-ghost btn-sm" style="cursor:pointer">
+              <span class="material-symbols-outlined">upload</span> Change Photo
+              <input type="file" accept="image/*" style="display:none" (change)="uploadAvatar($event)" />
+            </label>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- POST JOB MODAL -->
+<div class="modal-overlay" [class.open]="postModalOpen" (click)="onModalOverlayClick($event)">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <span class="modal-title">Post a New Job</span>
+      <button class="modal-close" (click)="closePostModal()">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Job Title</label>
+      <input class="form-input" [(ngModel)]="newJob.title" placeholder="e.g. Build a React landing page" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Description</label>
+      <textarea class="form-textarea" [(ngModel)]="newJob.description" placeholder="Describe the job in detail..."></textarea>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Category</label>
+        <select class="form-select" [(ngModel)]="newJob.category">
+          <option value="">Select category</option>
+          <option>Design</option>
+          <option>Development</option>
+          <option>Marketing</option>
+          <option>Product</option>
+          <option>Writing</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Budget (TND)</label>
+        <input class="form-input" [(ngModel)]="newJob.budget" type="number" placeholder="e.g. 500" />
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" (click)="closePostModal()">Cancel</button>
+      <button class="btn btn-primary" (click)="submitJob()" [disabled]="submittingJob">
+        <span class="material-symbols-outlined">send</span>
+        {{ submittingJob ? 'Posting...' : 'Post Job' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" [class.show]="toastVisible" [class.success]="toastType === 'success'" [class.error]="toastType === 'error'">
+  {{ toastMessage }}
+</div>
+
+<!-- STATUS BADGE TEMPLATE -->
+<ng-template #statusBadge let-status="status">
+  <span class="badge"
+    [class.badge-open]="status === 'open'"
+    [class.badge-in-progress]="status === 'in_progress'"
+    [class.badge-completed]="status === 'completed'"
+    [class.badge-closed]="status === 'closed'">
+    <span class="badge-dot"></span>
+    {{ status === 'in_progress' ? 'In Progress' : (status | titlecase) }}
+  </span>
+</ng-template>

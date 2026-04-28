@@ -1,0 +1,104 @@
+<div class="register-page">
+
+  <div class="page-wrap">
+
+    <!-- LEFT -->
+    <div class="left-panel">
+      <a class="logo">Hire<span>Flow</span></a>
+
+      <div class="left-content">
+        <h2>Join the <em>platform</em></h2>
+        <p>Start your journey as a freelancer or hire talented students.</p>
+
+        <div class="role-cards">
+          <div class="role-card">
+            <strong>Client</strong>
+            <span>Post jobs and hire freelancers</span>
+          </div>
+          <div class="role-card">
+            <strong>Freelancer</strong>
+            <span>Find jobs and build experience</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT -->
+    <div class="right-panel">
+
+      <h1>Create Account</h1>
+      <p class="sub">Sign up to get started</p>
+
+      <!-- ERROR -->
+      <div *ngIf="errorMessage" class="error-banner">
+        {{ errorMessage }}
+      </div>
+
+      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+
+        <div class="grid2">
+
+
+          <div class="field-group">
+            <label>Name</label>
+            <input formControlName="name" placeholder="Your name" id="name">
+
+            <small *ngIf="(registerForm.get('name')?.touched || submitted) && registerForm.get('name')?.invalid">
+              Name is required
+            </small>
+          </div>
+
+          <!-- EMAIL -->
+          <div class="field-group">
+            <label>Email</label>
+            <input formControlName="email" placeholder="Email" id="email">
+
+            <small *ngIf="(registerForm.get('email')?.touched || submitted) && registerForm.get('email')?.invalid">
+              <span *ngIf="registerForm.get('email')?.errors?.['required']">Email required</span>
+              <span *ngIf="registerForm.get('email')?.errors?.['email']">Invalid email</span>
+            </small>
+          </div>
+
+          <!-- PASSWORD -->
+          <div class="field-group">
+            <label>Password</label>
+            <input type="password" formControlName="password" placeholder="Password" id="password">
+
+            <small *ngIf="(registerForm.get('password')?.touched || submitted) && registerForm.get('password')?.invalid">
+              Minimum 6 characters
+            </small>
+          </div>
+
+          <!-- ROLE -->
+          <div class="field-group">
+            <label>Role</label>
+
+            <select formControlName="role" id="role">
+              <option value="">Select role</option>
+              <option value="client">Client</option>
+              <option value="freelancer">Freelancer</option>
+            </select>
+
+            <small *ngIf="(registerForm.get('role')?.touched || submitted) && registerForm.get('role')?.invalid">
+              Role is required
+            </small>
+          </div>
+
+        </div>
+
+        <button type="submit" class="submit-btn" >
+          Create Account
+        </button>
+
+      </form>
+
+      <div class="bottom-link">
+        Already have an account?
+        <a routerLink="/login">Login</a>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>

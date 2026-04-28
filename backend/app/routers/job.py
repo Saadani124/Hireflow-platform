@@ -4,8 +4,9 @@ from fastapi import HTTPException
 
 from app.db.session import get_db
 from app.models.job import Job
-from app.schemas.job import JobCreate
-from app.schemas.job import JobResponse
+from app.schemas.job import JobCreate, JobResponse, PaginatedJobResponse
+from app.models.proposal import Proposal
+from app.models.user import User
 
 from app.core.dependencies import get_current_client,get_current_freelancer,get_current_user
 
@@ -16,10 +17,11 @@ router = APIRouter(prefix="/jobs",tags=["Jobs"])
 def create_job(data:JobCreate, 
                 db:Session=Depends(get_db), 
                 user=Depends(get_current_client)):
-    job=Job(
+    job = Job(
         title=data.title,
         description=data.description,
         budget=data.budget,
+        category=data.category, 
         client_id=user.id
     )
     db.add(job)
@@ -29,12 +31,36 @@ def create_job(data:JobCreate,
     return job
 
 #list job endpoint
-@router.get("/",response_model=list[JobResponse])
-def list_jobs(db:Session=Depends(get_db),
-                user=Depends(get_current_user)):
-    jobs = db.query(Job).order_by(Job.created_at.desc()).all()
-    return jobs
+@router.get("/", response_model=PaginatedJobResponse)
+def list_jobs(db: Session = Depends(get_db),
+              user = Depends(get_current_user),
+              skip: int = 0,
+              limit: int = 50):
+    total = db.query(Job).filter(Job.status == "open").count()
+    jobs = db.query(Job).filter(Job.status == "open").order_by(Job.created_at.desc()).offset(skip).limit(limit).all()
+    
+    # If user is a freelancer, check which jobs they applied to
+    if user and user.role == "freelancer":
+        # Get all proposals for this freelancer
+        proposals = db.query(Proposal.job_id, Proposal.status).filter(
+            Proposal.freelancer_id == user.id
+        ).all()
+        
+        status_map = {row[0]: row[1] for row in proposals}
+        
+        for job in jobs:
+            status = status_map.get(job.id)
+            job.applied = status is not None and status != "rejected"
+            job.rejected = status == "rejected"
+            
+    return {"items": jobs, "total": total}
+#client consulte ses jobs
+@router.get("/me")
+def get_my_jobs(db: Session=Depends(get_db),
+                user=Depends(get_current_client)):
 
+    jobs=db.query(Job).filter(Job.client_id == user.id).all()
+    return jobs
 #get job by id endpoint
 @router.get("/{job_id}")
 def get_job(job_id:int,
@@ -65,13 +91,7 @@ def complete_job(job_id: int,
     db.refresh(job)
     return {"message": "Job completed"}
 
-#client consulte ses jobs
-@router.get("/me")
-def get_my_jobs(db: Session=Depends(get_db),
-                user=Depends(get_current_client)):
 
-    jobs=db.query(Job).filter(Job.client_id == user.id).all()
-    return jobs
 
 #freelancer consulte les jobs elli postulehom
 @router.get("/open")
@@ -80,3 +100,26 @@ def get_open_jobs(db: Session=Depends(get_db),
 
     jobs=db.query(Job).filter(Job.status=="open").all()
     return jobs
+
+
+@router.delete("/{job_id}")
+def delete_job(
+    job_id: int,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_client)
+):
+    job = db.query(Job).filter(Job.id == job_id).first()
+
+    if not job:
+        raise HTTPException(status_code=404, detail="Job not found")
+
+    if job.client_id != user.id:
+        raise HTTPException(status_code=403, detail="Not your job")
+
+    if job.status != "open":
+        raise HTTPException(status_code=400, detail="Cannot delete this job")
+
+    db.delete(job)
+    db.commit()
+
+    return {"message": "Job deleted"}
