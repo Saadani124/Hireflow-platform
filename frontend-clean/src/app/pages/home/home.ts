@@ -350,7 +350,7 @@ export class Home implements OnInit, OnDestroy {
 
   confirmDelete() {
     this.deleteLoading = true;
-    this.jobService.deleteJob(this.jobToDelete.id).subscribe({
+    this.jobService.deleteJobAsAdmin(this.jobToDelete.id).subscribe({
       next: () => {
         this.deleteLoading = false;
         this.jobs = this.jobs.filter(j => j.id !== this.jobToDelete.id);

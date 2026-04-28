@@ -14,7 +14,7 @@ from app.core.dependencies import get_current_user, get_current_admin
 
 router = APIRouter(prefix="/reports", tags=["Reports"])
 
-N8N_WEBHOOK_URL = "http://localhost:5678/webhook/hireflow-reports"
+N8N_WEBHOOK_URL = "http://localhost:5678/webhook/uos-welcome"
 
 
 def _fire_n8n_alert(type_: str, id_: int, title: str, count: int):
@@ -69,7 +69,7 @@ def report_job(job_id: int, data: ReportCreate,
     db.commit()
 
     # Trigger n8n if threshold exceeded
-    if job.report_count > 10:
+    if job.report_count > 2:
         _fire_n8n_alert("job", job.id, job.title, job.report_count)
 
     return {"message": "Job reported successfully", "report_count": job.report_count}
@@ -113,7 +113,7 @@ def report_proposal(proposal_id: int, data: ReportCreate,
         db.add(notif)
     db.commit()
 
-    if proposal.report_count > 10:
+    if proposal.report_count > 2:
         _fire_n8n_alert("proposal", proposal.id, title, proposal.report_count)
 
     return {"message": "Proposal reported successfully", "report_count": proposal.report_count}

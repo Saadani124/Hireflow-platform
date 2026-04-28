@@ -445,6 +445,28 @@
   {{ toastMessage }}
 </div>
 
+<!-- DELETE CONFIRMATION MODAL -->
+<div class="modal-overlay" [class.open]="showDeleteModal" (click)="showDeleteModal = false">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <span class="modal-title">Delete Job</span>
+      <button class="modal-close" (click)="showDeleteModal = false">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <div class="modal-body" style="padding: 20px 0;">
+      <p>Are you sure you want to delete this job? This action cannot be undone and will also delete all related proposals.</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" (click)="showDeleteModal = false">Cancel</button>
+      <button class="btn btn-danger" (click)="confirmDeleteJob()" [disabled]="deleteJobLoading">
+        <span class="material-symbols-outlined">delete</span>
+        {{ deleteJobLoading ? 'Deleting...' : 'Confirm Delete' }}
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- ═══════════════════════════════════════════════════════════ -->
 <!-- REPORT PROPOSAL MODAL                                       -->
 <!-- ═══════════════════════════════════════════════════════════ -->

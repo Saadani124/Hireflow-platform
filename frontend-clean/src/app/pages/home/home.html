@@ -457,8 +457,8 @@
         <div *ngIf="user?.role === 'freelancer' && detailJob?.applied" class="applied-status">
           <span class="material-symbols-outlined">check_circle</span> Applied
         </div>
-        <!-- Client / Admin: Delete -->
-        <button *ngIf="user?.role === 'client' || user?.role === 'admin'" class="btn btn-danger btn-sm" (click)="deleteFromDetail()">
+        <!-- Admin only: Delete -->
+        <button *ngIf="user?.role === 'admin'" class="btn btn-danger btn-sm" (click)="deleteFromDetail()">
           <span class="material-symbols-outlined">delete</span> Delete
         </button>
       </div>
@@ -495,24 +495,5 @@
         {{ reportSubmitting ? 'Submitting...' : 'Submit Report' }}
       </button>
     </div>
-  </div>
-</div>
-
-<!-- ═══════════════════════════════════════════════════════════ -->
-<!-- NOTIFICATION PANEL                                          -->
-<!-- ═══════════════════════════════════════════════════════════ -->
-<div class="notification-panel" [class.open]="notifOpen">
-  <div class="notification-header">
-    <h3>Notifications</h3>
-    <button (click)="notifOpen = false" class="modal-close">
-        <span class="material-symbols-outlined">close</span>
-    </button>
-  </div>
-  <div class="notification-list">
-    <div *ngFor="let note of notifications" class="notification-item">
-      <p>{{ note.message }}</p>
-      <small>{{ note.timestamp | date:'short' }}</small>
-    </div>
-    <div *ngIf="notifications.length === 0" class="empty-list">No new notifications</div>
   </div>
 </div>

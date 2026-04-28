@@ -62,6 +62,11 @@ export class ClientDashboard implements OnInit, OnDestroy {
   viewModal = false;
   normalizeImage = normalizeImage;
 
+  // ── Delete Job Modal ──────────────────────────────────────
+  showDeleteModal = false;
+  jobIdToDelete: number | null = null;
+  deleteJobLoading = false;
+
   // ── Notifications ──────────────────────────────────────────
   notifOpen = false;
   notifications: any[] = [];
@@ -273,19 +278,34 @@ export class ClientDashboard implements OnInit, OnDestroy {
     });
   }
   deleteJobC(id: number) {
+    this.jobIdToDelete = id;
+    this.showDeleteModal = true;
+    this.cdr.detectChanges();
+  }
 
-      if (!confirm('Are you sure you want to delete this job?')) return;
+  confirmDeleteJob() {
+    if (!this.jobIdToDelete) return;
 
-      this.jobService.deleteJob(id).subscribe({
-        next: () => {
-          this.showToast('Job deleted', 'success');
-          this.loadJobs(); // 🔴 refresh list
-        },
-        error: (err: any) => {
-          this.showToast(err.error?.detail || 'Error', 'error');
-        }
-      });
-    }
+    this.deleteJobLoading = true;
+    this.jobService.deleteJobAsClient(this.jobIdToDelete).subscribe({
+      next: () => {
+        this.deleteJobLoading = false;
+        this.showDeleteModal = false;
+        this.jobIdToDelete = null;
+        this.showToast('Job deleted successfully', 'success');
+        this.loadJobs();
+        this.cdr.detectChanges();
+      },
+      error: (err: any) => {
+        this.deleteJobLoading = false;
+        this.showDeleteModal = false;
+        this.jobIdToDelete = null;
+        this.showToast(err.error?.detail || 'Error deleting job', 'error');
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
   // =========================
   // PROPOSALS
   // =========================
