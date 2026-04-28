@@ -39,15 +39,17 @@ def list_jobs(db: Session = Depends(get_db),
     
     # If user is a freelancer, check which jobs they applied to
     if user and user.role == "freelancer":
-        # Get all proposal IDs for this freelancer that are not rejected
-        applied_job_ids = db.query(Proposal.job_id).filter(
-            Proposal.freelancer_id == user.id,
-            Proposal.status != "rejected"
+        # Get all proposals for this freelancer
+        proposals = db.query(Proposal.job_id, Proposal.status).filter(
+            Proposal.freelancer_id == user.id
         ).all()
-        applied_job_ids = {row[0] for row in applied_job_ids}
+        
+        status_map = {row[0]: row[1] for row in proposals}
         
         for job in jobs:
-            job.applied = job.id in applied_job_ids
+            status = status_map.get(job.id)
+            job.applied = status is not None and status != "rejected"
+            job.rejected = status == "rejected"
             
     return jobs
 #client consulte ses jobs

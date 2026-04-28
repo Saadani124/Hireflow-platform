@@ -20,11 +20,37 @@
 
       <span class="nav-user-name">{{ user?.name || '—' }}</span>
 
+      <!-- NOTIFICATION BELL -->
+      <div class="notif-wrap" *ngIf="user">
+        <button class="notif-btn" (click)="toggleNotifPanel($event)" id="notif-btn">
+          <span class="material-symbols-outlined">notifications</span>
+          <span *ngIf="unreadCount > 0" class="notif-badge">{{ unreadCount > 9 ? '9+' : unreadCount }}</span>
+        </button>
+        <!-- NOTIFICATION PANEL -->
+        <div *ngIf="notifOpen" class="notif-panel" (click)="$event.stopPropagation()">
+          <div class="notif-panel-header">
+            <span>Notifications</span>
+            <button class="notif-mark-all" (click)="markAllRead()" *ngIf="unreadCount > 0">Mark all read</button>
+          </div>
+          <div *ngIf="notifications.length === 0" class="notif-empty">
+            <span class="material-symbols-outlined">notifications_off</span>
+            <p>No notifications</p>
+          </div>
+          <div *ngFor="let n of notifications" class="notif-item" [class.unread]="!n.is_read" (click)="onNotifClick(n)">
+            <div class="notif-dot" *ngIf="!n.is_read"></div>
+            <div class="notif-content">
+              <div class="notif-title">{{ n.title }}</div>
+              <div class="notif-msg">{{ n.message }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- PROFILE DROPDOWN -->
       <div class="avatar-wrap">
         <img
           [src]="user?.profile_image || 'http://localhost:8000/uploads/default.png'"
-          (click)="menuOpen = !menuOpen"
+          (click)="menuOpen = !menuOpen; $event.stopPropagation(); notifOpen = false"
           class="avatar"
           alt="profile">
 
@@ -84,7 +110,7 @@
 
     <!-- CATEGORY FILTER -->
     <div class="filter-group">
-      <h4 class="filter-label">Categories</h4>
+      <h4 class="filter-label" style="margin-top: -1rem;">Categories</h4>
       <div class="checkbox-list">
         <label class="custom-checkbox">
           <input type="checkbox" [checked]="selectedCategories.length === 0" (change)="toggleCategory('All')">
@@ -150,12 +176,12 @@
 
       <!-- JOB GRID -->
       <section *ngIf="!loading && filteredJobs.length > 0" class="grid-3col">
-        <div *ngFor="let job of filteredJobs" class="job-card">
+        <div *ngFor="let job of filteredJobs" class="job-card" (click)="openJobDetail(job, $event)">
           <!-- TOP ROW -->
           <div class="card-top">
             <span class="category-badge">{{ job.category }}</span>
             <div style="display:flex; align-items:center; gap:8px;">
-              <button *ngIf="user?.role === 'admin'" (click)="deleteJob(job)" class="delete-btn">
+              <button *ngIf="user?.role === 'admin'" (click)="deleteJob(job); $event.stopPropagation()" class="delete-btn">
                 <span class="material-symbols-outlined">delete</span>
               </button>
               <span class="open-badge">
@@ -175,17 +201,27 @@
           <div class="card-footer">
             <div class="card-budget">
               <span class="material-symbols-outlined budget-icon">payments</span>
-              ${{ job.budget }}
+              {{ job.budget }} TND
             </div>
 
-            <button *ngIf="user?.role === 'freelancer' && !job.applied" (click)="apply(job)" class="apply-btn">
+            <button *ngIf="user?.role === 'freelancer' && !job.applied && !job.rejected" (click)="apply(job); $event.stopPropagation()" class="apply-btn">
               Apply Now
               <span class="material-symbols-outlined arrow-icon">arrow_forward</span>
+            </button>
+
+            <button *ngIf="user?.role === 'freelancer' && job.rejected" (click)="apply(job); $event.stopPropagation()" class="apply-btn reapply-btn">
+              Re-apply
+              <span class="material-symbols-outlined arrow-icon">refresh</span>
             </button>
 
             <div *ngIf="user?.role === 'freelancer' && job.applied" class="applied-status">
               <span class="material-symbols-outlined">check_circle</span>
               Applied
+            </div>
+
+            <div *ngIf="user?.role === 'freelancer' && job.rejected && !job.applied" class="rejected-badge">
+              <span class="material-symbols-outlined">cancel</span>
+              Rejected
             </div>
           </div>
         </div>
@@ -325,35 +361,145 @@
 
     <div class="modal">
 
-      <h2>Delete Job</h2>
+    <h2>Delete Job</h2>
 
-      <p>Are you sure you want to delete this job?</p>
+    <p>Are you sure you want to delete this job?</p>
 
-      <!-- ERROR -->
-      <div *ngIf="deleteError" class="error-banner">
-        {{ deleteError }}
-      </div>
+    <!-- ERROR -->
+    <div *ngIf="deleteError" class="error-banner">
+      {{ deleteError }}
+    </div>
 
-      <div class="modal-actions">
+    <div class="modal-actions">
 
-        <!-- CANCEL -->
-        <button (click)="deleteModal = false" class="btn cancel">
-          Cancel
-        </button>
+      <!-- CANCEL -->
+      <button (click)="deleteModal = false" class="btn cancel">
+        Cancel
+      </button>
 
-        <!-- CONFIRM -->
-        <button
-          (click)="confirmDelete()"
-          class="btn confirm"
-          [disabled]="deleteLoading">
+      <!-- CONFIRM -->
+      <button
+        (click)="confirmDelete()"
+        class="btn confirm"
+        [disabled]="deleteLoading">
 
-          <span *ngIf="!deleteLoading">Delete</span>
-          <span *ngIf="deleteLoading">Deleting...</span>
+        <span *ngIf="!deleteLoading">Delete</span>
+        <span *ngIf="deleteLoading">Deleting...</span>
 
-        </button>
-
-      </div>
+      </button>
 
     </div>
 
   </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- JOB DETAIL MODAL                                            -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" [class.open]="jobDetailOpen" (click)="closeJobDetail()">
+  <div class="detail-modal" (click)="$event.stopPropagation()">
+
+    <div class="detail-header">
+      <div>
+        <span class="category-badge">{{ detailJob?.category }}</span>
+        <h2 class="detail-title">{{ detailJob?.title }}</h2>
+      </div>
+      <button class="modal-close" (click)="closeJobDetail()">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+
+    <div class="detail-body">
+      <div class="detail-meta">
+        <div class="detail-meta-item">
+          <span class="material-symbols-outlined">payments</span>
+          <span><strong>{{ detailJob?.budget }} TND</strong></span>
+        </div>
+        <div class="detail-meta-item">
+          <span class="material-symbols-outlined">work</span>
+          <span>{{ detailJob?.status | titlecase }}</span>
+        </div>
+      </div>
+
+      <div class="detail-section">
+        <h4 class="detail-section-label">Description</h4>
+        <p class="detail-desc">{{ detailJob?.description }}</p>
+      </div>
+    </div>
+
+    <div class="detail-footer">
+      <!-- Report button (all roles) -->
+      <button class="btn btn-report" (click)="openReportModal(detailJob, $event)">
+        <span class="material-symbols-outlined">flag</span>
+        Report Job
+      </button>
+
+      <div style="display:flex; gap:10px; margin-left:auto">
+        <!-- Freelancer: Apply -->
+        <button *ngIf="user?.role === 'freelancer' && !detailJob?.applied" class="btn btn-primary" (click)="applyFromDetail()">
+          <span class="material-symbols-outlined">send</span>
+          Apply Now
+        </button>
+        <div *ngIf="user?.role === 'freelancer' && detailJob?.applied" class="applied-status">
+          <span class="material-symbols-outlined">check_circle</span> Applied
+        </div>
+        <!-- Client / Admin: Delete -->
+        <button *ngIf="user?.role === 'client' || user?.role === 'admin'" class="btn btn-danger btn-sm" (click)="deleteFromDetail()">
+          <span class="material-symbols-outlined">delete</span> Delete
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- REPORT MODAL                                                -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" [class.open]="reportModalOpen" (click)="closeReportModal()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <span class="modal-title">Report Job</span>
+      <button class="modal-close" (click)="closeReportModal()">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+
+    <div *ngIf="reportSuccess" class="success-banner">{{ reportSuccess }}</div>
+    <div *ngIf="reportError" class="error-banner">{{ reportError }}</div>
+
+    <div class="form-group" style="margin-top:12px">
+      <label class="form-label">Reason for reporting</label>
+      <textarea class="form-textarea" [(ngModel)]="reportReason"
+        placeholder="Please describe why this job is inappropriate or violates our policies…"
+        rows="4"></textarea>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-ghost" (click)="closeReportModal()">Cancel</button>
+      <button class="btn btn-danger" (click)="submitReport()" [disabled]="reportSubmitting">
+        <span class="material-symbols-outlined">flag</span>
+        {{ reportSubmitting ? 'Submitting...' : 'Submit Report' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- NOTIFICATION PANEL                                          -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="notification-panel" [class.open]="notifOpen">
+  <div class="notification-header">
+    <h3>Notifications</h3>
+    <button (click)="notifOpen = false" class="modal-close">
+        <span class="material-symbols-outlined">close</span>
+    </button>
+  </div>
+  <div class="notification-list">
+    <div *ngFor="let note of notifications" class="notification-item">
+      <p>{{ note.message }}</p>
+      <small>{{ note.timestamp | date:'short' }}</small>
+    </div>
+    <div *ngIf="notifications.length === 0" class="empty-list">No new notifications</div>
+  </div>
+</div>

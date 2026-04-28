@@ -16,7 +16,16 @@ export const routes: Routes = [
 
   { path: 'home', component: Home, canActivate: [authGuard] },
   { path: 'ClientDashboard', component: ClientDashboard, canActivate: [roleGuard], data: { role: 'client' } },
-  { path : 'FreelancerDashboard', component: FreelancerDashboardComponent , canActivate:[roleGuard], data: { role: 'freelancer' }},
-  { path: 'AdminDashboard', component: AdminDashboardComponent, canActivate:[roleGuard], data: { role: 'admin' } },
+  { path: 'FreelancerDashboard', component: FreelancerDashboardComponent, canActivate: [roleGuard], data: { role: 'freelancer' } },
+  { path: 'AdminDashboard', component: AdminDashboardComponent, canActivate: [roleGuard], data: { role: 'admin' } },
+  
+  // Aliases for notification links
+  { path: 'admin', redirectTo: 'AdminDashboard' },
+  { path: 'admin-dashboard', redirectTo: 'AdminDashboard' },
+  { path: 'client', redirectTo: 'ClientDashboard' },
+  { path: 'client-dashboard', redirectTo: 'ClientDashboard' },
+  { path: 'freelancer', redirectTo: 'FreelancerDashboard' },
+  { path: 'freelancer-dashboard', redirectTo: 'FreelancerDashboard' },
+
   { path: '', redirectTo: 'login', pathMatch: 'full' }
 ];

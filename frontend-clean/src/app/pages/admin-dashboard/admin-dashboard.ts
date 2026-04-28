@@ -1,19 +1,21 @@
-import { Component, OnInit, HostListener, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, HostListener, ChangeDetectorRef, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router, ActivatedRoute } from '@angular/router';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormsModule } from '@angular/forms';
 import { AdminService } from '../../services/admin';
 import { Auth } from '../../services/auth';
 import { normalizeImage } from '../../core/utils/image';
+import { NotificationService } from '../../services/notification';
+import { ReportService } from '../../services/report';
 
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule, ReactiveFormsModule],
+  imports: [CommonModule, RouterModule, ReactiveFormsModule, FormsModule],
   templateUrl: './admin-dashboard.html',
   styleUrls: ['./admin-dashboard.css']
 })
-export class AdminDashboardComponent implements OnInit {
+export class AdminDashboardComponent implements OnInit, OnDestroy {
 
   // ---- Auth ----
   user: any = null;
@@ -63,13 +65,29 @@ export class AdminDashboardComponent implements OnInit {
   toastVisible = false;
   private toastTimer: any;
 
+  // ---- Notifications ----
+  notifOpen = false;
+  notifications: any[] = [];
+  unreadCount = 0;
+  private notifPollInterval: any;
+
+  // ---- Reports ----
+  reports: any[] = [];
+  reportDeleteModalOpen = false;
+  reportToDelete: any = null;
+  reportAdminMessage = '';
+  modalError = '';
+  modalLoading = false;
+
   constructor(
     private adminService: AdminService, 
     private auth: Auth,
     private router: Router,
     private cdr: ChangeDetectorRef,
     private route: ActivatedRoute,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private notificationService: NotificationService,
+    private reportService: ReportService
   ) {
     this.searchForm = this.fb.group({
       userSearch: [''],
@@ -109,11 +127,74 @@ export class AdminDashboardComponent implements OnInit {
 
     this.loadAdminData();
 
+    this.loadUnreadCount();
+    this.notifPollInterval = setInterval(() => this.loadUnreadCount(), 60000);
+    
+    if (this.activeSection === 'reports') {
+      this.loadReports();
+    }
+
     document.addEventListener('click', () => {
       this.menuOpen = false;
       this.imageMenu = false;
+      this.notifOpen = false;
       this.cdr.detectChanges();
     });
+  }
+
+  ngOnDestroy() {
+    if (this.notifPollInterval) clearInterval(this.notifPollInterval);
+  }
+
+  // =========================
+  // NOTIFICATIONS
+  // =========================
+  loadUnreadCount() {
+    this.notificationService.getUnreadCount().subscribe({
+      next: (res) => { this.unreadCount = res.count; this.cdr.detectChanges(); },
+      error: () => {}
+    });
+  }
+
+  toggleNotifPanel(event: MouseEvent) {
+    event.stopPropagation();
+    this.notifOpen = !this.notifOpen;
+    this.menuOpen = false;
+    if (this.notifOpen) this.loadNotifications();
+    this.cdr.detectChanges();
+  }
+
+  toggleMenu(event: MouseEvent) {
+    event.stopPropagation();
+    this.menuOpen = !this.menuOpen;
+    this.notifOpen = false;
+    this.cdr.detectChanges();
+  }
+
+  loadNotifications() {
+    this.notificationService.getAll().subscribe({
+      next: (res) => { this.notifications = res; this.cdr.detectChanges(); },
+      error: () => {}
+    });
+  }
+
+  markAllRead() {
+    this.notificationService.markAllRead().subscribe({
+      next: () => {
+        this.notifications.forEach(n => n.is_read = true);
+        this.unreadCount = 0;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  onNotifClick(notif: any) {
+    this.notificationService.markRead(notif.id).subscribe();
+    notif.is_read = true;
+    this.unreadCount = Math.max(0, this.unreadCount - 1);
+    this.notifOpen = false;
+    if (notif.link) this.router.navigateByUrl(notif.link);
+    this.cdr.detectChanges();
   }
 
   /**
@@ -123,8 +204,6 @@ export class AdminDashboardComponent implements OnInit {
   loadAdminData() {
     this.dataLoading = true;
 
-    // Load all admin data in parallel
-    // the interceptor handles the token
     this.adminService.getAllData().subscribe({
       next: ({ stats, users, jobs, proposals }) => {
         this.stats = stats;
@@ -145,17 +224,19 @@ export class AdminDashboardComponent implements OnInit {
     });
   }
 
-  showSection(name: string) { 
-    this.activeSection = name; 
+  showSection(section: string) {
+    this.activeSection = section;
+    this.router.navigate([], { relativeTo: this.route, queryParams: { section }});
     this.menuOpen = false;
-    this.cdr.detectChanges();
+    if (section !== 'profile') this.editMode = false;
+    if (section === 'reports') {
+      this.loadReports();
+    } else {
+      this.loadAdminData();
+    }
   }
 
-  toggleMenu(event: MouseEvent) {
-    event.stopPropagation();
-    this.menuOpen = !this.menuOpen;
-    this.cdr.detectChanges();
-  }
+
 
   goHome() {
     this.router.navigate(['/home']);
@@ -363,15 +444,90 @@ export class AdminDashboardComponent implements OnInit {
     this.router.navigate(['/login']); 
   }
 
-  showToast(message: string, type = '') {
-    clearTimeout(this.toastTimer);
+  showToast(message: string, type: 'success' | 'error') {
     this.toastMessage = message;
     this.toastType = type;
     this.toastVisible = true;
-    this.toastTimer = setTimeout(() => { 
-      this.toastVisible = false; 
+    this.cdr.detectChanges();
+    
+    if (this.toastTimer) clearTimeout(this.toastTimer);
+    this.toastTimer = setTimeout(() => {
+      this.toastVisible = false;
       this.cdr.detectChanges();
-    }, 3500);
+    }, 3000);
+  }
+
+  // =========================
+  // REPORTS
+  // =========================
+  loadReports() {
+    this.dataLoading = true;
+    this.reportService.getAllReports().subscribe({
+      next: (res) => {
+        this.reports = res;
+        this.dataLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.dataLoading = false;
+        this.showToast('Failed to load reports', 'error');
+      }
+    });
+  }
+
+  ignoreReport(reportId: number) {
+    this.reportService.ignoreReport(reportId).subscribe({
+      next: () => {
+        this.reports = this.reports.filter(r => r.id !== reportId);
+        this.showToast('Report ignored', 'success');
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.showToast('Failed to ignore report', 'error');
+      }
+    });
+  }
+
+  openReportDeleteModal(report: any) {
+    this.reportToDelete = report;
+    this.reportAdminMessage = '';
+    this.modalError = '';
+    this.reportDeleteModalOpen = true;
+  }
+
+  confirmReportDelete() {
+    if (!this.reportToDelete || !this.reportAdminMessage.trim()) return;
+    this.modalLoading = true;
+    
+    if (this.reportToDelete.target_type === 'job') {
+      this.adminService.deleteJob(this.reportToDelete.target_id, this.reportAdminMessage).subscribe({
+        next: () => {
+          this.handleReportDeleteSuccess();
+        },
+        error: (err) => this.handleReportDeleteError(err)
+      });
+    } else if (this.reportToDelete.target_type === 'proposal') {
+      this.adminService.deleteProposal(this.reportToDelete.target_id, this.reportAdminMessage).subscribe({
+        next: () => {
+          this.handleReportDeleteSuccess();
+        },
+        error: (err) => this.handleReportDeleteError(err)
+      });
+    }
+  }
+  
+  handleReportDeleteSuccess() {
+    this.modalLoading = false;
+    this.reportDeleteModalOpen = false;
+    this.showToast(`${this.reportToDelete.target_type} deleted successfully`, 'success');
+    this.reports = this.reports.filter(r => r.id !== this.reportToDelete.id);
+    this.reportToDelete = null;
+    this.cdr.detectChanges();
+  }
+  
+  handleReportDeleteError(err: any) {
+    this.modalLoading = false;
+    this.modalError = err.error?.detail || 'Failed to delete target';
     this.cdr.detectChanges();
   }
 }

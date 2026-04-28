@@ -1,10 +1,12 @@
-import { Component, OnInit, HostListener } from '@angular/core';
+import { Component, OnInit, HostListener, OnDestroy } from '@angular/core';
 import { CommonModule, TitleCasePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
 import { JobService } from '../../services/job';
 import { ProposalService } from '../../services/proposal';
 import { Auth } from '../../services/auth';
+import { NotificationService } from '../../services/notification';
+import { ReportService } from '../../services/report';
 import { normalizeImage } from '../../core/utils/image';
 import { ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
@@ -16,7 +18,7 @@ import { ActivatedRoute } from '@angular/router';
   templateUrl: './freelancer-dashboard.html',
   styleUrls: ['./freelancer-dashboard.css']
 })
-export class FreelancerDashboardComponent implements OnInit {
+export class FreelancerDashboardComponent implements OnInit, OnDestroy {
 
   // ---- Auth ----
   user: any = null;
@@ -62,12 +64,28 @@ export class FreelancerDashboardComponent implements OnInit {
   menuY = 0;
   viewImageModal = false;
 
+  // ── Notifications ──────────────────────────────────────────
+  notifOpen = false;
+  notifications: any[] = [];
+  unreadCount = 0;
+  private notifPollInterval: any;
+
+  // ── Report Job ──────────────────────────────────────
+  reportModalOpen = false;
+  reportJobId: number | null = null;
+  reportReason = '';
+  reportSubmitting = false;
+  reportError = '';
+  reportSuccess = '';
+
   constructor(
     private proposalService: ProposalService,
     private auth: Auth,
     private router: Router,
     private cdr: ChangeDetectorRef,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private notificationService: NotificationService,
+    private reportService: ReportService
   ) {}
 
   // =========================
@@ -94,10 +112,104 @@ export class FreelancerDashboardComponent implements OnInit {
 
     this.profileForm = { name: this.user.name, email: this.user.email };
 
+    this.loadUnreadCount();
+    this.notifPollInterval = setInterval(() => this.loadUnreadCount(), 60000);
+
     document.addEventListener('click', () => {
       this.imageMenu = false;
       this.menuOpen = false;
+      this.notifOpen = false;
       this.cdr.detectChanges();
+    });
+  }
+
+  ngOnDestroy() {
+    if (this.notifPollInterval) clearInterval(this.notifPollInterval);
+  }
+
+  // ── NOTIFICATIONS ──────────────────────────────────────────
+  loadUnreadCount() {
+    this.notificationService.getUnreadCount().subscribe({
+      next: (res) => { this.unreadCount = res.count; this.cdr.detectChanges(); },
+      error: () => {}
+    });
+  }
+
+  toggleNotifPanel(event: MouseEvent) {
+    event.stopPropagation();
+    this.notifOpen = !this.notifOpen;
+    this.menuOpen = false;
+    if (this.notifOpen) this.loadNotifications();
+    this.cdr.detectChanges();
+  }
+
+  toggleMenu(event: MouseEvent) {
+    event.stopPropagation();
+    this.menuOpen = !this.menuOpen;
+    this.notifOpen = false;
+    this.cdr.detectChanges();
+  }
+
+  loadNotifications() {
+    this.notificationService.getAll().subscribe({
+      next: (res) => { this.notifications = res; this.cdr.detectChanges(); },
+      error: () => {}
+    });
+  }
+
+  markAllRead() {
+    this.notificationService.markAllRead().subscribe({
+      next: () => {
+        this.notifications.forEach(n => n.is_read = true);
+        this.unreadCount = 0;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  onNotifClick(notif: any) {
+    this.notificationService.markRead(notif.id).subscribe();
+    notif.is_read = true;
+    this.unreadCount = Math.max(0, this.unreadCount - 1);
+    this.notifOpen = false;
+    if (notif.link) this.router.navigateByUrl(notif.link);
+    this.cdr.detectChanges();
+  }
+
+  // ── REPORT JOB ──────────────────────────────────────
+  openReportModal(jobId: number, event: MouseEvent) {
+    event.stopPropagation();
+    this.reportJobId = jobId;
+    this.reportReason = '';
+    this.reportError = '';
+    this.reportSuccess = '';
+    this.reportModalOpen = true;
+    this.cdr.detectChanges();
+  }
+
+  closeReportModal() {
+    this.reportModalOpen = false;
+    this.reportJobId = null;
+    this.cdr.detectChanges();
+  }
+
+  submitReport() {
+    if (!this.reportReason.trim()) { this.reportError = 'Please provide a reason.'; return; }
+    if (!this.reportJobId) return;
+    this.reportSubmitting = true;
+    this.reportError = '';
+    this.reportService.reportJob(this.reportJobId, this.reportReason).subscribe({
+      next: () => {
+        this.reportSubmitting = false;
+        this.reportSuccess = 'Report submitted.';
+        this.cdr.detectChanges();
+        setTimeout(() => this.closeReportModal(), 1500);
+      },
+      error: (err) => {
+        this.reportSubmitting = false;
+        this.reportError = err.error?.detail || 'Failed to submit report.';
+        this.cdr.detectChanges();
+      }
     });
   }
 
@@ -258,10 +370,7 @@ export class FreelancerDashboardComponent implements OnInit {
   // UI / NAVIGATION
   // =========================
 
-  toggleMenu(event: MouseEvent) {
-    event.stopPropagation();
-    this.menuOpen = !this.menuOpen;
-  }
+
 
   showSection(name: string) {
     this.activeSection = name;

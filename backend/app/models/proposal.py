@@ -16,6 +16,7 @@ class Proposal(Base):
     price=Column(Integer,nullable=False)
     
     status = Column(String(50), default="pending")
+    report_count = Column(Integer, default=0)
     created_at=Column(DateTime,default=datetime.utcnow)
     
 

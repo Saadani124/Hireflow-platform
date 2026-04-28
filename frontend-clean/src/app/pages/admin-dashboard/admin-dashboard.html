@@ -10,7 +10,33 @@
 
     <!-- RIGHT SIDE -->
     <div class="nav-right">
+      <!-- NOTIFICATION BELL -->
+      <div class="notif-wrap" *ngIf="user">
+        <button class="notif-btn" (click)="toggleNotifPanel($event)">
+          <span class="material-symbols-outlined">notifications</span>
+          <span *ngIf="unreadCount > 0" class="notif-badge">{{ unreadCount > 9 ? '9+' : unreadCount }}</span>
+        </button>
+        <div *ngIf="notifOpen" class="notif-panel" (click)="$event.stopPropagation()">
+          <div class="notif-panel-header">
+            <span>Notifications</span>
+            <button class="notif-mark-all" (click)="markAllRead()" *ngIf="unreadCount > 0">Mark all read</button>
+          </div>
+          <div *ngIf="notifications.length === 0" class="notif-empty">
+            <span class="material-symbols-outlined">notifications_off</span>
+            <p>No notifications</p>
+          </div>
+          <div *ngFor="let n of notifications" class="notif-item" [class.unread]="!n.is_read" (click)="onNotifClick(n)">
+            <div class="notif-dot" *ngIf="!n.is_read"></div>
+            <div class="notif-content">
+              <div class="notif-title">{{ n.title }}</div>
+              <div class="notif-msg">{{ n.message }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <span class="nav-admin-name">{{ user?.name || '—' }}</span>
+
       <!-- PROFILE DROPDOWN -->
       <div class="avatar-wrap">
         <img
@@ -57,6 +83,9 @@
     </a>
     <a class="nav-item" [class.active]="activeSection === 'proposals'" (click)="showSection('proposals')">
       <span class="material-symbols-outlined">description</span> Proposals
+    </a>
+    <a class="nav-item" [class.active]="activeSection === 'reports'" (click)="showSection('reports')">
+      <span class="material-symbols-outlined">flag</span> Reports
     </a>
     <a class="nav-item" [class.active]="activeSection === 'profile'" (click)="showSection('profile')">
       <span class="material-symbols-outlined">person</span> Profile
@@ -419,9 +448,95 @@
 
     </section>
 
+    <!-- ===== REPORTS ===== -->
+    <section *ngIf="activeSection === 'reports'" class="page-section">
+      <div class="page-header">
+        <h1>Reports</h1>
+        <p>User submitted reports for jobs and proposals</p>
+      </div>
+      <div class="section-card">
+        <div class="section-card-header">
+          <span class="section-card-title">All Reports ({{ reports.length }})</span>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Target</th>
+                <th>Reporter</th>
+                <th>Reason</th>
+                <th>Date</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngIf="dataLoading">
+                <td colspan="5"><div class="empty-state"><p>Loading reports...</p></div></td>
+              </tr>
+              <tr *ngIf="!dataLoading && reports.length === 0">
+                <td colspan="5">
+                  <div class="empty-state">
+                    <span class="material-symbols-outlined">done_all</span>
+                    <p>No active reports.</p>
+                  </div>
+                </td>
+              </tr>
+              <tr *ngFor="let r of reports">
+                <td>
+                  <strong>{{ r.target_type | titlecase }} #{{ r.target_id }}</strong>
+                </td>
+                <td>{{ r.reporter_name }}</td>
+                <td style="max-width:250px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                  {{ r.reason }}
+                </td>
+                <td>{{ formatDate(r.created_at) }}</td>
+                <td>
+                  <div style="display:flex; gap:6px;">
+                    <button class="btn btn-ghost btn-sm" (click)="ignoreReport(r.id)">
+                      <span class="material-symbols-outlined">visibility_off</span> Ignore
+                    </button>
+                    <button class="btn btn-danger btn-sm" (click)="openReportDeleteModal(r)">
+                      <span class="material-symbols-outlined">delete</span> Delete Target
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
   </main>
 </div>
 
+<!-- REPORT DELETE MODAL (requires admin_message) -->
+<div class="modal-overlay" [class.open]="reportDeleteModalOpen" (click)="reportDeleteModalOpen = false">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <span class="modal-title">Delete Target {{ reportToDelete?.target_type | titlecase }}</span>
+      <button class="modal-close" (click)="reportDeleteModalOpen = false">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    
+    <div *ngIf="modalError" class="error-banner">{{ modalError }}</div>
+    
+    <p>You are about to delete <strong>{{ reportToDelete?.target_type | titlecase }} #{{ reportToDelete?.target_id }}</strong>.</p>
+    <p>Please provide a message that will be sent to the affected user:</p>
+    
+    <div class="form-group" style="margin-top:12px">
+      <textarea class="form-textarea" [(ngModel)]="reportAdminMessage" placeholder="Reason for deletion..." rows="3"></textarea>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-ghost" (click)="reportDeleteModalOpen = false">Cancel</button>
+      <button class="btn btn-danger" (click)="confirmReportDelete()" [disabled]="modalLoading || !reportAdminMessage.trim()">
+        <span class="material-symbols-outlined">delete</span> {{ modalLoading ? 'Deleting...' : 'Delete Target' }}
+      </button>
+    </div>
+  </div>
+</div>
 <!-- IMAGE CONTEXT MENU -->
 <div *ngIf="imageMenu"
      class="image-menu"

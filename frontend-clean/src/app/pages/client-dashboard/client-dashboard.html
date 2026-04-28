@@ -11,7 +11,33 @@
 
     <!-- RIGHT SIDE -->
     <div class="nav-right">
+      <!-- NOTIFICATION BELL -->
+      <div class="notif-wrap">
+        <button class="notif-btn" (click)="toggleNotifPanel($event)">
+          <span class="material-symbols-outlined">notifications</span>
+          <span *ngIf="unreadCount > 0" class="notif-badge">{{ unreadCount > 9 ? '9+' : unreadCount }}</span>
+        </button>
+        <div *ngIf="notifOpen" class="notif-panel" (click)="$event.stopPropagation()">
+          <div class="notif-panel-header">
+            <span>Notifications</span>
+            <button class="notif-mark-all" (click)="markAllRead()" *ngIf="unreadCount > 0">Mark all read</button>
+          </div>
+          <div *ngIf="notifications.length === 0" class="notif-empty">
+            <span class="material-symbols-outlined">notifications_off</span>
+            <p>No notifications</p>
+          </div>
+          <div *ngFor="let n of notifications" class="notif-item" [class.unread]="!n.is_read" (click)="onNotifClick(n)">
+            <div class="notif-dot" *ngIf="!n.is_read"></div>
+            <div class="notif-content">
+              <div class="notif-title">{{ n.title }}</div>
+              <div class="notif-msg">{{ n.message }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <span class="nav-user-name">{{ user?.name || '—' }}</span>
+
       <!-- PROFILE DROPDOWN -->
       <div class="avatar-wrap">
         <img
@@ -290,6 +316,10 @@
                 <span class="material-symbols-outlined">close</span>
                 Reject
               </button>
+              <button class="btn btn-ghost btn-sm" (click)="openReportModal(p.id, $event)">
+                <span class="material-symbols-outlined">flag</span>
+                Report
+              </button>
             </div>
           </div>
         </div>
@@ -411,8 +441,40 @@
 </div>
 
 <!-- TOAST -->
-<div class="toast" [class.show]="toastVisible" [class.success]="toastType === 'success'" [class.error]="toastType === 'error'">
+<div *ngIf="toastVisible" class="toast" [ngClass]="toastType">
   {{ toastMessage }}
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- REPORT PROPOSAL MODAL                                       -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" [class.open]="reportModalOpen" (click)="closeReportModal()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <span class="modal-title">Report Proposal</span>
+      <button class="modal-close" (click)="closeReportModal()">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+
+    <div *ngIf="reportSuccess" class="success-banner">{{ reportSuccess }}</div>
+    <div *ngIf="reportError" class="error-banner">{{ reportError }}</div>
+
+    <div class="form-group" style="margin-top:12px">
+      <label class="form-label">Reason for reporting</label>
+      <textarea class="form-textarea" [(ngModel)]="reportReason"
+        placeholder="Why are you reporting this proposal?"
+        rows="4"></textarea>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-ghost" (click)="closeReportModal()">Cancel</button>
+      <button class="btn btn-danger" (click)="submitReport()" [disabled]="reportSubmitting">
+        <span class="material-symbols-outlined">flag</span>
+        {{ reportSubmitting ? 'Submitting...' : 'Submit Report' }}
+      </button>
+    </div>
+  </div>
 </div>
 
 <!-- STATUS BADGE TEMPLATE -->

@@ -16,4 +16,5 @@ class Job(Base):
     category = Column(String(50), nullable=False)
 
     client_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    report_count = Column(Integer, default=0)
     created_at = Column(DateTime, default=datetime.utcnow)

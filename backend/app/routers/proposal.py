@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
+from datetime import datetime
 from sqlalchemy.orm import Session ,joinedload
 
 from app.db.session import get_db
@@ -28,8 +29,19 @@ def apply_to_job(data: ProposalCreate,
     exist = db.query(Proposal).filter(
         Proposal.job_id==data.job_id,
         Proposal.freelancer_id==user.id).first()
+    
     if exist:
-        raise HTTPException(status_code=400,detail="Already applied")
+        if exist.status != "rejected":
+            raise HTTPException(status_code=400,detail="Already applied")
+        else:
+            # If rejected, allow re-applying by updating the existing proposal
+            exist.message = data.message
+            exist.price = data.price
+            exist.status = "pending"
+            exist.created_at = datetime.now()
+            db.commit()
+            db.refresh(exist)
+            return exist
 
     proposal = Proposal(
         job_id=data.job_id,

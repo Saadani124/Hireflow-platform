@@ -16,3 +16,7 @@ class JobResponse(BaseModel):
     status: str
     category: str
     applied: bool = False
+    rejected: bool = False
+    
+    class Config:
+        from_attributes = True

@@ -12,13 +12,13 @@ class UserMini(BaseModel):
     profile_image: str | None
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 class JobMini(BaseModel):
     id: int
     title: str
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 #bch nhasno l response mtaa l API
 class ProposalResponse(BaseModel):
     id: int
@@ -30,5 +30,5 @@ class ProposalResponse(BaseModel):
     freelancer: UserMini  #REPLACE freelancer_id
     job: JobMini
     class Config:
-        orm_mode = True
+        from_attributes = True
 

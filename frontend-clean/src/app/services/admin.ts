@@ -36,15 +36,18 @@ export class AdminService {
     });
   }
 
-  deleteJob(id: number): Observable<any> {
-    return this.http.delete(`${this.BASE}/jobs/${id}`);
+  deleteJob(id: number, adminMessage?: string): Observable<any> {
+    const options = adminMessage ? { body: { admin_message: adminMessage } } : {};
+    return this.http.delete(`${this.BASE}/jobs/${id}`, options);
   }
 
-  deleteUser(id: number): Observable<any> {
-    return this.http.delete(`${this.BASE}/users/${id}`);
+  deleteUser(id: number, adminMessage?: string): Observable<any> {
+    const options = adminMessage ? { body: { admin_message: adminMessage } } : {};
+    return this.http.delete(`${this.BASE}/users/${id}`, options);
   }
 
-  deleteProposal(id: number): Observable<any> {
-    return this.http.delete(`${this.BASE}/proposals/${id}`);
+  deleteProposal(id: number, adminMessage?: string): Observable<any> {
+    const options = adminMessage ? { body: { admin_message: adminMessage } } : {};
+    return this.http.delete(`${this.BASE}/proposals/${id}`, options);
   }
 }

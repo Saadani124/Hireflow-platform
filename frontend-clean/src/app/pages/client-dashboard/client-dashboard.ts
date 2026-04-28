@@ -1,10 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ChangeDetectorRef } from '@angular/core';
 import { JobService } from '../../services/job';
 import { ProposalService } from '../../services/proposal';
 import { Auth } from '../../services/auth';
+import { NotificationService } from '../../services/notification';
+import { ReportService } from '../../services/report';
 import { ActivatedRoute } from '@angular/router';
 import { Router } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, Validators, FormGroup } from '@angular/forms';
@@ -17,7 +19,7 @@ import { normalizeImage } from '../../core/utils/image';
   templateUrl: './client-dashboard.html',
   styleUrls: ['./client-dashboard.css']
 })
-export class ClientDashboard implements OnInit {
+export class ClientDashboard implements OnInit, OnDestroy {
 
   user: any = null;
 
@@ -59,6 +61,20 @@ export class ClientDashboard implements OnInit {
 
   viewModal = false;
   normalizeImage = normalizeImage;
+
+  // ── Notifications ──────────────────────────────────────────
+  notifOpen = false;
+  notifications: any[] = [];
+  unreadCount = 0;
+  private notifPollInterval: any;
+
+  // ── Report Proposal ──────────────────────────────────────
+  reportModalOpen = false;
+  reportProposalId: number | null = null;
+  reportReason = '';
+  reportSubmitting = false;
+  reportError = '';
+  reportSuccess = '';
   // =========================
   // CONSTRUCTOR
   // =========================
@@ -70,7 +86,9 @@ export class ClientDashboard implements OnInit {
     private auth: Auth,
     private router: Router,
     private cdr: ChangeDetectorRef,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private notificationService: NotificationService,
+    private reportService: ReportService
   ) {
     this.profileForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(3)]],
@@ -97,6 +115,9 @@ export class ClientDashboard implements OnInit {
 
     this.loadJobs();
 
+    this.loadUnreadCount();
+    this.notifPollInterval = setInterval(() => this.loadUnreadCount(), 60000);
+
     this.profileForm.patchValue({
       name: this.user.name,
       email: this.user.email
@@ -105,7 +126,97 @@ export class ClientDashboard implements OnInit {
     document.addEventListener('click', () => {
       this.imageMenu = false;
       this.menuOpen = false;
+      this.notifOpen = false;
       this.cdr.detectChanges();
+    });
+  }
+
+  ngOnDestroy() {
+    if (this.notifPollInterval) clearInterval(this.notifPollInterval);
+  }
+
+  // ── NOTIFICATIONS ──────────────────────────────────────────
+  loadUnreadCount() {
+    this.notificationService.getUnreadCount().subscribe({
+      next: (res) => { this.unreadCount = res.count; this.cdr.detectChanges(); },
+      error: () => {}
+    });
+  }
+
+  toggleNotifPanel(event: MouseEvent) {
+    event.stopPropagation();
+    this.notifOpen = !this.notifOpen;
+    if (this.notifOpen) this.loadNotifications();
+    this.cdr.detectChanges();
+  }
+
+  toggleMenu(event: MouseEvent) {
+    event.stopPropagation();
+    this.menuOpen = !this.menuOpen;
+    this.notifOpen = false;
+    this.cdr.detectChanges();
+  }
+
+  loadNotifications() {
+    this.notificationService.getAll().subscribe({
+      next: (res) => { this.notifications = res; this.cdr.detectChanges(); },
+      error: () => {}
+    });
+  }
+
+  markAllRead() {
+    this.notificationService.markAllRead().subscribe({
+      next: () => {
+        this.notifications.forEach(n => n.is_read = true);
+        this.unreadCount = 0;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  onNotifClick(notif: any) {
+    this.notificationService.markRead(notif.id).subscribe();
+    notif.is_read = true;
+    this.unreadCount = Math.max(0, this.unreadCount - 1);
+    this.notifOpen = false;
+    if (notif.link) this.router.navigateByUrl(notif.link);
+    this.cdr.detectChanges();
+  }
+
+  // ── REPORT PROPOSAL ──────────────────────────────────────
+  openReportModal(proposalId: number, event: MouseEvent) {
+    event.stopPropagation();
+    this.reportProposalId = proposalId;
+    this.reportReason = '';
+    this.reportError = '';
+    this.reportSuccess = '';
+    this.reportModalOpen = true;
+    this.cdr.detectChanges();
+  }
+
+  closeReportModal() {
+    this.reportModalOpen = false;
+    this.reportProposalId = null;
+    this.cdr.detectChanges();
+  }
+
+  submitReport() {
+    if (!this.reportReason.trim()) { this.reportError = 'Please provide a reason.'; return; }
+    if (!this.reportProposalId) return;
+    this.reportSubmitting = true;
+    this.reportError = '';
+    this.reportService.reportProposal(this.reportProposalId, this.reportReason).subscribe({
+      next: () => {
+        this.reportSubmitting = false;
+        this.reportSuccess = 'Report submitted.';
+        this.cdr.detectChanges();
+        setTimeout(() => this.closeReportModal(), 1500);
+      },
+      error: (err) => {
+        this.reportSubmitting = false;
+        this.reportError = err.error?.detail || 'Failed to submit report.';
+        this.cdr.detectChanges();
+      }
     });
   }
 
@@ -413,10 +524,7 @@ export class ClientDashboard implements OnInit {
   // UI / NAVIGATION
   // =========================
 
-  toggleMenu(event: MouseEvent) {
-    event.stopPropagation();
-    this.menuOpen = !this.menuOpen;
-  }
+
 
   showSection(section: string) {
     this.activeSection = section;
