@@ -196,18 +196,18 @@
 .nav-item.danger:hover { background: #fee2e2; }
 .nav-item.danger .material-symbols-outlined { color: #ba1a1a; }
 
-/* ========= EDIT ICON ========= */
 .edit-icon {
   font-size: 20px;
-  color: #8a8d9a;
+  color: #434655;
   padding: 8px;
   border-radius: 50%;
   transition: all 0.2s;
-  align-self: flex-start;
+  cursor: pointer;
+  margin-left: auto;
 }
 .edit-icon:hover {
-  background: #f1f5f9;
-  color: #0284c7;
+  background: #f2f4f6;
+  color: #004ac6;
 }
 
 /* ========= MAIN ========= */
@@ -383,8 +383,8 @@ tr:hover td { background: #f8fafc; }
   align-items: center;
   justify-content: center;
   gap: 6px;
-  padding: 8px 16px;
-  border-radius: 8px;
+  padding: 8px 18px;
+  border-radius: 10px;
   font-size: 14px;
   font-weight: 600;
   font-family: 'Manrope', sans-serif;
@@ -393,8 +393,8 @@ tr:hover td { background: #f8fafc; }
   transition: all 0.2s;
 }
 .btn-sm { padding: 6px 12px; font-size: 13px; }
-.btn-primary { background: #0284c7; color: #ffffff; }
-.btn-primary:hover { background: #0369a1; }
+.btn-primary { background: linear-gradient(135deg, #004ac6, #2563eb); color: #ffffff; }
+.btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
 .btn-ghost { background: transparent; color: #475569; border: 1px solid #cbd5e1;}
 .btn-ghost:hover { background: #f1f5f9; color: #0f172a;}
 .btn-danger { background: #fee2e2; color: #b91c1c; }
@@ -510,13 +510,12 @@ tr:hover td { background: #f8fafc; }
 .profile-card {
   display: flex;
   align-items: center;
-  gap: 24px;
+  gap: 20px;
   background: #ffffff;
-  border-radius: 16px;
-  padding: 32px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  margin-bottom: 32px;
-  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(25, 28, 30, 0.06), 0 0 0 1px rgba(195, 198, 215, 0.25);
+  margin-bottom: 28px;
 }
 .profile-avatar {
   width: 96px;
@@ -597,7 +596,7 @@ tr:hover td { background: #f8fafc; }
 
 .form-group { margin-bottom: 18px; }
 .form-label { display: block; font-size: 13px; font-weight: 600; color: #191c1e; margin-bottom: 6px; }
-.form-textarea {
+.form-input, .form-select, .form-textarea {
   width: 100%;
   padding: 10px 14px;
   background: #f2f4f6;
@@ -610,10 +609,13 @@ tr:hover td { background: #f8fafc; }
   outline: none;
   transition: border-color 0.2s;
   box-sizing: border-box;
+}
+.form-input:focus, .form-select:focus, .form-textarea:focus { border-bottom-color: #004ac6; }
+
+.form-textarea {
   resize: vertical; 
   min-height: 80px;
 }
-.form-textarea:focus { border-bottom-color: #004ac6; }
 
 @keyframes dropIn {
   from { opacity: 0; transform: translateY(-8px); }
