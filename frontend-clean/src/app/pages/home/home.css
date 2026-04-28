@@ -1149,4 +1149,35 @@ small {
 @keyframes modalIn {
   from { opacity: 0; transform: scale(0.96) translateY(12px); }
   to   { opacity: 1; transform: scale(1) translateY(0); }
-}
+}
+/* --- PAGINATION ------------------------------------------- */
+.pagination-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 1px solid rgba(195, 198, 215, 0.25);
+}
+
+.page-info {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--on-surface-variant);
+  background: var(--surface-container);
+  padding: 6px 16px;
+  border-radius: 9999px;
+}
+
+.pagination-wrap .btn-ghost {
+  min-width: 120px;
+  justify-content: center;
+}
+
+.pagination-wrap .btn-ghost:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}

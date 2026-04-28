@@ -51,17 +51,33 @@ def get_all_users(db: Session = Depends(get_db),
 #list jobs
 @router.get("/jobs")
 def get_all_jobs(db: Session = Depends(get_db),
-                 user = Depends(get_current_admin)):
+                 user = Depends(get_current_admin),
+                 skip: int = 0,
+                 limit: int = 50,
+                 search_id: int = None):
 
-    jobs = db.query(Job).all()
-    return jobs
+    query = db.query(Job)
+    if search_id is not None:
+        query = query.filter(Job.id == search_id)
+
+    total = query.count()
+    jobs = query.offset(skip).limit(limit).all()
+    return {"items": jobs, "total": total}
 
 #list proposals
 @router.get("/proposals")
 def get_all_proposals(db: Session = Depends(get_db),
-                      user = Depends(get_current_admin)):
+                       user = Depends(get_current_admin),
+                       skip: int = 0,
+                       limit: int = 50,
+                       search_id: int = None):
 
-    proposals = db.query(Proposal).all()
+    query = db.query(Proposal)
+    if search_id is not None:
+        query = query.filter(Proposal.id == search_id)
+
+    total = query.count()
+    proposals = query.offset(skip).limit(limit).all()
     res = []
     for p in proposals:
         res.append({
@@ -76,7 +92,7 @@ def get_all_proposals(db: Session = Depends(get_db),
             "created_at": p.created_at,
             "report_count": p.report_count if hasattr(p, "report_count") else 0
         })
-    return res
+    return {"items": res, "total": total}
 
 #delete job (admin — requires a message sent to the client)
 @router.delete("/jobs/{job_id}")

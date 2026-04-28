@@ -226,6 +226,19 @@
           </div>
         </div>
       </section>
+
+      <!-- PAGINATION -->
+      <div *ngIf="!loading && totalJobs > pageSize" class="pagination-wrap">
+        <button class="btn btn-ghost" (click)="prevPage()" [disabled]="page === 0">
+          <span class="material-symbols-outlined">chevron_left</span>
+          Previous
+        </button>
+        <span class="page-info">Page {{ page + 1 }}</span>
+        <button class="btn btn-ghost" (click)="nextPage()" [disabled]="(page + 1) * pageSize >= totalJobs">
+          Next
+          <span class="material-symbols-outlined">chevron_right</span>
+        </button>
+      </div>
   </main>
 </div> <!-- /layout -->
 

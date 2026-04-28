@@ -1,0 +1,10 @@
+(fastAPI)
+uvicorn app.main:app --reload    --> run server
+CTRL + C        --> STOP server
+
+
+(postgreSQL)
+psql -U postgres
+
+\c     --> connect to db
+\dt    --> list of tables

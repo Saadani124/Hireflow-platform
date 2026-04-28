@@ -4,8 +4,7 @@ from fastapi import HTTPException
 
 from app.db.session import get_db
 from app.models.job import Job
-from app.schemas.job import JobCreate
-from app.schemas.job import JobResponse
+from app.schemas.job import JobCreate, JobResponse, PaginatedJobResponse
 from app.models.proposal import Proposal
 from app.models.user import User
 
@@ -32,10 +31,13 @@ def create_job(data:JobCreate,
     return job
 
 #list job endpoint
-@router.get("/", response_model=list[JobResponse])
+@router.get("/", response_model=PaginatedJobResponse)
 def list_jobs(db: Session = Depends(get_db),
-              user = Depends(get_current_user)):
-    jobs = db.query(Job).order_by(Job.created_at.desc()).all()
+              user = Depends(get_current_user),
+              skip: int = 0,
+              limit: int = 50):
+    total = db.query(Job).filter(Job.status == "open").count()
+    jobs = db.query(Job).filter(Job.status == "open").order_by(Job.created_at.desc()).offset(skip).limit(limit).all()
     
     # If user is a freelancer, check which jobs they applied to
     if user and user.role == "freelancer":
@@ -51,7 +53,7 @@ def list_jobs(db: Session = Depends(get_db),
             job.applied = status is not None and status != "rejected"
             job.rejected = status == "rejected"
             
-    return jobs
+    return {"items": jobs, "total": total}
 #client consulte ses jobs
 @router.get("/me")
 def get_my_jobs(db: Session=Depends(get_db),

@@ -20,6 +20,7 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
   // ---- Auth ----
   user: any = null;
   normalizeImage = normalizeImage;
+  Math = Math;
   
   // ---- UI State ----
   menuOpen = false;
@@ -37,6 +38,13 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
   allUsers: any[] = [];
   allJobs: any[] = [];
   allProposals: any[] = [];
+
+  // ---- Pagination ----
+  jobPage = 0;
+  proposalPage = 0;
+  pageSize = 50;
+  totalJobs = 0;
+  totalProposals = 0;
 
   // ---- Filtered Data ----
   filteredUsers: any[] = [];
@@ -208,11 +216,19 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
       next: ({ stats, users, jobs, proposals }) => {
         this.stats = stats;
         this.allUsers = users;
-        this.allJobs = jobs;
-        this.allProposals = proposals;
+        
+        // Handle paginated jobs
+        this.allJobs = jobs.items;
+        this.totalJobs = jobs.total;
+        
+        // Handle paginated proposals
+        this.allProposals = proposals.items;
+        this.totalProposals = proposals.total;
+
         this.filteredUsers = [...users];
-        this.filteredJobs = [...jobs];
-        this.filteredProposals = [...proposals];
+        this.filteredJobs = [...this.allJobs];
+        this.filteredProposals = [...this.allProposals];
+        
         this.dataLoading = false;
         this.cdr.detectChanges();
       },
@@ -222,6 +238,68 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
         this.cdr.detectChanges();
       }
     });
+  }
+
+  loadJobs() {
+    this.dataLoading = true;
+    const searchVal = this.searchForm.get('jobSearch')?.value || '';
+    const searchId = (!isNaN(Number(searchVal)) && searchVal.trim() !== '') ? Number(searchVal) : undefined;
+    
+    this.adminService.getJobs(this.jobPage * this.pageSize, this.pageSize, searchId).subscribe({
+      next: (res) => {
+        this.allJobs = res.items;
+        this.totalJobs = res.total;
+        this.filteredJobs = [...this.allJobs];
+        this.dataLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: () => { this.dataLoading = false; }
+    });
+  }
+
+  loadProposals() {
+    this.dataLoading = true;
+    const searchVal = this.searchForm.get('proposalSearch')?.value || '';
+    const searchId = (!isNaN(Number(searchVal)) && searchVal.trim() !== '') ? Number(searchVal) : undefined;
+
+    this.adminService.getProposals(this.proposalPage * this.pageSize, this.pageSize, searchId).subscribe({
+      next: (res) => {
+        this.allProposals = res.items;
+        this.totalProposals = res.total;
+        this.filteredProposals = [...this.allProposals];
+        this.dataLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: () => { this.dataLoading = false; }
+    });
+  }
+
+  nextPageJobs() {
+    if ((this.jobPage + 1) * this.pageSize < this.totalJobs) {
+      this.jobPage++;
+      this.loadJobs();
+    }
+  }
+
+  prevPageJobs() {
+    if (this.jobPage > 0) {
+      this.jobPage--;
+      this.loadJobs();
+    }
+  }
+
+  nextPageProposals() {
+    if ((this.proposalPage + 1) * this.pageSize < this.totalProposals) {
+      this.proposalPage++;
+      this.loadProposals();
+    }
+  }
+
+  prevPageProposals() {
+    if (this.proposalPage > 0) {
+      this.proposalPage--;
+      this.loadProposals();
+    }
   }
 
   showSection(section: string) {
@@ -253,7 +331,17 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
 
   filterJobs(query: string) {
     const q = (query || '').toLowerCase();
+    
+    // If it looks like an ID, we reload from server for specific search
+    // If empty, we reload from server to get the normal paginated list
+    if (q.trim() === '' || (!isNaN(Number(q)) && q.trim() !== '')) {
+      this.jobPage = 0; 
+      this.loadJobs();
+      return;
+    }
+
     this.filteredJobs = this.allJobs.filter(j =>
+      String(j.id).includes(q) ||
       (j.title && j.title.toLowerCase().includes(q)) ||
       (j.category && j.category.toLowerCase().includes(q)) ||
       (j.status && j.status.toLowerCase().includes(q))
@@ -262,7 +350,17 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
 
   filterProposals(query: string) {
     const q = (query || '').toLowerCase();
+
+    // If it looks like an ID, we reload from server for specific search
+    // If empty, we reload from server to get the normal paginated list
+    if (q.trim() === '' || (!isNaN(Number(q)) && q.trim() !== '')) {
+      this.proposalPage = 0;
+      this.loadProposals();
+      return;
+    }
+
     this.filteredProposals = this.allProposals.filter(p =>
+      String(p.id).includes(q) ||
       String(p.job_id).includes(q) ||
       String(p.freelancer_id).includes(q) ||
       (p.status && p.status.toLowerCase().includes(q)) ||

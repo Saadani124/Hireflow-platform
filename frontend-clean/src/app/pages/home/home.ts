@@ -32,6 +32,11 @@ export class Home implements OnInit, OnDestroy {
   absoluteMinPrice = 0;
   absoluteMaxPrice = 0;
 
+  // Pagination
+  page = 0;
+  pageSize = 50;
+  totalJobs = 0;
+
   loading = true;
   skeletons = [1, 2, 3];
   showApplyModal = false;
@@ -216,18 +221,25 @@ export class Home implements OnInit, OnDestroy {
   // ── JOB LOADING & FILTERING ──────────────────────────────────
   loadJobs() {
     this.loading = true;
-    this.jobService.getJobs().subscribe({
-      next: (res: any[]) => {
-        this.jobs = res.filter(job => job.status === 'open').sort((a, b) => {
+    this.jobService.getJobs(this.page * this.pageSize, this.pageSize).subscribe({
+      next: (res: any) => {
+        // Handle both array and paginated response
+        const items = res.items || res;
+        this.totalJobs = res.total || items.length;
+
+        this.jobs = items.filter((job: any) => job.status === 'open').sort((a: any, b: any) => {
           if (a.applied === b.applied) return 0;
           return a.applied ? 1 : -1;
         });
+        
         if (this.jobs.length > 0) {
           const budgets = this.jobs.map(j => j.budget || 0);
           this.absoluteMinPrice = Math.min(...budgets);
           this.absoluteMaxPrice = Math.max(...budgets);
-          this.minPrice = this.absoluteMinPrice;
-          this.maxPrice = this.absoluteMaxPrice;
+          
+          // Only update min/max if they are not set or outside range
+          if (this.minPrice === null) this.minPrice = this.absoluteMinPrice;
+          if (this.maxPrice === null) this.maxPrice = this.absoluteMaxPrice;
         }
         this.applyFilters();
         this.loading = false;
@@ -235,6 +247,22 @@ export class Home implements OnInit, OnDestroy {
       },
       error: (err) => { console.log(err); this.loading = false; this.cdr.detectChanges(); }
     });
+  }
+
+  nextPage() {
+    if ((this.page + 1) * this.pageSize < this.totalJobs) {
+      this.page++;
+      this.loadJobs();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }
+
+  prevPage() {
+    if (this.page > 0) {
+      this.page--;
+      this.loadJobs();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   }
 
   applyFilters() {

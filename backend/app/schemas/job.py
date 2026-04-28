@@ -20,3 +20,7 @@ class JobResponse(BaseModel):
     
     class Config:
         from_attributes = True
+
+class PaginatedJobResponse(BaseModel):
+    items: list[JobResponse]
+    total: int

@@ -10,8 +10,8 @@ export class JobService {
 
   constructor(private http: HttpClient) {}
 
-  getJobs() {
-    return this.http.get<any[]>(this.API);
+  getJobs(skip: number = 0, limit: number = 50) {
+    return this.http.get<any>(`${this.API}?skip=${skip}&limit=${limit}`);
   }
   getMyJobs() {
     return this.http.get<any[]>('http://localhost:8000/jobs/me');

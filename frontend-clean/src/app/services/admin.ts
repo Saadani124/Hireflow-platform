@@ -19,12 +19,16 @@ export class AdminService {
     return this.http.get<any[]>(`${this.BASE}/users`);
   }
 
-  getJobs(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.BASE}/jobs`);
+  getJobs(skip: number = 0, limit: number = 50, search_id?: number): Observable<any> {
+    let url = `${this.BASE}/jobs?skip=${skip}&limit=${limit}`;
+    if (search_id) url += `&search_id=${search_id}`;
+    return this.http.get<any>(url);
   }
 
-  getProposals(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.BASE}/proposals`);
+  getProposals(skip: number = 0, limit: number = 50, search_id?: number): Observable<any> {
+    let url = `${this.BASE}/proposals?skip=${skip}&limit=${limit}`;
+    if (search_id) url += `&search_id=${search_id}`;
+    return this.http.get<any>(url);
   }
 
   getAllData(): Observable<any> {
