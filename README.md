@@ -3,11 +3,12 @@
 A modern freelancer marketplace platform built with **FastAPI** (Backend) and **Angular** (Frontend). Hireflow allows clients to post jobs, freelancers to submit proposals, and admins to oversee the reporting system.
 
 ## 🚀 Features
-- **Role-based Dashboards:** Dedicated interfaces for Admin, Client, and Freelancer.
-- **Reporting System:** Report jobs or proposals with automated notifications for admins and n8n webhook alerts for high-frequency reports.
-- **Job Management:** Post, edit, and delete jobs with status tracking (Open, In Progress, Completed).
-- **Proposal System:** Submit proposals with custom messages and prices. Support for re-applying if rejected.
-- **Notification System:** Real-time in-app notifications for important actions.
+- **Real-Time WebSockets:** Instant notification delivery across all dashboards using a persistent bi-directional communication layer.
+- **Service Layer Architecture:** Organized backend logic with dedicated services for Notifications, Reports, Jobs, and Proposals.
+- **Advanced Reporting System:** Report jobs or proposals with automated notifications for admins and n8n webhook alerts for high-frequency reports.
+- **Paginated Interfaces:** Efficient server-side pagination for jobs, proposals, and notifications to handle large datasets.
+- **Secure Verification:** JWT-based email verification system for freelancers integrated with n8n.
+- **Role-based Dashboards:** Dedicated premium interfaces for Admin, Client, and Freelancer.
 
 ## 🏗️ Project Structure
 - `/backend`: FastAPI application with SQLAlchemy and MySQL.

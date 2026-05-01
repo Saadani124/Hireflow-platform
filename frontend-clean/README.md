@@ -21,6 +21,8 @@ Modern Angular frontend for the Hireflow platform.
 - **Responsiveness:** Optimized for various screen sizes.
 
 ## 📂 Core Components
-- **Home:** Job feed with advanced filtering and search.
-- **Dashboards:** Role-specific views for managing jobs, proposals, and system reports.
-- **Core Services:** Interceptors for auth and error handling.
+- **Home:** Job feed with server-side pagination and real-time alerts.
+- **Dashboards:** Role-specific views with WebSocket-driven notification panels.
+- **Notification System:** Global real-time stream via persistent WebSocket connection.
+- **Search & Pagination:** Optimized data fetching for jobs and proposals across all sections.
+- **Core Services:** Interceptors for JWT auth, error handling, and real-time state management.

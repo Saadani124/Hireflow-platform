@@ -28,11 +28,18 @@ FastAPI-powered backend for the Hireflow platform.
    ```
 
 ## 📡 API Endpoints
-- `/auth`: Login and Registration.
-- `/jobs`: Job listing and management.
-- `/proposals`: Proposal submission and processing.
-- `/reports`: System reporting for jobs/proposals.
-- `/notifications`: In-app notification management.
+- `/auth`: Login, Registration, and Email Verification.
+- `/jobs`: Job listing, creation, and status management.
+- `/proposals`: Proposal submission, acceptance, and rejection.
+- `/reports`: Community reporting system with admin alerts.
+- `/notifications`: HTTP endpoints and **WebSocket** (`/notifications/ws`) for real-time updates.
+- `/admin`: Platform-wide statistics and moderation tools.
+
+## 🏗️ Architecture
+The backend is organized into a **Service Layer** pattern:
+- `app/services/`: Contains business logic and notification triggers.
+- `app/routers/`: Slim controllers that handle HTTP requests.
+- `app/core/websocket_manager.py`: Manages real-time bi-directional communication.
 
 ## 🧪 Development
 - The project uses **Pydantic v2** and **SQLAlchemy**.
