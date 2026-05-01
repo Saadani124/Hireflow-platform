@@ -15,14 +15,23 @@
         </div>
       </div>
     </div>
-    <button id="closeChat" (click)="toggleChat()">✕</button>
+    <div class="header-actions">
+      <button class="clear-btn" (click)="clearHistory()" title="Clear History">🗑️</button>
+      <button id="closeChat" (click)="toggleChat()">✕</button>
+    </div>
   </div>
 
   <div id="messages" #messageContainer>
     <div *ngFor="let msg of messagesList" [ngClass]="['message', msg.role]">
       <div class="bubble">
         <span *ngIf="msg.typing" class="typing">...</span>
-        <span *ngIf="!msg.typing" [innerHTML]="msg.content"></span>
+        <span *ngIf="!msg.typing" [innerHTML]="formatMessage(msg.content)"></span>
+        
+        <div class="bubble-actions" *ngIf="msg.actions && msg.actions.length > 0">
+          <a *ngFor="let action of msg.actions" [routerLink]="action.link" class="action-btn">
+            {{ action.label }}
+          </a>
+        </div>
         <div class="time">{{ msg.time }}</div>
       </div>
     </div>

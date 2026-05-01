@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
 import { JobService } from '../../services/job';
 import { ProposalService } from '../../services/proposal';
-import { Auth } from '../../services/auth';
+import { AuthService } from '../../services/auth';
 import { NotificationService } from '../../services/notification';
 import { ReportService } from '../../services/report';
 import { normalizeImage } from '../../core/utils/image';
@@ -79,9 +79,10 @@ export class FreelancerDashboardComponent implements OnInit, OnDestroy {
   reportSuccess = '';
 
   constructor(
-    private proposalService: ProposalService,
-    private auth: Auth,
+    private jobService: JobService,
+    private auth: AuthService,
     private router: Router,
+    private proposalService: ProposalService,
     private cdr: ChangeDetectorRef,
     private route: ActivatedRoute,
     private notificationService: NotificationService,

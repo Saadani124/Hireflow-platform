@@ -2,20 +2,22 @@ import { Component, ViewChild, ElementRef, AfterViewChecked, ChangeDetectorRef }
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
-import { Router, NavigationEnd } from '@angular/router';
+import { Router, NavigationEnd, RouterModule } from '@angular/router';
 import { filter } from 'rxjs/operators';
+import { AuthService } from '../../../services/auth';
 
 interface Message {
   role: 'user' | 'ai';
   content: string;
   time: string;
   typing?: boolean;
+  actions?: { label: string, link: string }[];
 }
 
 @Component({
   selector: 'app-chatbot',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './chatbot.component.html',
   styleUrl: './chatbot.component.css'
 })
@@ -40,13 +42,22 @@ export class ChatbotComponent implements AfterViewChecked {
     }
   ];
 
-  constructor(private http: HttpClient, private router: Router, private cdr: ChangeDetectorRef) {
+  constructor(
+    private http: HttpClient, 
+    private router: Router, 
+    private cdr: ChangeDetectorRef,
+    private auth: AuthService
+  ) {
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe((event: any) => {
       const url = event.urlAfterRedirects;
-      this.isVisible = !(url.includes('login') || url.includes('register'));
+      this.isVisible = !(url === '/' || url === '' || url.includes('login') || url.includes('register'));
     });
+  }
+
+  ngOnInit() {
+    this.loadHistory();
   }
 
   ngAfterViewChecked() {
@@ -78,13 +89,30 @@ export class ChatbotComponent implements AfterViewChecked {
       typing: true
     };
     this.messagesList.push(aiMessage);
+    this.saveHistory();
+
+    const user = this.auth.getUser();
+    const payload = { 
+      message: msg,
+      user_role: user?.role,
+      user_name: user?.name
+    };
 
     // Call Backend
-    this.http.post<{reply: string}>('http://localhost:8000/chatbot/ask', { message: msg })
+    this.http.post<{reply: string}>('http://localhost:8000/chatbot/ask', payload)
       .subscribe({
         next: (res) => {
           aiMessage.typing = false;
-          this.typeEffect(aiMessage, res.reply);
+          // Parse actions if any (format: [ACTION:Label|Link])
+          const actions: {label: string, link: string}[] = [];
+          const actionRegex = /\[ACTION:([^|]+)\|([^\]]+)\]/g;
+          let cleanReply = res.reply.replace(actionRegex, (match, label, link) => {
+            actions.push({ label, link });
+            return '';
+          });
+          
+          aiMessage.actions = actions;
+          this.typeEffect(aiMessage, cleanReply);
         },
         error: (err) => {
           console.error(err);
@@ -116,11 +144,43 @@ export class ChatbotComponent implements AfterViewChecked {
           i++;
         }
         this.scrollToBottom();
-        this.cdr.detectChanges(); // Ensure the UI updates immediately
+        this.cdr.detectChanges(); 
       } else {
         clearInterval(interval);
+        this.saveHistory();
       }
-    }, 5); // Slightly slower for better visibility
+    }, 5); 
+  }
+
+  public formatMessage(text: string): string {
+    if (!text) return '';
+    let formatted = text;
+    // Bold
+    formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    // Inline Code
+    formatted = formatted.replace(/`(.*?)`/g, '<code>$1</code>');
+    // Lists
+    formatted = formatted.replace(/^\s*-\s+(.*)$/gm, '<li>$1</li>');
+    if (formatted.includes('<li>')) {
+      formatted = formatted.replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>');
+    }
+    return formatted;
+  }
+
+  private saveHistory() {
+    localStorage.setItem('chat_history', JSON.stringify(this.messagesList));
+  }
+
+  private loadHistory() {
+    const history = localStorage.getItem('chat_history');
+    if (history) {
+      this.messagesList = JSON.parse(history);
+    }
+  }
+
+  clearHistory() {
+    this.messagesList = [this.messagesList[0]];
+    localStorage.removeItem('chat_history');
   }
 
   private getTime() {

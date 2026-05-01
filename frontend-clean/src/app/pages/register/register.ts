@@ -2,7 +2,7 @@ import { Component, ChangeDetectorRef } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, Validators, FormGroup } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { Auth } from '../../services/auth';
+import { AuthService } from '../../services/auth';
 
 @Component({
   selector: 'app-register',
@@ -23,7 +23,7 @@ export class Register {
 
   constructor(
     private fb: FormBuilder,
-    private auth: Auth,
+    private auth: AuthService,
     private router: Router,
     private cdr: ChangeDetectorRef
   ) {
@@ -52,22 +52,22 @@ export class Register {
       next: () => {
         this.router.navigate(['/login']);
       },
-      error: (err) => {
-      console.log(err);
+      error: (err: any) => {
+        console.log(err);
 
-      if (err.status === 400) {
-        this.errorMessage = err.error?.detail || 'Invalid data';
-      } else if (err.status === 403) {
-        this.errorMessage = 'Admin registration not allowed';
-      } else if (err.status === 422) {
-        // 🔴 FASTAPI VALIDATION ERROR
-        this.errorMessage = err.error?.detail?.[0]?.msg || 'Invalid input';
-      } else {
-        this.errorMessage = err.error?.detail || 'Server error';
+        if (err.status === 400) {
+          this.errorMessage = err.error?.detail || 'Invalid data';
+        } else if (err.status === 403) {
+          this.errorMessage = 'Admin registration not allowed';
+        } else if (err.status === 422) {
+          // 🔴 FASTAPI VALIDATION ERROR
+          this.errorMessage = err.error?.detail?.[0]?.msg || 'Invalid input';
+        } else {
+          this.errorMessage = err.error?.detail || 'Server error';
+        }
+
+        this.cdr.detectChanges();
       }
-
-      this.cdr.detectChanges();
-    }
     });
   }
 }

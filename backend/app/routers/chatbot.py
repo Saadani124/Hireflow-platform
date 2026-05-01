@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from app.db.session import get_db
 from app.models.job import Job
 from app.models.user import User
+from app.models.proposal import Proposal
 from app.schemas.chatbot import ChatRequest, ChatResponse
 from dotenv import load_dotenv
 
@@ -28,13 +29,26 @@ def ask_chatbot(request: ChatRequest, db: Session = Depends(get_db)):
     try:
         jobs = db.query(Job).all()
         freelancers = db.query(User).filter(User.role == "freelancer").all()
+        
+        # 1.1 Extra context for Admins
+        admin_stats = ""
+        if request.user_role == "admin":
+            total_clients = db.query(User).filter(User.role == "client").count()
+            total_freelancers = len(freelancers)
+            total_proposals = db.query(Proposal).count()
+            active_jobs = [j for j in jobs if j.status == "open"]
+            admin_stats = f"\nPLATFORM STATS (ADMIN ONLY):\n- Total Clients: {total_clients}\n- Total Freelancers: {total_freelancers}\n- Total Active Jobs: {len(active_jobs)}\n- Total Proposals: {total_proposals}\n"
+            
     except Exception as db_err:
         print(f"Database Error: {db_err}")
         return ChatResponse(reply="I can't access the database right now. 🤖")
 
     # 2. Construct Prompt
-    context = "You are an assistant for HireFlow, a freelance platform.\n"
-    context += "Here is the current platform data:\n\n"
+    context = f"You are an assistant for HireFlow. User is {request.user_name or 'a Guest'} (Role: {request.user_role or 'unknown'}).\n"
+    if admin_stats:
+        context += admin_stats
+    
+    context += "\nHere is the current platform data:\n\n"
     
     context += "Jobs:\n"
     for job in jobs:
