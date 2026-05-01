@@ -1,0 +1,130 @@
+{
+  "name": "hireflow emailing system",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "uos-welcome",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -32,
+        16
+      ],
+      "id": "e63c763a-d784-4142-9ea6-0537aca23e55",
+      "name": "Webhook",
+      "webhookId": "f0ded09e-50c5-4a4c-b75b-2f0ddd662f46"
+    },
+    {
+      "parameters": {
+        "sendTo": "azizkarnit@gmail.com , talelsaadani12@gmail.com",
+        "subject": "=Alert: High Report Volume for {{ $json.body.report_count }}!",
+        "message": "=<h2>🚨 Moderation Alert</h2>\n<p>The following {{ $json.body.type }} has received <strong>{{ $json.body.report_count }}</strong> reports and requires immediate administrative attention!</p>\n\n<ul>\n  <li><strong>Title:</strong> {{ $json.body.title }}</li>\n  <li><strong>Target ID:</strong> {{ $json.body.id }}</li>\n</ul>\n\n<p>Please review it immediately by clicking the link below:</p>\n<a href=\"{{ $json.body.link }}\" style=\"display:inline-block; padding:10px 15px; background-color:#dc2626; color:white; font-family:sans-serif; font-weight:bold; text-decoration:none; border-radius:5px;\">Review Target in Dashboard</a>\n",
+        "options": {
+          "senderName": "HireFlow"
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        208,
+        0
+      ],
+      "id": "bb3103d4-9aab-4c9c-9627-13283f418987",
+      "name": "Send a message",
+      "webhookId": "78be05e8-d333-4f3e-b887-ec7dd5b73939",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "qmCpuzI3g7HmHcgK",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "c825c2e8-dcfa-4547-8403-523e2905e4d8",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        16,
+        -240
+      ],
+      "id": "0a3d0a71-95c5-4bda-8e59-bc23df1e15b1",
+      "name": "Webhook1",
+      "webhookId": "c825c2e8-dcfa-4547-8403-523e2905e4d8"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.body.email }}",
+        "subject": "Verify your HireFlow Account",
+        "message": "=<div style=\"font-family: sans-serif; max-width: 480px; margin: auto; padding: 32px; border-radius: 12px; background: #f7f9fb;\">   <h2 style=\"color: #1a1a2e;\">Welcome to HireFlow, {{ $json.body.name }}! 🎓</h2>   <p style=\"color: #434655;\">You're one step away from accessing the platform. Click the button below to verify your student email:</p>   <a href=\"{{ $json.body.link }}\" style=\"display: inline-block; margin: 24px 0; padding: 14px 28px; background: #2563eb; color: #fff; border-radius: 8px; text-decoration: none; font-weight: bold;\">Verify My Account</a>   <p style=\"color: #8a8d9a; font-size: 12px;\">If you did not register, ignore this email.</p> </div>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        320,
+        -256
+      ],
+      "id": "f30048bb-dbfc-4b14-8639-52ef9158b106",
+      "name": "Send a message1",
+      "webhookId": "56cf8545-81b2-4ea3-9820-170d7ca47ba7",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "qmCpuzI3g7HmHcgK",
+          "name": "Gmail account 2"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook1": {
+      "main": [
+        [
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false,
+    "timezone": "Africa/Tunis",
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all",
+    "saveExecutionProgress": true,
+    "saveManualExecutions": true
+  },
+  "versionId": "19b3644d-8953-4d88-a5fd-4f1535f8af14",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "618768e1dcd5d26dc4b1f19fb80c40fcf974dddd6cc021ebd63bfc63a3389135"
+  },
+  "id": "yhRiLmI06Z5Jv0TX",
+  "tags": []
+}
