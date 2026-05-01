@@ -6,5 +6,5 @@ CTRL + C        --> STOP server
 (postgreSQL)
 psql -U postgres
 
-\c     --> connect to db
+\c hireflow     --> connect to db
 \dt    --> list of tables

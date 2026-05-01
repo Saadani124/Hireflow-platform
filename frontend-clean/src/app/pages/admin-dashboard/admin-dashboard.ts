@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormsModule } from '@angular/forms';
 import { AdminService } from '../../services/admin';
-import { Auth } from '../../services/auth';
+import { AuthService } from '../../services/auth';
 import { normalizeImage } from '../../core/utils/image';
 import { NotificationService } from '../../services/notification';
 import { ReportService } from '../../services/report';
@@ -89,7 +89,7 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
 
   constructor(
     private adminService: AdminService, 
-    private auth: Auth,
+    private auth: AuthService,
     private router: Router,
     private cdr: ChangeDetectorRef,
     private route: ActivatedRoute,
@@ -602,14 +602,14 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
         next: () => {
           this.handleReportDeleteSuccess();
         },
-        error: (err) => this.handleReportDeleteError(err)
+        error: (err: any) => this.handleReportDeleteError(err)
       });
     } else if (this.reportToDelete.target_type === 'proposal') {
       this.adminService.deleteProposal(this.reportToDelete.target_id, this.reportAdminMessage).subscribe({
         next: () => {
           this.handleReportDeleteSuccess();
         },
-        error: (err) => this.handleReportDeleteError(err)
+        error: (err: any) => this.handleReportDeleteError(err)
       });
     }
   }
@@ -617,8 +617,10 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
   handleReportDeleteSuccess() {
     this.modalLoading = false;
     this.reportDeleteModalOpen = false;
-    this.showToast(`${this.reportToDelete.target_type} deleted successfully`, 'success');
-    this.reports = this.reports.filter(r => r.id !== this.reportToDelete.id);
+    if (this.reportToDelete) {
+      this.showToast(`${this.reportToDelete.target_type} deleted successfully`, 'success');
+      this.reports = this.reports.filter(r => r.id !== this.reportToDelete.id);
+    }
     this.reportToDelete = null;
     this.cdr.detectChanges();
   }

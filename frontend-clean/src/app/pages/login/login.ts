@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, Validators, FormGroup } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
-import { Auth } from '../../services/auth';
+import { AuthService } from '../../services/auth';
 import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef } from '@angular/core';
 import { normalizeImage } from '../../core/utils/image';
@@ -21,7 +21,7 @@ export class Login {
 
   constructor(
     private fb: FormBuilder,
-    private auth: Auth,
+    private auth: AuthService,
     private router: Router,
     private cdr: ChangeDetectorRef
   ) {
@@ -60,7 +60,7 @@ export class Login {
         this.router.navigate(['/home']);
       });
     },
-    error: (err) => {
+    error: (err: any) => {
       console.log('ERROR:', err);
 
       if (err.status === 401) {

@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ChangeDetectorRef } from '@angular/core';
 import { JobService } from '../../services/job';
 import { ProposalService } from '../../services/proposal';
-import { Auth } from '../../services/auth';
+import { AuthService } from '../../services/auth';
 import { NotificationService } from '../../services/notification';
 import { ReportService } from '../../services/report';
 import { ActivatedRoute } from '@angular/router';
@@ -88,7 +88,7 @@ export class ClientDashboard implements OnInit, OnDestroy {
     private jobService: JobService,
     private proposalService: ProposalService,
     private fb: FormBuilder,
-    private auth: Auth,
+    private auth: AuthService,
     private router: Router,
     private cdr: ChangeDetectorRef,
     private route: ActivatedRoute,
@@ -256,7 +256,7 @@ export class ClientDashboard implements OnInit, OnDestroy {
         this.loading = false;
         this.cdr.detectChanges();
       },
-      error: (err) => {
+      error: (err: any) => {
         console.log(err);
         this.loading = false;
         this.cdr.detectChanges();
@@ -271,7 +271,7 @@ export class ClientDashboard implements OnInit, OnDestroy {
         this.loadJobs();
         this.cdr.detectChanges();
       },
-      error: (err) => {
+      error: (err: any) => {
         this.showToast(err.error?.detail || 'Error', 'error');
         this.cdr.detectChanges();
       }
@@ -445,7 +445,7 @@ export class ClientDashboard implements OnInit, OnDestroy {
         this.newJob = { title: '', description: '', budget: 0, category: '' };
         this.cdr.detectChanges();
       },
-      error: (err) => {
+      error: (err: any) => {
         this.submittingJob = false;
         this.showToast(err.error?.detail || 'Error', 'error');
         this.cdr.detectChanges();

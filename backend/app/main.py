@@ -17,6 +17,7 @@ from app.routers import notification
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from app.routers import user
+from app.routers import chatbot
 
 # IMPORTANT: Models must be imported before Base.metadata.create_all
 # This ensures SQLAlchemy "knows" about your tables before trying to create them.
@@ -47,6 +48,7 @@ app.include_router(proposal.router)
 app.include_router(admin.router)
 app.include_router(report.router)
 app.include_router(notification.router)
+app.include_router(chatbot.router)
 
 #creation des tables
 Base.metadata.create_all(bind=engine)

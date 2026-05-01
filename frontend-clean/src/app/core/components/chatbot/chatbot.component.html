@@ -1,0 +1,51 @@
+<ng-container *ngIf="isVisible">
+<!-- Floating Robot Button -->
+<button id="chatToggleBtn" (click)="toggleChat()" [style.display]="isOpen ? 'none' : 'flex'" [style.opacity]="isOpen ? '0' : '1'">🤖</button>
+
+<!-- Chatbox -->
+<div id="chatbox" [class.active]="isOpen">
+  <div id="chatHeader">
+    <div class="chat-header-content">
+      <div class="chat-avatar">🤖</div>
+      <div class="chat-title-area">
+        <h4>HireFlow Assistant</h4>
+        <div class="chat-status">
+          <span class="status-dot"></span>
+          <span>Online</span>
+        </div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="clear-btn" (click)="clearHistory()" title="Clear History">🗑️</button>
+      <button id="closeChat" (click)="toggleChat()">✕</button>
+    </div>
+  </div>
+
+  <div id="messages" #messageContainer>
+    <div *ngFor="let msg of messagesList" [ngClass]="['message', msg.role]">
+      <div class="bubble">
+        <span *ngIf="msg.typing" class="typing">...</span>
+        <span *ngIf="!msg.typing" [innerHTML]="formatMessage(msg.content)"></span>
+        
+        <div class="bubble-actions" *ngIf="msg.actions && msg.actions.length > 0">
+          <a *ngFor="let action of msg.actions" [routerLink]="action.link" class="action-btn">
+            {{ action.label }}
+          </a>
+        </div>
+        <div class="time">{{ msg.time }}</div>
+      </div>
+    </div>
+  </div>
+  
+  <div id="chatSuggestions">
+    <ng-container *ngFor="let s of suggestions">
+      <button *ngIf="s.visible" (click)="quickAsk(s)">{{ s.label }}</button>
+    </ng-container>
+  </div>
+
+  <div id="chatInputArea">
+    <input type="text" id="userInput" name="chatInput" class="chat-input-field" [(ngModel)]="userInput" placeholder="Type your message..." (keyup.enter)="sendMessage()" />
+    <button (click)="sendMessage()">➤</button>
+  </div>
+</div>
+</ng-container>

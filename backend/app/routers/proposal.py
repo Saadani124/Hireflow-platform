@@ -68,22 +68,22 @@ def apply_to_job(data: ProposalCreate,
 
     return proposal
 
-#modifier l'application
-@router.put("/{proposal_id}")
-def update_proposal(proposal_id: int,
-                    data: ProposalCreate,
-                    db: Session=Depends(get_db),
-                    user=Depends(get_current_freelancer)):  # FAUTE: get_current_user utilisé au lieu de get_current_freelancer
+# #modifier l'application
+# @router.put("/{proposal_id}")
+# def update_proposal(proposal_id: int,
+#                     data: ProposalCreate,
+#                     db: Session=Depends(get_db),
+#                     user=Depends(get_current_freelancer)):  # FAUTE: get_current_user utilisé au lieu de get_current_freelancer
 
-    proposal = db.query(Proposal).filter(Proposal.id==proposal_id).first()
-    if not proposal:
-        raise HTTPException(status_code=404,detail="Proposal not found")
-    if proposal.freelancer_id!=user.id:
-        raise HTTPException(status_code=403,detail="Not allowed")
+#     proposal = db.query(Proposal).filter(Proposal.id==proposal_id).first()
+#     if not proposal:
+#         raise HTTPException(status_code=404,detail="Proposal not found")
+#     if proposal.freelancer_id!=user.id:
+#         raise HTTPException(status_code=403,detail="Not allowed")
 
-    # FAUTE: pas de vérification du statut, un freelancer pouvait modifier une proposition déjà traitée
-    if proposal.status!="pending":
-        raise HTTPException(status_code=400,detail="Cannot edit a processed proposal")
+#     # FAUTE: pas de vérification du statut, un freelancer pouvait modifier une proposition déjà traitée
+#     if proposal.status!="pending":
+#         raise HTTPException(status_code=400,detail="Cannot edit a processed proposal")
 
     proposal.message=data.message
     proposal.price=data.price
