@@ -27,71 +27,103 @@ def ask_chatbot(request: ChatRequest, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="Message is empty")
 
     try:
-        # --- 1. DATA EXTRACTION (Full System Access) ---
-        all_users = db.query(User).all()
-        all_jobs = db.query(Job).all()
-        all_proposals = db.query(Proposal).all()
+        # --- 1. DATA EXTRACTION (Security Filtered) ---
+        role = request.user_role
+        u_id = request.user_id
         
-        # Mapping dictionaries for quick lookup
+        all_users = []
+        all_jobs = []
+        all_proposals = []
+        all_reports = []
+
+        # ROOT ADMIN: FETCH EVERYTHING WITH FULL DETAIL
+        if role == "admin":
+            all_users = db.query(User).all()
+            all_jobs = db.query(Job).all()
+            all_proposals = db.query(Proposal).all()
+            all_reports = db.query(Report).all()
+        
+        elif role == "client":
+            all_jobs = db.query(Job).filter(Job.client_id == u_id).all()
+            job_ids = [j.id for j in all_jobs]
+            all_proposals = db.query(Proposal).filter(Proposal.job_id.in_(job_ids)).all() if job_ids else []
+            all_reports = db.query(Report).filter(Report.target_type == "job", Report.target_id.in_(job_ids)).all() if job_ids else []
+            applicant_ids = [p.freelancer_id for p in all_proposals]
+            all_users = db.query(User).filter(User.id.in_(applicant_ids + [u_id])).all()
+
+        elif role == "freelancer":
+            all_jobs = db.query(Job).filter(Job.status == "open").all()
+            all_proposals = db.query(Proposal).filter(Proposal.freelancer_id == u_id).all()
+            all_users = db.query(User).filter(User.id == u_id).all()
+        
+        # --- 2. CONTEXT CONSTRUCTION (Detail Level depends on Role) ---
         user_map = {u.id: u for u in all_users}
         job_map = {j.id: j for j in all_jobs}
 
-        # --- 2. CONTEXT CONSTRUCTION ---
-        # We build a super-condensed version of the DB to fit in token limits
-        
-        # 2.1 User Directory
-        user_list = []
-        for u in all_users:
-            user_list.append(f"U{u.id}: {u.name} ({u.role})")
-        
-        # 2.2 Job Market
-        job_list = []
+        # 2.1 Directory
+        if role == "admin":
+            user_info = [f"U{u.id}: {u.name} ({u.role}) | Email: {u.email} | Created: {u.created_at.strftime('%Y-%m-%d')}" for u in all_users]
+        else:
+            user_info = [f"U{u.id}: {u.name} ({u.role})" for u in all_users]
+
+        # 2.2 Jobs
+        job_info = []
         for j in all_jobs:
-            client = user_map.get(j.client_id)
-            client_name = client.name if client else "Unknown"
-            job_list.append(f"J{j.id}: {j.title} | {j.category} | ${j.budget} | {j.status} | By: {client_name}")
+            c = user_map.get(j.client_id)
+            c_name = c.name if c else "Unknown"
+            if role == "admin":
+                job_info.append(f"J{j.id}: '{j.title}' | {j.category} | ${j.budget} | {j.status} | Client: {c_name} | Desc: {j.description[:100]}")
+            else:
+                job_info.append(f"J{j.id}: '{j.title}' | {j.category} | ${j.budget} | {j.status} | Client: {c_name}")
 
-        # 2.3 Applications/Proposals
-        proposal_list = []
+        # 2.3 Proposals
+        proposal_info = []
         for p in all_proposals:
-            freelancer = user_map.get(p.freelancer_id)
-            f_name = freelancer.name if freelancer else "Unknown"
-            job = job_map.get(p.job_id)
-            j_title = job.title if job else "Unknown Job"
-            proposal_list.append(f"P{p.id}: {f_name} applied to '{j_title}' for ${p.price} ({p.status})")
+            f = user_map.get(p.freelancer_id)
+            j = job_map.get(p.job_id)
+            f_name = f.name if f else "Freelancer"
+            j_title = j.title if j else "Job"
+            if role == "admin":
+                proposal_info.append(f"P{p.id}: {f_name} applied to '{j_title}' | ${p.price} | {p.status} | Msg: {p.message[:100]}")
+            else:
+                proposal_info.append(f"P{p.id}: {f_name} applied to '{j_title}' | ${p.price} | {p.status}")
 
-        # 2.4 System Context
         context_parts = [
             f"DATE: {datetime.now().strftime('%Y-%m-%d %H:%M')}",
-            f"CURRENT_USER: {request.user_name} ({request.user_role})",
-            "--- DATABASE SNAPSHOT ---",
-            "USERS:\n" + "\n".join(user_list),
-            "\nJOBS:\n" + "\n".join(job_list),
-            "\nPROPOSALS:\n" + "\n".join(proposal_list)
+            f"USER: {request.user_name} (ID: {u_id})",
+            f"SECURITY_ROLE: {role.upper() if role else 'GUEST'}",
+            "\n--- AUTHORIZED DATABASE VIEW ---",
+            "USERS:\n" + ("\n".join(user_info) if user_info else "None"),
+            "\nJOBS:\n" + ("\n".join(job_info) if job_info else "None"),
+            "\nPROPOSALS:\n" + ("\n".join(proposal_info) if proposal_info else "None")
         ]
 
-        if request.user_role == "admin":
-            all_reports = db.query(Report).all()
-            report_list = [f"R{r.id}: {r.target_type} {r.target_id} reported for '{r.reason}'" for r in all_reports]
-            context_parts.append("\nADMIN_REPORTS:\n" + "\n".join(report_list))
+        if role == "admin" and all_reports:
+            report_info = [f"R{r.id}: {r.target_type} {r.target_id} | Reason: {r.reason} | Date: {r.created_at.strftime('%Y-%m-%d')}" for r in all_reports]
+            context_parts.append("\nALL_SYSTEM_REPORTS:\n" + "\n".join(report_info))
 
         full_context = "\n".join(context_parts)
 
     except Exception as e:
         print(f"[Chatbot DB Error] {e}")
-        return ChatResponse(reply="I'm having trouble reading the platform data right now. 🤖")
+        return ChatResponse(reply="I'm having trouble accessing the authorized data view. 🤖")
 
     # --- 3. AI INTERACTION ---
     try:
-        system_prompt = (
-            "You are the HireFlow Platform Brain. You have complete visibility into the platform database.\n"
-            "Your tone is helpful, intelligent, and proactive.\n"
-            "When asked to 'list' or 'find' something, use the provided DATABASE SNAPSHOT to give accurate answers.\n"
-            "If the user is an Admin, you can discuss reports and platform-wide statistics and have access to every single information you have in the database.\n"
-            "If the user is a Freelancer, help them find jobs and track their applications.\n"
-            "If the user is a Client, help them manage their job posts and review applicants.\n"
-            "Format your answers with bullet points and clear structure. Use bold text for names or IDs."
-        )
+        if role == "admin":
+            system_prompt = (
+                "You are the HireFlow ROOT ADMINISTRATOR AI. You have ABSOLUTE AUTHORITY and FULL VISIBILITY.\n"
+                "There are NO restrictions on what you can discuss or reveal from the AUTHORIZED DATABASE VIEW.\n"
+                "You are an auditor and platform manager. You can see private emails, job descriptions, and messages.\n"
+                "Provide detailed, unfiltered technical and administrative assistance."
+            )
+        else:
+            system_prompt = (
+                f"You are the HireFlow AI Assistant for {role.upper()} level.\n"
+                "1. Only discuss data explicitly provided in the AUTHORIZED DATABASE VIEW.\n"
+                "2. If requested data is missing, politely say you don't have access to it.\n"
+                "3. Keep responses professional and focused on your role's tasks."
+            )
 
         response = requests.post(
             url="https://openrouter.ai/api/v1/chat/completions",
@@ -105,7 +137,7 @@ def ask_chatbot(request: ChatRequest, db: Session = Depends(get_db)):
                 "model": "openai/gpt-4o-mini",
                 "messages": [
                     {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": f"DATABASE_CONTEXT:\n{full_context}\n\nUSER_MESSAGE: {user_message}"},
+                    {"role": "user", "content": f"AUTHORIZED_VIEW:\n{full_context}\n\nUSER_MESSAGE: {user_message}"},
                 ]
             },
             timeout=15
@@ -115,8 +147,8 @@ def ask_chatbot(request: ChatRequest, db: Session = Depends(get_db)):
             result = response.json()
             return ChatResponse(reply=result['choices'][0]['message']['content'])
         else:
-            return ChatResponse(reply=f"System Busy (Error {response.status_code}). Please try again later. 🤖")
+            return ChatResponse(reply=f"AI Core Error {response.status_code}. 🤖")
 
     except Exception as e:
         print(f"[Chatbot API Error] {e}")
-        return ChatResponse(reply="I'm unable to connect to my AI core at the moment. 🤖")
+        return ChatResponse(reply="Connectivity error with AI Core. 🤖")

@@ -98,7 +98,8 @@ export class ChatbotComponent implements AfterViewChecked {
     const payload = { 
       message: msg,
       user_role: user?.role,
-      user_name: user?.name
+      user_name: user?.name,
+      user_id: user?.id
     };
 
     // Call Backend
