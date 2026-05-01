@@ -41,7 +41,7 @@
 
           <div class="field-group">
             <label>Name</label>
-            <input formControlName="name" placeholder="Your name" id="name">
+            <input id="register-name-input" formControlName="name" placeholder="Your name">
 
             <small *ngIf="(registerForm.get('name')?.touched || submitted) && registerForm.get('name')?.invalid">
               Name is required
@@ -51,7 +51,7 @@
           <!-- EMAIL -->
           <div class="field-group">
             <label>Email</label>
-            <input formControlName="email" placeholder="Email" id="email">
+            <input id="register-email-input" formControlName="email" placeholder="Email">
 
             <small *ngIf="(registerForm.get('email')?.touched || submitted) && registerForm.get('email')?.invalid">
               <span *ngIf="registerForm.get('email')?.errors?.['required']">Email required</span>
@@ -62,7 +62,7 @@
           <!-- PASSWORD -->
           <div class="field-group">
             <label>Password</label>
-            <input type="password" formControlName="password" placeholder="Password" id="password">
+            <input id="register-password-input" type="password" formControlName="password" placeholder="Password">
 
             <small *ngIf="(registerForm.get('password')?.touched || submitted) && registerForm.get('password')?.invalid">
               Minimum 6 characters
@@ -73,7 +73,7 @@
           <div class="field-group">
             <label>Role</label>
 
-            <select formControlName="role" id="role">
+            <select id="register-role-select" formControlName="role">
               <option value="">Select role</option>
               <option value="client">Client</option>
               <option value="freelancer">Freelancer</option>
@@ -86,7 +86,7 @@
 
         </div>
 
-        <button type="submit" class="submit-btn" >
+        <button id="register-submit-btn" type="submit" class="submit-btn" >
           Create Account
         </button>
 

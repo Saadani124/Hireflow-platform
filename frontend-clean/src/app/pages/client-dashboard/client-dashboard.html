@@ -13,14 +13,14 @@
     <div class="nav-right">
       <!-- NOTIFICATION BELL -->
       <div class="notif-wrap">
-        <button class="notif-btn" (click)="toggleNotifPanel($event)">
+        <button id="client-notif-btn" class="notif-btn" (click)="toggleNotifPanel($event)">
           <span class="material-symbols-outlined">notifications</span>
           <span *ngIf="unreadCount > 0" class="notif-badge">{{ unreadCount > 9 ? '9+' : unreadCount }}</span>
         </button>
         <div *ngIf="notifOpen" class="notif-panel" (click)="$event.stopPropagation()">
           <div class="notif-panel-header">
             <span>Notifications</span>
-            <button class="notif-mark-all" (click)="markAllRead()" *ngIf="unreadCount > 0">Mark all read</button>
+            <button id="client-notif-mark-all-btn" class="notif-mark-all" (click)="markAllRead()" *ngIf="unreadCount > 0">Mark all read</button>
           </div>
           <div *ngIf="notifications.length === 0" class="notif-empty">
             <span class="material-symbols-outlined">notifications_off</span>
@@ -127,7 +127,7 @@
       <div class="section-card">
         <div class="section-card-header">
           <span class="section-card-title">Recent Jobs</span>
-          <button class="btn btn-primary btn-sm" (click)="openPostModal()">
+          <button id="client-post-job-header-btn" class="btn btn-primary btn-sm" (click)="openPostModal()">
             <span class="material-symbols-outlined">add</span> Post a Job
           </button>
         </div>
@@ -165,10 +165,10 @@
                 <td><strong>{{ job.budget }} TND</strong></td>
                 <td><ng-container [ngTemplateOutlet]="statusBadge" [ngTemplateOutletContext]="{status: job.status}"></ng-container></td>
                 <td>
-                  <button *ngIf="job.status === 'open'" class="btn btn-teal btn-sm" (click)="showSection('proposals')">
+                  <button id="client-proposals-btn-{{job.id}}" *ngIf="job.status === 'open'" class="btn btn-teal btn-sm" (click)="showSection('proposals')">
                     <span class="material-symbols-outlined">description</span> Proposals
                   </button>
-                  <button *ngIf="job.status === 'in_progress'" class="btn btn-success btn-sm" (click)="completeJob(job.id)">
+                  <button id="client-complete-job-btn-{{job.id}}" *ngIf="job.status === 'in_progress'" class="btn btn-success btn-sm" (click)="completeJob(job.id)">
                     <span class="material-symbols-outlined">check</span> Mark as Complete
                   </button>
                 </td>
@@ -186,7 +186,7 @@
         <p>Manage all the jobs you've posted</p>
       </div>
       <div style="display:flex; justify-content:flex-end; margin-bottom:16px">
-        <button class="btn btn-primary" (click)="openPostModal()">
+        <button id="client-post-job-main-btn" class="btn btn-primary" (click)="openPostModal()">
           <span class="material-symbols-outlined">add</span> Post New Job
         </button>
       </div>
@@ -228,13 +228,14 @@
                 <td><strong>{{ job.budget }} TND</strong></td>
                 <td><ng-container [ngTemplateOutlet]="statusBadge" [ngTemplateOutletContext]="{status: job.status}"></ng-container></td>
                 <td id="action">
-                  <button *ngIf="job.status === 'open'" class="btn btn-teal btn-sm" (click)="showSection('proposals')">
+                  <button id="client-my-jobs-proposals-btn-{{job.id}}" *ngIf="job.status === 'open'" class="btn btn-teal btn-sm" (click)="showSection('proposals')">
                     <span class="material-symbols-outlined">description</span> Proposals
                   </button>
-                  <button *ngIf="job.status === 'in_progress'" class="btn btn-complete btn-sm" (click)="completeJob(job.id)">
+                  <button id="client-my-jobs-complete-btn-{{job.id}}" *ngIf="job.status === 'in_progress'" class="btn btn-complete btn-sm" (click)="completeJob(job.id)">
                     <span class="material-symbols-outlined">check</span> Complete
                   </button>
                   <button
+                    id="client-my-jobs-delete-btn-{{job.id}}"
                     *ngIf="job.status === 'open'"
                     class="btn btn-danger btn-sm"
                     (click)="deleteJobC(job.id)">
@@ -304,19 +305,21 @@
                 {{ p.status | titlecase }}
               </span>
               <button
+                id="client-accept-proposal-btn-{{p.id}}"
                 *ngIf="p.status === 'pending' && item.job.status === 'open'"
                 class="btn btn-primary btn-sm"
                 (click)="acceptProposal(p.id)">
                 <span class="material-symbols-outlined">check</span> Accept
               </button>
               <button
+                id="client-reject-proposal-btn-{{p.id}}"
                 *ngIf="p.status === 'pending' && item.job.status === 'open'"
                 class="btn btn-danger btn-sm"
                 (click)="rejectProposal(p.id)">
                 <span class="material-symbols-outlined">close</span>
                 Reject
               </button>
-              <button class="btn btn-ghost btn-sm" (click)="openReportModal(p.id, $event)">
+              <button id="client-report-proposal-btn-{{p.id}}" class="btn btn-ghost btn-sm" (click)="openReportModal(p.id, $event)">
                 <span class="material-symbols-outlined">flag</span>
                 Report
               </button>
@@ -355,13 +358,13 @@
             <form [formGroup]="profileForm">
               <div class="form-group">
                 <label class="form-label">Name</label>
-                <input formControlName="name" class="form-input" />
+                <input id="client-profile-name-input" formControlName="name" class="form-input" />
               </div>
               <div class="form-group">
                 <label class="form-label">Email</label>
-                <input formControlName="email" class="form-input" />
+                <input id="client-profile-email-input" formControlName="email" class="form-input" />
               </div>
-              <button class="btn btn-primary" (click)="saveProfile()">Save</button>
+              <button id="client-profile-save-btn" class="btn btn-primary" (click)="saveProfile()">Save</button>
             </form>
           </ng-container>
 
@@ -400,22 +403,22 @@
   <div class="modal" (click)="$event.stopPropagation()">
     <div class="modal-header">
       <span class="modal-title">Post a New Job</span>
-      <button class="modal-close" (click)="closePostModal()">
+      <button id="client-modal-close-post-job-btn" class="modal-close" (click)="closePostModal()">
         <span class="material-symbols-outlined">close</span>
       </button>
     </div>
     <div class="form-group">
       <label class="form-label">Job Title</label>
-      <input class="form-input" [(ngModel)]="newJob.title" placeholder="e.g. Build a React landing page" />
+      <input id="client-post-job-title-input" class="form-input" [(ngModel)]="newJob.title" placeholder="e.g. Build a React landing page" />
     </div>
     <div class="form-group">
       <label class="form-label">Description</label>
-      <textarea class="form-textarea" [(ngModel)]="newJob.description" placeholder="Describe the job in detail..."></textarea>
+      <textarea id="client-post-job-description-textarea" class="form-textarea" [(ngModel)]="newJob.description" placeholder="Describe the job in detail..."></textarea>
     </div>
     <div class="form-row">
       <div class="form-group">
         <label class="form-label">Category</label>
-        <select class="form-select" [(ngModel)]="newJob.category">
+        <select id="client-post-job-category-select" class="form-select" [(ngModel)]="newJob.category">
           <option value="">Select category</option>
           <option>Design</option>
           <option>Development</option>
@@ -427,12 +430,12 @@
       </div>
       <div class="form-group">
         <label class="form-label">Budget (TND)</label>
-        <input class="form-input" [(ngModel)]="newJob.budget" type="number" placeholder="e.g. 500" />
+        <input id="client-post-job-budget-input" class="form-input" [(ngModel)]="newJob.budget" type="number" placeholder="e.g. 500" />
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-ghost" (click)="closePostModal()">Cancel</button>
-      <button class="btn btn-primary" (click)="submitJob()" [disabled]="submittingJob">
+      <button id="client-modal-cancel-post-job-btn" class="btn btn-ghost" (click)="closePostModal()">Cancel</button>
+      <button id="client-modal-confirm-post-job-btn" class="btn btn-primary" (click)="submitJob()" [disabled]="submittingJob">
         <span class="material-symbols-outlined">send</span>
         {{ submittingJob ? 'Posting...' : 'Post Job' }}
       </button>
@@ -450,7 +453,7 @@
   <div class="modal" (click)="$event.stopPropagation()">
     <div class="modal-header">
       <span class="modal-title">Delete Job</span>
-      <button class="modal-close" (click)="showDeleteModal = false">
+      <button id="client-modal-close-delete-job-btn" class="modal-close" (click)="showDeleteModal = false">
         <span class="material-symbols-outlined">close</span>
       </button>
     </div>
@@ -458,8 +461,8 @@
       <p>Are you sure you want to delete this job? This action cannot be undone and will also delete all related proposals.</p>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-ghost" (click)="showDeleteModal = false">Cancel</button>
-      <button class="btn btn-danger" (click)="confirmDeleteJob()" [disabled]="deleteJobLoading">
+      <button id="client-modal-cancel-delete-job-btn" class="btn btn-ghost" (click)="showDeleteModal = false">Cancel</button>
+      <button id="client-modal-confirm-delete-job-btn" class="btn btn-danger" (click)="confirmDeleteJob()" [disabled]="deleteJobLoading">
         <span class="material-symbols-outlined">delete</span>
         {{ deleteJobLoading ? 'Deleting...' : 'Confirm Delete' }}
       </button>
@@ -474,7 +477,7 @@
   <div class="modal" (click)="$event.stopPropagation()">
     <div class="modal-header">
       <span class="modal-title">Report Proposal</span>
-      <button class="modal-close" (click)="closeReportModal()">
+      <button id="client-modal-close-report-btn" class="modal-close" (click)="closeReportModal()">
         <span class="material-symbols-outlined">close</span>
       </button>
     </div>
@@ -484,14 +487,14 @@
 
     <div class="form-group" style="margin-top:12px">
       <label class="form-label">Reason for reporting</label>
-      <textarea class="form-textarea" [(ngModel)]="reportReason"
+      <textarea id="client-report-reason-textarea" class="form-textarea" [(ngModel)]="reportReason"
         placeholder="Why are you reporting this proposal?"
         rows="4"></textarea>
     </div>
 
     <div class="modal-footer">
-      <button class="btn btn-ghost" (click)="closeReportModal()">Cancel</button>
-      <button class="btn btn-danger" (click)="submitReport()" [disabled]="reportSubmitting">
+      <button id="client-modal-cancel-report-btn" class="btn btn-ghost" (click)="closeReportModal()">Cancel</button>
+      <button id="client-modal-confirm-report-btn" class="btn btn-danger" (click)="submitReport()" [disabled]="reportSubmitting">
         <span class="material-symbols-outlined">flag</span>
         {{ reportSubmitting ? 'Submitting...' : 'Submit Report' }}
       </button>

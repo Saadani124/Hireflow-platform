@@ -12,14 +12,14 @@
     <div class="nav-right">
       <!-- NOTIFICATION BELL -->
       <div class="notif-wrap" *ngIf="user">
-        <button class="notif-btn" (click)="toggleNotifPanel($event)">
+        <button id="admin-notif-btn" class="notif-btn" (click)="toggleNotifPanel($event)">
           <span class="material-symbols-outlined">notifications</span>
           <span *ngIf="unreadCount > 0" class="notif-badge">{{ unreadCount > 9 ? '9+' : unreadCount }}</span>
         </button>
         <div *ngIf="notifOpen" class="notif-panel" (click)="$event.stopPropagation()">
           <div class="notif-panel-header">
             <span>Notifications</span>
-            <button class="notif-mark-all" (click)="markAllRead()" *ngIf="unreadCount > 0">Mark all read</button>
+            <button id="admin-notif-mark-all-btn" class="notif-mark-all" (click)="markAllRead()" *ngIf="unreadCount > 0">Mark all read</button>
           </div>
           <div *ngIf="notifications.length === 0" class="notif-empty">
             <span class="material-symbols-outlined">notifications_off</span>
@@ -145,7 +145,7 @@
         <div class="section-card">
           <div class="section-card-header">
             <span class="section-card-title">Recent Users</span>
-            <button class="btn btn-ghost" (click)="showSection('users')">View all</button>
+            <button id="admin-view-all-users-btn" class="btn btn-ghost" (click)="showSection('users')">View all</button>
           </div>
           <div class="table-wrap">
             <table>
@@ -178,7 +178,7 @@
         <div class="section-card">
           <div class="section-card-header">
             <span class="section-card-title">Recent Jobs</span>
-            <button class="btn btn-ghost" (click)="showSection('jobs')">View all</button>
+            <button id="admin-view-all-jobs-btn" class="btn btn-ghost" (click)="showSection('jobs')">View all</button>
           </div>
           <div class="table-wrap">
             <table>
@@ -212,7 +212,7 @@
           <span class="section-card-title">Users ({{ filteredUsers.length }})</span>
           <div class="table-search">
             <span class="material-symbols-outlined">search</span>
-            <input type="text" formControlName="userSearch" placeholder="Search users…" />
+            <input id="admin-user-search-input" type="text" formControlName="userSearch" placeholder="Search users…" />
           </div>
         </div>
         <div class="table-wrap">
@@ -253,7 +253,7 @@
                 <td><ng-container [ngTemplateOutlet]="roleBadgeTpl" [ngTemplateOutletContext]="{role: u.role}"></ng-container></td>
                 <td style="color:var(--on-surface-variant); font-size:12px">{{ formatDate(u.created_at) }}</td>
                 <td>
-                  <button *ngIf="u.role !== 'admin'" class="btn btn-danger btn-sm" (click)="openConfirmDeleteUser(u.id)">
+                  <button id="admin-delete-user-btn-{{u.id}}" *ngIf="u.role !== 'admin'" class="btn btn-danger btn-sm" (click)="openConfirmDeleteUser(u.id)">
                     <span class="material-symbols-outlined">delete</span> Delete
                   </button>
                 </td>
@@ -275,7 +275,7 @@
           <span class="section-card-title">Jobs ({{ filteredJobs.length }})</span>
           <div class="table-search">
             <span class="material-symbols-outlined">search</span>
-            <input type="text" formControlName="jobSearch" placeholder="Search jobs or ID…" />
+            <input id="admin-job-search-input" type="text" formControlName="jobSearch" placeholder="Search jobs or ID…" />
           </div>
         </div>
         <div class="table-wrap">
@@ -316,7 +316,7 @@
                 <td><strong>{{ j.budget }} TND</strong></td>
                 <td><ng-container [ngTemplateOutlet]="jobStatusBadgeTpl" [ngTemplateOutletContext]="{status: j.status}"></ng-container></td>
                 <td>
-                  <button class="btn btn-danger btn-sm" (click)="openConfirmDelete(j.id)">
+                  <button id="admin-delete-job-btn-{{j.id}}" class="btn btn-danger btn-sm" (click)="openConfirmDelete(j.id)">
                     <span class="material-symbols-outlined">delete</span> Delete
                   </button>
                 </td>
@@ -326,11 +326,11 @@
         </div>
         <!-- Pagination -->
         <div class="table-pagination" *ngIf="totalJobs > pageSize">
-          <button class="btn btn-ghost btn-sm" (click)="prevPageJobs()" [disabled]="jobPage === 0">
+          <button id="admin-prev-jobs-btn" class="btn btn-ghost btn-sm" (click)="prevPageJobs()" [disabled]="jobPage === 0">
             <span class="material-symbols-outlined">chevron_left</span> Previous
           </button>
           <span class="page-info">Page {{ jobPage + 1 }} of {{ Math.ceil(totalJobs / pageSize) }}</span>
-          <button class="btn btn-ghost btn-sm" (click)="nextPageJobs()" [disabled]="(jobPage + 1) * pageSize >= totalJobs">
+          <button id="admin-next-jobs-btn" class="btn btn-ghost btn-sm" (click)="nextPageJobs()" [disabled]="(jobPage + 1) * pageSize >= totalJobs">
             Next <span class="material-symbols-outlined">chevron_right</span>
           </button>
         </div>
@@ -348,7 +348,7 @@
           <span class="section-card-title">Proposals ({{ filteredProposals.length }})</span>
           <div class="table-search">
             <span class="material-symbols-outlined">search</span>
-            <input type="text" formControlName="proposalSearch" placeholder="Search or ID…" />
+            <input id="admin-proposal-search-input" type="text" formControlName="proposalSearch" placeholder="Search or ID…" />
           </div>
         </div>
         <div class="table-wrap">
@@ -401,7 +401,7 @@
                   {{ p.message }}
                 </td>
                 <td>
-                  <button class="btn btn-danger btn-sm" (click)="openConfirmDeleteProposal(p.id)">
+                  <button id="admin-delete-proposal-btn-{{p.id}}" class="btn btn-danger btn-sm" (click)="openConfirmDeleteProposal(p.id)">
                     <span class="material-symbols-outlined">delete</span> Delete
                   </button>
                 </td>
@@ -411,11 +411,11 @@
         </div>
         <!-- Pagination -->
         <div class="table-pagination" *ngIf="totalProposals > pageSize">
-          <button class="btn btn-ghost btn-sm" (click)="prevPageProposals()" [disabled]="proposalPage === 0">
+          <button id="admin-prev-proposals-btn" class="btn btn-ghost btn-sm" (click)="prevPageProposals()" [disabled]="proposalPage === 0">
             <span class="material-symbols-outlined">chevron_left</span> Previous
           </button>
           <span class="page-info">Page {{ proposalPage + 1 }} of {{ Math.ceil(totalProposals / pageSize) }}</span>
-          <button class="btn btn-ghost btn-sm" (click)="nextPageProposals()" [disabled]="(proposalPage + 1) * pageSize >= totalProposals">
+          <button id="admin-next-proposals-btn" class="btn btn-ghost btn-sm" (click)="nextPageProposals()" [disabled]="(jobPage + 1) * pageSize >= totalJobs">
             Next <span class="material-symbols-outlined">chevron_right</span>
           </button>
         </div>
@@ -451,13 +451,13 @@
             <form [formGroup]="profileForm">
               <div class="form-group" style="margin-bottom:12px">
                 <label class="form-label">Name</label>
-                <input formControlName="name" class="form-input" />
+                <input id="admin-profile-name-input" formControlName="name" class="form-input" />
               </div>
               <div class="form-group" style="margin-bottom:12px">
                 <label class="form-label">Email</label>
-                <input formControlName="email" class="form-input" />
+                <input id="admin-profile-email-input" formControlName="email" class="form-input" />
               </div>
-              <button class="btn btn-primary" (click)="saveProfile()">Save</button>
+              <button id="admin-profile-save-btn" class="btn btn-primary" (click)="saveProfile()">Save</button>
             </form>
           </ng-container>
 
@@ -516,10 +516,10 @@
                 <td>{{ formatDate(r.created_at) }}</td>
                 <td>
                   <div style="display:flex; gap:6px;">
-                    <button class="btn btn-ghost btn-sm" (click)="ignoreReport(r.id)">
+                    <button id="admin-ignore-report-btn-{{r.id}}" class="btn btn-ghost btn-sm" (click)="ignoreReport(r.id)">
                       <span class="material-symbols-outlined">visibility_off</span> Ignore
                     </button>
-                    <button class="btn btn-danger btn-sm" (click)="openReportDeleteModal(r)">
+                    <button id="admin-delete-target-btn-{{r.id}}" class="btn btn-danger btn-sm" (click)="openReportDeleteModal(r)">
                       <span class="material-symbols-outlined">delete</span> Delete Target
                     </button>
                   </div>
@@ -539,7 +539,7 @@
   <div class="modal" (click)="$event.stopPropagation()">
     <div class="modal-header">
       <span class="modal-title">Delete Target {{ reportToDelete?.target_type | titlecase }}</span>
-      <button class="modal-close" (click)="reportDeleteModalOpen = false">
+      <button id="admin-modal-close-report-btn" class="modal-close" (click)="reportDeleteModalOpen = false">
         <span class="material-symbols-outlined">close</span>
       </button>
     </div>
@@ -550,12 +550,12 @@
     <p>Please provide a message that will be sent to the affected user:</p>
     
     <div class="form-group" style="margin-top:12px">
-      <textarea class="form-textarea" [(ngModel)]="reportAdminMessage" placeholder="Reason for deletion..." rows="3"></textarea>
+      <textarea id="admin-report-message-textarea" class="form-textarea" [(ngModel)]="reportAdminMessage" placeholder="Reason for deletion..." rows="3"></textarea>
     </div>
 
     <div class="modal-footer">
-      <button class="btn btn-ghost" (click)="reportDeleteModalOpen = false">Cancel</button>
-      <button class="btn btn-danger" (click)="confirmReportDelete()" [disabled]="modalLoading || !reportAdminMessage.trim()">
+      <button id="admin-modal-cancel-report-btn" class="btn btn-ghost" (click)="reportDeleteModalOpen = false">Cancel</button>
+      <button id="admin-modal-confirm-report-btn" class="btn btn-danger" (click)="confirmReportDelete()" [disabled]="modalLoading || !reportAdminMessage.trim()">
         <span class="material-symbols-outlined">delete</span> {{ modalLoading ? 'Deleting...' : 'Delete Target' }}
       </button>
     </div>
@@ -582,8 +582,8 @@
     <h3>Delete this job?</h3>
     <p>This will permanently delete the job and all its associated proposals. This action cannot be undone.</p>
     <div class="modal-footer">
-      <button class="btn btn-ghost" (click)="closeConfirm()">Cancel</button>
-      <button class="btn btn-danger" (click)="confirmDelete()" [disabled]="deletingJob">
+      <button id="admin-modal-cancel-job-btn" class="btn btn-ghost" (click)="closeConfirm()">Cancel</button>
+      <button id="admin-modal-confirm-job-btn" class="btn btn-danger" (click)="confirmDelete()" [disabled]="deletingJob">
         <span class="material-symbols-outlined">delete</span>
         {{ deletingJob ? 'Deleting...' : 'Delete' }}
       </button>
@@ -598,8 +598,8 @@
     <h3>Delete this user?</h3>
     <p>This will permanently delete the user and all their associated data (jobs, proposals, etc.). This action cannot be undone.</p>
     <div class="modal-footer">
-      <button class="btn btn-ghost" (click)="closeConfirmUser()">Cancel</button>
-      <button class="btn btn-danger" (click)="confirmDeleteUser()" [disabled]="deletingUser">
+      <button id="admin-modal-cancel-user-btn" class="btn btn-ghost" (click)="closeConfirmUser()">Cancel</button>
+      <button id="admin-modal-confirm-user-btn" class="btn btn-danger" (click)="confirmDeleteUser()" [disabled]="deletingUser">
         <span class="material-symbols-outlined">delete</span>
         {{ deletingUser ? 'Deleting...' : 'Delete' }}
       </button>
@@ -614,8 +614,8 @@
     <h3>Delete this proposal?</h3>
     <p>This will permanently delete the proposal. This action cannot be undone.</p>
     <div class="modal-footer">
-      <button class="btn btn-ghost" (click)="closeConfirmProposal()">Cancel</button>
-      <button class="btn btn-danger" (click)="confirmDeleteProposal()" [disabled]="deletingProposal">
+      <button id="admin-modal-cancel-proposal-btn" class="btn btn-ghost" (click)="closeConfirmProposal()">Cancel</button>
+      <button id="admin-modal-confirm-proposal-btn" class="btn btn-danger" (click)="confirmDeleteProposal()" [disabled]="deletingProposal">
         <span class="material-symbols-outlined">delete</span>
         {{ deletingProposal ? 'Deleting...' : 'Delete' }}
       </button>

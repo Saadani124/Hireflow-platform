@@ -35,7 +35,7 @@
       <div class="field-group">
         <label>Email</label>
         <div class="input-wrap">
-          <input type="text" formControlName="email" placeholder="Email" id="email">
+          <input id="login-email-input" type="text" formControlName="email" placeholder="Email">
           <div *ngIf="(loginForm.get('email')?.touched || submitted) && loginForm.get('email')?.invalid">
             <small *ngIf="loginForm.get('email')?.errors?.['required']">Email required</small>
             <small *ngIf="loginForm.get('email')?.errors?.['email']">Invalid email</small>
@@ -49,14 +49,14 @@
         </div>
 
         <div class="input-wrap">
-          <input type="password" formControlName="password" placeholder="Password" id="password">
+          <input id="login-password-input" type="password" formControlName="password" placeholder="Password">
           <div *ngIf="(loginForm.get('password')?.touched || submitted) && loginForm.get('password')?.invalid">
             <small>Password must be at least 6 characters</small>
           </div>
         </div>
       </div>
 
-      <button type="submit" class="submit-btn">
+      <button id="login-submit-btn" type="submit" class="submit-btn">
         Login
       </button>
 

@@ -11,14 +11,14 @@
     <div class="nav-right">
       <!-- NOTIFICATION BELL -->
       <div class="notif-wrap" *ngIf="user">
-        <button class="notif-btn" (click)="toggleNotifPanel($event)">
+        <button id="freelancer-notif-btn" class="notif-btn" (click)="toggleNotifPanel($event)">
           <span class="material-symbols-outlined">notifications</span>
           <span *ngIf="unreadCount > 0" class="notif-badge">{{ unreadCount > 9 ? '9+' : unreadCount }}</span>
         </button>
         <div *ngIf="notifOpen" class="notif-panel" (click)="$event.stopPropagation()">
           <div class="notif-panel-header">
             <span>Notifications</span>
-            <button class="notif-mark-all" (click)="markAllRead()" *ngIf="unreadCount > 0">Mark all read</button>
+            <button id="freelancer-notif-mark-all-btn" class="notif-mark-all" (click)="markAllRead()" *ngIf="unreadCount > 0">Mark all read</button>
           </div>
           <div *ngIf="notifications.length === 0" class="notif-empty">
             <span class="material-symbols-outlined">notifications_off</span>
@@ -116,7 +116,7 @@
       <div class="section-card">
         <div class="section-card-header">
           <span class="section-card-title">Recent Applications</span>
-          <button class="btn btn-ghost btn-sm" (click)="showSection('applications')">View all</button>
+          <button id="freelancer-view-all-apps-btn" class="btn btn-ghost btn-sm" (click)="showSection('applications')">View all</button>
         </div>
 
         <div *ngIf="proposalsLoading" class="empty-state">
@@ -154,10 +154,10 @@
                 </td>
                 <td>
                   <div style="display:flex; gap:12px; flex-wrap:wrap">
-                    <button *ngIf="p.status === 'pending'" class="btn btn-ghost btn-sm" (click)="editProposal(p)">
+                    <button id="freelancer-edit-app-btn-{{p.id}}" *ngIf="p.status === 'pending'" class="btn btn-ghost btn-sm" (click)="editProposal(p)">
                       <span class="material-symbols-outlined">edit</span> Edit
                     </button>
-                    <button *ngIf="p.status === 'pending'" class="btn btn-danger btn-sm" (click)="deleteProposal(p.id)">
+                    <button id="freelancer-withdraw-app-btn-{{p.id}}" *ngIf="p.status === 'pending'" class="btn btn-danger btn-sm" (click)="deleteProposal(p.id)">
                       <span class="material-symbols-outlined">delete</span> Withdraw
                     </button>
                   </div>
@@ -221,14 +221,14 @@
                 </td>
                 <td>
                   <div style="display:flex; gap:12px; flex-wrap:wrap">
-                    <button *ngIf="p.status === 'pending'" class="btn btn-teal btn-sm" (click)="editProposal(p)">
+                    <button id="freelancer-apps-edit-btn-{{p.id}}" *ngIf="p.status === 'pending'" class="btn btn-teal btn-sm" (click)="editProposal(p)">
                       <span class="material-symbols-outlined">edit</span> Edit
                     </button>
-                    <button *ngIf="p.status === 'pending'" class="btn btn-danger btn-sm" (click)="deleteProposal(p.id)">
+                    <button id="freelancer-apps-withdraw-btn-{{p.id}}" *ngIf="p.status === 'pending'" class="btn btn-danger btn-sm" (click)="deleteProposal(p.id)">
                       <span class="material-symbols-outlined">delete</span> Withdraw
                     </button>
                     <!-- REPORT JOB BUTTON -->
-                    <button class="btn btn-ghost btn-sm" (click)="openReportModal(p.job_id, $event)">
+                    <button id="freelancer-report-job-btn-{{p.job_id}}" class="btn btn-ghost btn-sm" (click)="openReportModal(p.job_id, $event)">
                       <span class="material-symbols-outlined">flag</span> Report Job
                     </button>
                   </div>
@@ -281,13 +281,13 @@
           <ng-container *ngIf="editMode">
             <div class="form-group">
               <label class="form-label">Name</label>
-              <input class="form-input" [(ngModel)]="profileForm.name" />
+              <input id="freelancer-profile-name-input" class="form-input" [(ngModel)]="profileForm.name" />
             </div>
             <div class="form-group">
               <label class="form-label">Email</label>
-              <input class="form-input" [(ngModel)]="profileForm.email" />
+              <input id="freelancer-profile-email-input" class="form-input" [(ngModel)]="profileForm.email" />
             </div>
-            <button class="btn btn-primary" (click)="saveProfile()">Save</button>
+            <button id="freelancer-profile-save-btn" class="btn btn-primary" (click)="saveProfile()">Save</button>
           </ng-container>
 
           <div class="profile-meta" style="margin-top:6px"><strong>Role:</strong> Freelancer</div>
@@ -314,22 +314,22 @@
   <div class="modal" (click)="$event.stopPropagation()">
     <div class="modal-header">
       <span class="modal-title">{{ editingProposal ? 'Edit Proposal' : 'Submit Proposal' }}</span>
-      <button class="modal-close" (click)="closeApplyModal()">
+      <button id="freelancer-modal-close-app-btn" class="modal-close" (click)="closeApplyModal()">
         <span class="material-symbols-outlined">close</span>
       </button>
     </div>
     <div class="modal-job-title">{{ applyingJob?.title }}</div>
     <div class="form-group">
       <label class="form-label">Your Message</label>
-      <textarea class="form-textarea" [(ngModel)]="proposalForm.message" placeholder="Describe why you're the right fit…"></textarea>
+      <textarea id="freelancer-app-message-textarea" class="form-textarea" [(ngModel)]="proposalForm.message" placeholder="Describe why you're the right fit…"></textarea>
     </div>
     <div class="form-group">
       <label class="form-label">Proposed Price (TND)</label>
-      <input class="form-input" [(ngModel)]="proposalForm.price" type="number" placeholder="e.g. 400" />
+      <input id="freelancer-app-price-input" class="form-input" [(ngModel)]="proposalForm.price" type="number" placeholder="e.g. 400" />
     </div>
     <div class="modal-footer">
-      <button class="btn btn-ghost" (click)="closeApplyModal()">Cancel</button>
-      <button class="btn btn-primary" (click)="submitProposal()" [disabled]="submittingProposal">
+      <button id="freelancer-modal-cancel-app-btn" class="btn btn-ghost" (click)="closeApplyModal()">Cancel</button>
+      <button id="freelancer-modal-confirm-app-btn" class="btn btn-primary" (click)="submitProposal()" [disabled]="submittingProposal">
         <span class="material-symbols-outlined">send</span>
         {{ submittingProposal
             ? (editingProposal ? 'Updating...' : 'Submitting...')
@@ -351,7 +351,7 @@
   <div class="modal" (click)="$event.stopPropagation()">
     <div class="modal-header">
       <span class="modal-title">Report Job</span>
-      <button class="modal-close" (click)="closeReportModal()">
+      <button id="freelancer-modal-close-report-btn" class="modal-close" (click)="closeReportModal()">
         <span class="material-symbols-outlined">close</span>
       </button>
     </div>
@@ -361,14 +361,14 @@
 
     <div class="form-group" style="margin-top:12px">
       <label class="form-label">Reason for reporting</label>
-      <textarea class="form-textarea" [(ngModel)]="reportReason"
+      <textarea id="freelancer-report-reason-textarea" class="form-textarea" [(ngModel)]="reportReason"
         placeholder="Why are you reporting this job?"
         rows="4"></textarea>
     </div>
 
     <div class="modal-footer">
-      <button class="btn btn-ghost" (click)="closeReportModal()">Cancel</button>
-      <button class="btn btn-danger" (click)="submitReport()" [disabled]="reportSubmitting">
+      <button id="freelancer-modal-cancel-report-btn" class="btn btn-ghost" (click)="closeReportModal()">Cancel</button>
+      <button id="freelancer-modal-confirm-report-btn" class="btn btn-danger" (click)="submitReport()" [disabled]="reportSubmitting">
         <span class="material-symbols-outlined">flag</span>
         {{ reportSubmitting ? 'Submitting...' : 'Submit Report' }}
       </button>
