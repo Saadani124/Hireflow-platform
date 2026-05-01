@@ -1,0 +1,33 @@
+<div class="verify-page">
+  <div class="verify-card">
+    <img src="/logo.ico" alt="HireFlow Logo" class="logo-icon">
+    <h1 class="logo-text">Hire<span>Flow</span></h1>
+
+    <!-- Loading -->
+    <div *ngIf="status === 'loading'" class="state-wrap">
+      <div class="spinner"></div>
+      <p class="state-label">Verifying your email...</p>
+    </div>
+
+    <!-- Success -->
+    <div *ngIf="status === 'success'" class="state-wrap">
+      <div class="icon-circle success">
+        <span class="material-symbols-outlined">check_circle</span>
+      </div>
+      <h2>Email Verified!</h2>
+      <p class="state-label">{{ message }}</p>
+      <p class="redirect-note">Redirecting you to login in 3 seconds...</p>
+      <button class="btn-primary" (click)="goToLogin()">Go to Login</button>
+    </div>
+
+    <!-- Error -->
+    <div *ngIf="status === 'error'" class="state-wrap">
+      <div class="icon-circle error">
+        <span class="material-symbols-outlined">error</span>
+      </div>
+      <h2>Verification Failed</h2>
+      <p class="state-label">{{ message }}</p>
+      <button class="btn-primary" (click)="goToLogin()">Back to Login</button>
+    </div>
+  </div>
+</div>

@@ -8,11 +8,13 @@ import { authGuard } from './core/guards/auth-guard';
 import { FreelancerDashboardComponent }from './pages/freelancer-dashboard/freelancer-dashboard';
 import { AdminDashboardComponent } from './pages/admin-dashboard/admin-dashboard';
 import { roleGuard } from './core/guards/role-guard';
+import { VerifyComponent } from './pages/verify/verify';
 
 export const routes: Routes = [
   { path: '', component: Welcome },
   { path: 'login', component: Login },
   { path: 'register', component: Register },
+  { path: 'verify', component: VerifyComponent },
 
   { path: 'home', component: Home, canActivate: [authGuard] },
   { path: 'ClientDashboard', component: ClientDashboard, canActivate: [roleGuard], data: { role: 'client' } },

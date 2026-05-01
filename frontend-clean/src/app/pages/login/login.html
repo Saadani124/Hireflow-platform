@@ -27,7 +27,10 @@
     <h1>Login</h1>
     <p class="sub">Access your account</p>
 
-    <!-- ERROR -->
+    <!-- ERROR / SUCCESS -->
+    <div *ngIf="successMessage" class="success-banner">
+      {{ successMessage }}
+    </div>
     <div *ngIf="errorMessage" class="error-banner">
         {{ errorMessage }}
     </div>

@@ -19,6 +19,7 @@ export class Register {
 
   registerForm!: FormGroup;
   errorMessage = '';
+  successMessage = '';
   submitted = false;
 
   constructor(
@@ -37,6 +38,8 @@ export class Register {
 
   onSubmit() {
     this.submitted = true;
+    this.successMessage = '';
+    this.errorMessage = '';
 
     if (this.registerForm.invalid) {
       this.registerForm.markAllAsTouched();
@@ -46,11 +49,15 @@ export class Register {
 
     const payload = this.registerForm.value;
 
-    this.errorMessage = '';
-
     this.auth.register(payload).subscribe({
-      next: () => {
-        this.router.navigate(['/login']);
+      next: (res: any) => {
+        if (res.message && res.message.includes('check your email')) {
+          this.successMessage = res.message;
+          // Optionally, redirect after a few seconds
+          setTimeout(() => this.router.navigate(['/login']), 5000);
+        } else {
+          this.router.navigate(['/login']);
+        }
       },
       error: (err: any) => {
         console.log(err);

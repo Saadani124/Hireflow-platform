@@ -31,7 +31,10 @@
       <h1>Create Account</h1>
       <p class="sub">Sign up to get started</p>
 
-      <!-- ERROR -->
+      <!-- ERROR / SUCCESS -->
+      <div *ngIf="successMessage" class="success-banner">
+        {{ successMessage }}
+      </div>
       <div *ngIf="errorMessage" class="error-banner">
         {{ errorMessage }}
       </div>
