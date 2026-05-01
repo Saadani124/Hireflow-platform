@@ -214,7 +214,9 @@
 /* ========= SIDEBAR ========= */
 .sidebar {
   width: 240px;
-  min-height: calc(100vh - 64px);
+  position: sticky;
+  top: 60px;
+  height: calc(100vh - 60px);
   background: #f2f4f6;
   border-right: 1px solid rgba(195, 198, 215, 0.4);
   padding: 28px 16px;
@@ -222,6 +224,7 @@
   flex-direction: column;
   gap: 4px;
   flex-shrink: 0;
+  overflow-y: auto;
 }
 
 .sidebar-label {

@@ -4,9 +4,9 @@
 
     <!-- LOGO -->
     <div style="display:flex; align-items:center; gap:12px">
-      <div (click)="goHome()" class="logo" style="cursor: pointer;">
-        Hire<span>Flow</span>
-      </div>
+      <div (click)="goHome()" class="logo" style="cursor: pointer; display: flex; align-items: center;">
+        <img src="/logo.ico" alt="HireFlow Logo" style="height: 32px; width: auto; margin-right: 10px;">
+        Hire<span>Flow</span></div>
     </div>
 
     <!-- RIGHT SIDE -->
@@ -112,7 +112,7 @@
 
     <!-- CATEGORY FILTER -->
     <div class="filter-group">
-      <h4 class="filter-label" style="margin-top: -1rem;">Categories</h4>
+      <h4 class="filter-label" style="margin-bottom: 1.25rem;">Categories</h4>
       <div class="checkbox-list">
         <label class="custom-checkbox">
           <input id="home-category-all-checkbox" type="checkbox" [checked]="selectedCategories.length === 0" (change)="toggleCategory('All')">
