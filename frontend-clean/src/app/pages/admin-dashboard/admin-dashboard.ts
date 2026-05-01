@@ -77,7 +77,10 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
   notifOpen = false;
   notifications: any[] = [];
   unreadCount = 0;
-  private notifPollInterval: any;
+  notifPage = 0;
+  notifPageSize = 10;
+  hasMoreNotifs = true;
+  private wsSubscription: any;
 
   // ---- Reports ----
   reports: any[] = [];
@@ -110,8 +113,9 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.user = JSON.parse(localStorage.getItem('user') || 'null');
+    const token = localStorage.getItem('token');
 
-    if (!this.user) {
+    if (!this.user || !token) {
       this.router.navigate(['/login']);
       return;
     }
@@ -135,8 +139,14 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
 
     this.loadAdminData();
 
+    // Setup WebSockets & Notifications
     this.loadUnreadCount();
-    this.notifPollInterval = setInterval(() => this.loadUnreadCount(), 60000);
+    this.notificationService.connectWebSocket(token);
+    this.wsSubscription = this.notificationService.getRealtimeStream().subscribe(notif => {
+      this.notifications.unshift(notif);
+      this.unreadCount++;
+      this.cdr.detectChanges();
+    });
     
     if (this.activeSection === 'reports') {
       this.loadReports();
@@ -151,7 +161,8 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    if (this.notifPollInterval) clearInterval(this.notifPollInterval);
+    if (this.wsSubscription) this.wsSubscription.unsubscribe();
+    this.notificationService.disconnectWebSocket();
   }
 
   // =========================
@@ -168,7 +179,10 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
     event.stopPropagation();
     this.notifOpen = !this.notifOpen;
     this.menuOpen = false;
-    if (this.notifOpen) this.loadNotifications();
+    if (this.notifOpen && this.notifications.length === 0) {
+      this.notifPage = 0;
+      this.loadNotifications();
+    }
     this.cdr.detectChanges();
   }
 
@@ -179,11 +193,25 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
     this.cdr.detectChanges();
   }
 
-  loadNotifications() {
-    this.notificationService.getAll().subscribe({
-      next: (res) => { this.notifications = res; this.cdr.detectChanges(); },
+  loadNotifications(append = false) {
+    this.notificationService.getAll(this.notifPage * this.notifPageSize, this.notifPageSize).subscribe({
+      next: (res) => {
+        if (append) {
+          this.notifications = [...this.notifications, ...res];
+        } else {
+          this.notifications = res;
+        }
+        this.hasMoreNotifs = res.length === this.notifPageSize;
+        this.cdr.detectChanges();
+      },
       error: () => {}
     });
+  }
+
+  loadMoreNotifs(event: MouseEvent) {
+    event.stopPropagation();
+    this.notifPage++;
+    this.loadNotifications(true);
   }
 
   markAllRead() {

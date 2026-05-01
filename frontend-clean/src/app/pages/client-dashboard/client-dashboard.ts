@@ -71,7 +71,10 @@ export class ClientDashboard implements OnInit, OnDestroy {
   notifOpen = false;
   notifications: any[] = [];
   unreadCount = 0;
-  private notifPollInterval: any;
+  notifPage = 0;
+  notifPageSize = 10;
+  hasMoreNotifs = true;
+  private wsSubscription: any;
 
   // ── Report Proposal ──────────────────────────────────────
   reportModalOpen = false;
@@ -121,7 +124,15 @@ export class ClientDashboard implements OnInit, OnDestroy {
     this.loadJobs();
 
     this.loadUnreadCount();
-    this.notifPollInterval = setInterval(() => this.loadUnreadCount(), 60000);
+    const token = localStorage.getItem('token');
+    if (token) {
+      this.notificationService.connectWebSocket(token);
+      this.wsSubscription = this.notificationService.getRealtimeStream().subscribe(notif => {
+        this.notifications.unshift(notif);
+        this.unreadCount++;
+        this.cdr.detectChanges();
+      });
+    }
 
     this.profileForm.patchValue({
       name: this.user.name,
@@ -137,7 +148,8 @@ export class ClientDashboard implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    if (this.notifPollInterval) clearInterval(this.notifPollInterval);
+    if (this.wsSubscription) this.wsSubscription.unsubscribe();
+    this.notificationService.disconnectWebSocket();
   }
 
   // ── NOTIFICATIONS ──────────────────────────────────────────
@@ -151,7 +163,10 @@ export class ClientDashboard implements OnInit, OnDestroy {
   toggleNotifPanel(event: MouseEvent) {
     event.stopPropagation();
     this.notifOpen = !this.notifOpen;
-    if (this.notifOpen) this.loadNotifications();
+    if (this.notifOpen && this.notifications.length === 0) {
+      this.notifPage = 0;
+      this.loadNotifications();
+    }
     this.cdr.detectChanges();
   }
 
@@ -162,11 +177,25 @@ export class ClientDashboard implements OnInit, OnDestroy {
     this.cdr.detectChanges();
   }
 
-  loadNotifications() {
-    this.notificationService.getAll().subscribe({
-      next: (res) => { this.notifications = res; this.cdr.detectChanges(); },
+  loadNotifications(append = false) {
+    this.notificationService.getAll(this.notifPage * this.notifPageSize, this.notifPageSize).subscribe({
+      next: (res) => {
+        if (append) {
+          this.notifications = [...this.notifications, ...res];
+        } else {
+          this.notifications = res;
+        }
+        this.hasMoreNotifs = res.length === this.notifPageSize;
+        this.cdr.detectChanges();
+      },
       error: () => {}
     });
+  }
+
+  loadMoreNotifs(event: MouseEvent) {
+    event.stopPropagation();
+    this.notifPage++;
+    this.loadNotifications(true);
   }
 
   markAllRead() {

@@ -11,7 +11,7 @@ from app.core.n8n import trigger_report_alert
 
 class ReportService:
     @staticmethod
-    def report_job(db: Session, job_id: int, user: User, reason: str) -> int:
+    async def report_job(db: Session, job_id: int, user: User, reason: str) -> int:
         job = db.query(Job).filter(Job.id == job_id).first()
         if not job:
             raise HTTPException(status_code=404, detail="Job not found")
@@ -33,7 +33,7 @@ class ReportService:
         # Notify admin in-app
         admins = db.query(User).filter(User.role == "admin").all()
         for admin in admins:
-            NotificationService.create_notification(
+            await NotificationService.create_notification(
                 db=db,
                 user_id=admin.id,
                 notif_type="report_job",
@@ -49,7 +49,7 @@ class ReportService:
         return job.report_count
 
     @staticmethod
-    def report_proposal(db: Session, proposal_id: int, user: User, reason: str) -> int:
+    async def report_proposal(db: Session, proposal_id: int, user: User, reason: str) -> int:
         proposal = db.query(Proposal).filter(Proposal.id == proposal_id).first()
         if not proposal:
             raise HTTPException(status_code=404, detail="Proposal not found")
@@ -74,7 +74,7 @@ class ReportService:
         # Notify admin in-app
         admins = db.query(User).filter(User.role == "admin").all()
         for admin in admins:
-            NotificationService.create_notification(
+            await NotificationService.create_notification(
                 db=db,
                 user_id=admin.id,
                 notif_type="report_proposal",

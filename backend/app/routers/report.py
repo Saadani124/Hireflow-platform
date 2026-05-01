@@ -11,18 +11,18 @@ router = APIRouter(prefix="/reports", tags=["Reports"])
 # ─── SUBMIT REPORTS (any authenticated user) ───────────────────────────────
 
 @router.post("/job/{job_id}", status_code=201)
-def report_job(job_id: int, data: ReportCreate,
+async def report_job(job_id: int, data: ReportCreate,
                db: Session = Depends(get_db),
                user=Depends(get_current_user)):
-    report_count = ReportService.report_job(db, job_id, user, data.reason)
+    report_count = await ReportService.report_job(db, job_id, user, data.reason)
     return {"message": "Job reported successfully", "report_count": report_count}
 
 
 @router.post("/proposal/{proposal_id}", status_code=201)
-def report_proposal(proposal_id: int, data: ReportCreate,
+async def report_proposal(proposal_id: int, data: ReportCreate,
                     db: Session = Depends(get_db),
                     user=Depends(get_current_user)):
-    report_count = ReportService.report_proposal(db, proposal_id, user, data.reason)
+    report_count = await ReportService.report_proposal(db, proposal_id, user, data.reason)
     return {"message": "Proposal reported successfully", "report_count": report_count}
 
 

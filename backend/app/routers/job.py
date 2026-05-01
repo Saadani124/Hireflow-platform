@@ -1,125 +1,36 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from fastapi import HTTPException
 
 from app.db.session import get_db
-from app.models.job import Job
 from app.schemas.job import JobCreate, JobResponse, PaginatedJobResponse
-from app.models.proposal import Proposal
-from app.models.user import User
+from app.services.job_service import JobService
+from app.core.dependencies import get_current_client, get_current_user, get_current_freelancer
 
-from app.core.dependencies import get_current_client,get_current_freelancer,get_current_user
+router = APIRouter(prefix="/jobs", tags=["Jobs"])
 
-router = APIRouter(prefix="/jobs",tags=["Jobs"])
+@router.post("/create", response_model=JobResponse)
+def create_job(data: JobCreate, db: Session = Depends(get_db), user = Depends(get_current_client)):
+    return JobService.create_job(db, data, user)
 
-#naamlo job endpoint
-@router.post("/create",response_model=JobResponse)
-def create_job(data:JobCreate, 
-                db:Session=Depends(get_db), 
-                user=Depends(get_current_client)):
-    job = Job(
-        title=data.title,
-        description=data.description,
-        budget=data.budget,
-        category=data.category, 
-        client_id=user.id
-    )
-    db.add(job)
-    db.commit()
-    db.refresh(job)
-
-    return job
-
-#list job endpoint
 @router.get("/", response_model=PaginatedJobResponse)
 def list_jobs(db: Session = Depends(get_db),
               user = Depends(get_current_user),
               skip: int = 0,
               limit: int = 50):
-    total = db.query(Job).filter(Job.status == "open").count()
-    jobs = db.query(Job).filter(Job.status == "open").order_by(Job.created_at.desc()).offset(skip).limit(limit).all()
-    
-    # If user is a freelancer, check which jobs they applied to
-    if user and user.role == "freelancer":
-        # Get all proposals for this freelancer
-        proposals = db.query(Proposal.job_id, Proposal.status).filter(
-            Proposal.freelancer_id == user.id
-        ).all()
-        
-        status_map = {row[0]: row[1] for row in proposals}
-        
-        for job in jobs:
-            status = status_map.get(job.id)
-            job.applied = status is not None and status != "rejected"
-            job.rejected = status == "rejected"
-            
-    return {"items": jobs, "total": total}
-#client consulte ses jobs
+    return JobService.list_jobs(db, user, skip, limit)
+
 @router.get("/me")
-def get_my_jobs(db: Session=Depends(get_db),
-                user=Depends(get_current_client)):
+def get_my_jobs(db: Session = Depends(get_db), user = Depends(get_current_client)):
+    return JobService.get_my_jobs(db, user)
 
-    jobs=db.query(Job).filter(Job.client_id == user.id).all()
-    return jobs
-#get job by id endpoint
 @router.get("/{job_id}")
-def get_job(job_id:int,
-            db:Session=Depends(get_db),
-            user=Depends(get_current_user)):
-    
-    job = db.query(Job).filter(Job.id == job_id).first()
-    if not job:
-        raise HTTPException(status_code=404, detail="Job not found")
-    return job
+def get_job(job_id: int, db: Session = Depends(get_db), user = Depends(get_current_user)):
+    return JobService.get_job(db, job_id)
 
-#job completed
 @router.post("/complete/{job_id}")
-def complete_job(job_id: int,
-                 db:Session=Depends(get_db),
-                 user=Depends(get_current_client)):
-
-    job = db.query(Job).filter(Job.id == job_id).first()
-    if not job:
-        raise HTTPException(status_code=404, detail="Job not found")
-    if job.client_id != user.id:
-        raise HTTPException(status_code=403, detail="Not your job")
-    if job.status != "in_progress":
-        raise HTTPException(status_code=400, detail="Job not in progress")
-
-    job.status = "completed"
-    db.commit()
-    db.refresh(job)
-    return {"message": "Job completed"}
-
-
-
-#freelancer consulte les jobs elli postulehom
-@router.get("/open")
-def get_open_jobs(db: Session=Depends(get_db),
-                  user=Depends(get_current_freelancer)):
-
-    jobs=db.query(Job).filter(Job.status=="open").all()
-    return jobs
-
+def complete_job(job_id: int, db: Session = Depends(get_db), user = Depends(get_current_client)):
+    return JobService.complete_job(db, job_id, user)
 
 @router.delete("/{job_id}")
-def delete_job(
-    job_id: int,
-    db: Session = Depends(get_db),
-    user: User = Depends(get_current_client)
-):
-    job = db.query(Job).filter(Job.id == job_id).first()
-
-    if not job:
-        raise HTTPException(status_code=404, detail="Job not found")
-
-    if job.client_id != user.id:
-        raise HTTPException(status_code=403, detail="Not your job")
-
-    if job.status != "open":
-        raise HTTPException(status_code=400, detail="Cannot delete this job")
-
-    db.delete(job)
-    db.commit()
-
-    return {"message": "Job deleted"}
+def delete_job(job_id: int, db: Session = Depends(get_db), user = Depends(get_current_client)):
+    return JobService.delete_job(db, job_id, user)

@@ -68,7 +68,10 @@ export class FreelancerDashboardComponent implements OnInit, OnDestroy {
   notifOpen = false;
   notifications: any[] = [];
   unreadCount = 0;
-  private notifPollInterval: any;
+  notifPage = 0;
+  notifPageSize = 10;
+  hasMoreNotifs = true;
+  private wsSubscription: any;
 
   // ── Report Job ──────────────────────────────────────
   reportModalOpen = false;
@@ -112,9 +115,17 @@ export class FreelancerDashboardComponent implements OnInit, OnDestroy {
     this.loadProposals();
 
     this.profileForm = { name: this.user.name, email: this.user.email };
+    const token = localStorage.getItem('token');
 
     this.loadUnreadCount();
-    this.notifPollInterval = setInterval(() => this.loadUnreadCount(), 60000);
+    if (token) {
+      this.notificationService.connectWebSocket(token);
+      this.wsSubscription = this.notificationService.getRealtimeStream().subscribe(notif => {
+        this.notifications.unshift(notif);
+        this.unreadCount++;
+        this.cdr.detectChanges();
+      });
+    }
 
     document.addEventListener('click', () => {
       this.imageMenu = false;
@@ -125,7 +136,8 @@ export class FreelancerDashboardComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    if (this.notifPollInterval) clearInterval(this.notifPollInterval);
+    if (this.wsSubscription) this.wsSubscription.unsubscribe();
+    this.notificationService.disconnectWebSocket();
   }
 
   // ── NOTIFICATIONS ──────────────────────────────────────────
@@ -140,7 +152,10 @@ export class FreelancerDashboardComponent implements OnInit, OnDestroy {
     event.stopPropagation();
     this.notifOpen = !this.notifOpen;
     this.menuOpen = false;
-    if (this.notifOpen) this.loadNotifications();
+    if (this.notifOpen && this.notifications.length === 0) {
+      this.notifPage = 0;
+      this.loadNotifications();
+    }
     this.cdr.detectChanges();
   }
 
@@ -151,11 +166,25 @@ export class FreelancerDashboardComponent implements OnInit, OnDestroy {
     this.cdr.detectChanges();
   }
 
-  loadNotifications() {
-    this.notificationService.getAll().subscribe({
-      next: (res) => { this.notifications = res; this.cdr.detectChanges(); },
+  loadNotifications(append = false) {
+    this.notificationService.getAll(this.notifPage * this.notifPageSize, this.notifPageSize).subscribe({
+      next: (res) => {
+        if (append) {
+          this.notifications = [...this.notifications, ...res];
+        } else {
+          this.notifications = res;
+        }
+        this.hasMoreNotifs = res.length === this.notifPageSize;
+        this.cdr.detectChanges();
+      },
       error: () => {}
     });
+  }
+
+  loadMoreNotifs(event: MouseEvent) {
+    event.stopPropagation();
+    this.notifPage++;
+    this.loadNotifications(true);
   }
 
   markAllRead() {
