@@ -27,6 +27,7 @@ export class ChatbotComponent implements AfterViewChecked {
   isOpen = false;
   isVisible = true;
   userInput = '';
+  private currentUserId: string | null = null;
   
   suggestions = [
     { label: '💼 Available Jobs', text: 'What jobs are available?', visible: true },
@@ -53,11 +54,13 @@ export class ChatbotComponent implements AfterViewChecked {
     ).subscribe((event: any) => {
       const url = event.urlAfterRedirects;
       this.isVisible = !(url === '/' || url === '' || url.includes('login') || url.includes('register'));
+      // Reload history if user changed
+      this.checkUserAndReload();
     });
   }
 
   ngOnInit() {
-    this.loadHistory();
+    this.checkUserAndReload();
   }
 
   ngAfterViewChecked() {
@@ -167,20 +170,40 @@ export class ChatbotComponent implements AfterViewChecked {
     return formatted;
   }
 
+  private getStorageKey(): string {
+    const user = this.auth.getUser();
+    return user ? `chat_history_${user.id}` : 'chat_history_guest';
+  }
+
+  private checkUserAndReload() {
+    const user = this.auth.getUser();
+    const userId = user ? String(user.id) : null;
+    if (userId !== this.currentUserId) {
+      this.currentUserId = userId;
+      this.loadHistory();
+    }
+  }
+
   private saveHistory() {
-    localStorage.setItem('chat_history', JSON.stringify(this.messagesList));
+    localStorage.setItem(this.getStorageKey(), JSON.stringify(this.messagesList));
   }
 
   private loadHistory() {
-    const history = localStorage.getItem('chat_history');
+    const history = localStorage.getItem(this.getStorageKey());
     if (history) {
       this.messagesList = JSON.parse(history);
+    } else {
+      this.messagesList = [{
+        role: 'ai',
+        content: "Hello! I'm your HireFlow assistant 🤖<br>You can click below or ask me anything 👇",
+        time: this.getTime()
+      }];
     }
   }
 
   clearHistory() {
     this.messagesList = [this.messagesList[0]];
-    localStorage.removeItem('chat_history');
+    localStorage.removeItem(this.getStorageKey());
   }
 
   private getTime() {
