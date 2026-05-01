@@ -40,6 +40,5 @@ testem.log
 __screenshots__/
 
 # System files
-.env
 .DS_Store
 Thumbs.db
