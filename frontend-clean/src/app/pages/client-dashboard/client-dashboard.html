@@ -169,7 +169,7 @@
                 <td><ng-container [ngTemplateOutlet]="statusBadge" [ngTemplateOutletContext]="{status: job.status}"></ng-container></td>
                 <td>
                   <button id="client-proposals-btn-{{job.id}}" *ngIf="job.status === 'open'" class="btn btn-teal btn-sm" (click)="showSection('proposals')">
-                    <span class="material-symbols-outlined">description</span> Proposals
+                    <span class="material-symbols-outlined">description</span> Proposals ({{ job.proposal_count }})
                   </button>
                   <button id="client-complete-job-btn-{{job.id}}" *ngIf="job.status === 'in_progress'" class="btn btn-success btn-sm" (click)="completeJob(job.id)">
                     <span class="material-symbols-outlined">check</span> Mark as Complete
@@ -232,7 +232,7 @@
                 <td><ng-container [ngTemplateOutlet]="statusBadge" [ngTemplateOutletContext]="{status: job.status}"></ng-container></td>
                 <td id="action">
                   <button id="client-my-jobs-proposals-btn-{{job.id}}" *ngIf="job.status === 'open'" class="btn btn-teal btn-sm" (click)="showSection('proposals')">
-                    <span class="material-symbols-outlined">description</span> Proposals
+                    <span class="material-symbols-outlined">description</span> Proposals ({{ job.proposal_count }})
                   </button>
                   <button id="client-my-jobs-complete-btn-{{job.id}}" *ngIf="job.status === 'in_progress'" class="btn btn-complete btn-sm" (click)="completeJob(job.id)">
                     <span class="material-symbols-outlined">check</span> Complete

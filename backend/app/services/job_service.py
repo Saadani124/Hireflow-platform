@@ -42,7 +42,11 @@ class JobService:
 
     @staticmethod
     def get_my_jobs(db: Session, user: User):
-        return db.query(Job).filter(Job.client_id == user.id).all()
+        jobs = db.query(Job).filter(Job.client_id == user.id).all()
+        # Populating proposal_count for each job
+        for job in jobs:
+            job.proposal_count = db.query(Proposal).filter(Proposal.job_id == job.id).count()
+        return jobs
 
     @staticmethod
     def get_job(db: Session, job_id: int):
