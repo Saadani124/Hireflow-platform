@@ -21,6 +21,7 @@ export class Register {
   errorMessage = '';
   successMessage = '';
   submitted = false;
+  isLoading = false;
 
   constructor(
     private fb: FormBuilder,
@@ -40,10 +41,12 @@ export class Register {
     this.submitted = true;
     this.successMessage = '';
     this.errorMessage = '';
+    this.isLoading = true;
 
     if (this.registerForm.invalid) {
       this.registerForm.markAllAsTouched();
       this.errorMessage = 'Please fill all fields correctly';
+      this.isLoading = false;
       return;
     }
 
@@ -58,6 +61,8 @@ export class Register {
         } else {
           this.router.navigate(['/login']);
         }
+        this.isLoading = false;
+        this.cdr.detectChanges();
       },
       error: (err: any) => {
         console.log(err);
@@ -73,6 +78,7 @@ export class Register {
           this.errorMessage = err.error?.detail || 'Server error';
         }
 
+        this.isLoading = false;
         this.cdr.detectChanges();
       }
     });

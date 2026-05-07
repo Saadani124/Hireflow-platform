@@ -1,109 +1,154 @@
 <div class="register-page">
 
-  <div class="page-wrap">
-
-    <!-- LEFT -->
-    <div class="left-panel">
-      <a class="logo" style="display: flex; align-items: center;">
-        <img src="/logo.ico" alt="HireFlow Logo" style="height: 36px; width: auto; margin-right: 10px;">
-        Hire<span>Flow</span></a>
-
-      <div class="left-content">
-        <h2>Join the <em>platform</em></h2>
-        <p>Start your journey as a freelancer or hire talented students.</p>
-
-        <div class="role-cards">
-          <div class="role-card">
-            <strong>Client</strong>
-            <span>Post jobs and hire freelancers</span>
+  <div class="auth-card">
+    <!-- LEFT PANEL: Branding & Info -->
+    <div class="brand-side">
+      <div class="brand-header">
+        <a class="logo" routerLink="/">
+          <img src="/logo.ico" alt="HireFlow Logo">
+          <div class="logo-text">Hire<span>Flow</span></div></a>
+      </div>
+      
+      <div class="brand-body">
+        <h2>Unlock your <em>potential</em> with HireFlow</h2>
+        <p>The premium bridge between talented students and visionary companies.</p>
+        
+        <div class="features">
+          <div class="feature-item">
+            <div class="icon-wrap">
+              <i class="bi bi-rocket-takeoff"></i>
+            </div>
+            <div class="text">
+              <strong>Quick Start</strong>
+              <span>Get verified and start applying in minutes.</span>
+            </div>
           </div>
-          <div class="role-card">
-            <strong>Freelancer</strong>
-            <span>Find jobs and build experience</span>
+          <div class="feature-item">
+            <div class="icon-wrap">
+              <i class="bi bi-shield-check"></i>
+            </div>
+            <div class="text">
+              <strong>Secure Platform</strong>
+              <span>Your data and payments are always protected.</span>
+            </div>
           </div>
         </div>
       </div>
+      
+      <div class="brand-footer">
+        <p>© 2026 HireFlow Inc. All rights reserved.</p>
+      </div>
     </div>
 
-    <!-- RIGHT -->
-    <div class="right-panel">
-
-      <h1>Create Account</h1>
-      <p class="sub">Sign up to get started</p>
-
-      <!-- ERROR / SUCCESS -->
-      <div *ngIf="successMessage" class="success-banner">
-        {{ successMessage }}
+    <!-- RIGHT PANEL: Registration Form -->
+    <div class="form-side">
+      <div class="form-header">
+        <h1>Create Account</h1>
+        <p>Join our community today</p>
       </div>
-      <div *ngIf="errorMessage" class="error-banner">
-        {{ errorMessage }}
+
+      <!-- STATUS BANNERS -->
+      <div *ngIf="successMessage" class="banner success">
+        <i class="bi bi-check-circle"></i>
+        <span>{{ successMessage }}</span>
+      </div>
+      <div *ngIf="errorMessage" class="banner error">
+        <i class="bi bi-exclamation-triangle"></i>
+        <span>{{ errorMessage }}</span>
       </div>
 
       <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
-
-        <div class="grid2">
-
-
-          <div class="field-group">
-            <label>Name</label>
-            <input id="register-name-input" formControlName="name" placeholder="Your name">
-
+        <div class="form-grid">
+          <!-- NAME -->
+          <div class="form-group">
+            <label for="name">Full Name</label>
+            <div class="input-wrapper">
+              <i class="bi bi-person"></i>
+              <input 
+                id="register-name-input" 
+                formControlName="name" 
+                placeholder="John Doe"
+                [class.invalid]="(registerForm.get('name')?.touched || submitted) && registerForm.get('name')?.invalid"
+              >
+            </div>
             <small *ngIf="(registerForm.get('name')?.touched || submitted) && registerForm.get('name')?.invalid">
               Name is required
             </small>
           </div>
 
           <!-- EMAIL -->
-          <div class="field-group">
-            <label>Email</label>
-            <input id="register-email-input" formControlName="email" placeholder="Email">
-
+          <div class="form-group">
+            <label for="email">Email Address</label>
+            <div class="input-wrapper">
+              <i class="bi bi-envelope"></i>
+              <input 
+                id="register-email-input" 
+                formControlName="email" 
+                placeholder="john@example.com"
+                [class.invalid]="(registerForm.get('email')?.touched || submitted) && registerForm.get('email')?.invalid"
+              >
+            </div>
             <small *ngIf="(registerForm.get('email')?.touched || submitted) && registerForm.get('email')?.invalid">
               <span *ngIf="registerForm.get('email')?.errors?.['required']">Email required</span>
-              <span *ngIf="registerForm.get('email')?.errors?.['email']">Invalid email</span>
+              <span *ngIf="registerForm.get('email')?.errors?.['email']">Invalid email address</span>
             </small>
           </div>
 
           <!-- PASSWORD -->
-          <div class="field-group">
-            <label>Password</label>
-            <input id="register-password-input" type="password" formControlName="password" placeholder="Password">
-
+          <div class="form-group">
+            <label for="password">Password</label>
+            <div class="input-wrapper">
+              <i class="bi bi-lock"></i>
+              <input 
+                id="register-password-input" 
+                type="password" 
+                formControlName="password" 
+                placeholder="••••••••"
+                [class.invalid]="(registerForm.get('password')?.touched || submitted) && registerForm.get('password')?.invalid"
+              >
+            </div>
             <small *ngIf="(registerForm.get('password')?.touched || submitted) && registerForm.get('password')?.invalid">
-              Minimum 6 characters
+              Minimum 6 characters required
             </small>
           </div>
 
           <!-- ROLE -->
-          <div class="field-group">
-            <label>Role</label>
-
-            <select id="register-role-select" formControlName="role">
-              <option value="">Select role</option>
-              <option value="client">Client</option>
-              <option value="freelancer">Freelancer</option>
-            </select>
-
+          <div class="form-group">
+            <label for="role">I want to</label>
+            <div class="input-wrapper">
+              <i class="bi bi-briefcase"></i>
+              <select 
+                id="register-role-select" 
+                formControlName="role"
+                [class.placeholder]="!registerForm.get('role')?.value"
+                [class.invalid]="(registerForm.get('role')?.touched || submitted) && registerForm.get('role')?.invalid"
+              >
+                <option value="" disabled selected>Select your role</option>
+                <option value="client">Hire Talent (Client)</option>
+                <option value="freelancer">Work as Freelancer</option>
+              </select>
+            </div>
             <small *ngIf="(registerForm.get('role')?.touched || submitted) && registerForm.get('role')?.invalid">
-              Role is required
+              Please select a role
             </small>
           </div>
-
         </div>
 
-        <button id="register-submit-btn" type="submit" class="submit-btn" >
-          Create Account
+        <button 
+          id="register-submit-btn" 
+          type="submit" 
+          class="submit-btn" 
+          [disabled]="isLoading"
+        >
+          <span *ngIf="!isLoading">Create Account</span>
+          <div *ngIf="isLoading" class="loader"></div>
         </button>
-
       </form>
 
-      <div class="bottom-link">
-        Already have an account?
-        <a routerLink="/login">Login</a>
+      <div class="form-footer">
+        <p>Already have an account? <a routerLink="/login">Log in</a></p>
       </div>
-
     </div>
-
   </div>
 
-</div>
+</div>
