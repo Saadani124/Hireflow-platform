@@ -83,12 +83,12 @@ def login(data: loginSchema, db: Session = Depends(get_db)):
     if not user or not verify_password(data.password, user.password_hash):
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
-    # Block unverified users from logging in
-    if not user.is_verified:
-        raise HTTPException(
-            status_code=403,
-            detail="Your account is not verified. Please check your email or contact support."
-        )
+    # Allow login even for unverified users (frontend handles redirect)
+    # if not user.is_verified:
+    #     raise HTTPException(
+    #         status_code=403,
+    #         detail="Your account is not verified. Please check your email or contact support."
+    #     )
 
     token = create_access_token({
         "user_id": user.id,

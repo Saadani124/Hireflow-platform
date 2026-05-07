@@ -1,0 +1,79 @@
+<div class="pending-container">
+  <div class="glass-card">
+
+    <div class="shield-icon-wrapper">
+      <div class="shield-icon">
+        <span class="material-symbols-outlined">security</span>
+      </div>
+    </div>
+
+    <h1 class="title">Verification in Progress</h1>
+
+    <div class="status-badge">
+      <span class="dot"></span>
+      PENDING APPROVAL
+    </div>
+
+    <p class="description">
+      Hello <span class="user-name">{{ user?.name }}</span>, welcome to HireFlow. Our administrative team is currently
+      reviewing your profile and credentials. This process typically takes 24-48 hours.
+    </p>
+
+    <!-- STATUS ALERT -->
+    <div *ngIf="statusMessage" class="alert-box" [ngClass]="statusType" [class.show]="statusMessage">
+      <div class="alert-inner">
+        <span class="material-symbols-outlined alert-icon">
+          {{ statusType === 'success' ? 'check_circle' : (statusType === 'info' ? 'info' : 'error') }}
+        </span>
+        <div class="alert-message">
+          <p class="alert-text">{{ statusMessage }}</p>
+          <button *ngIf="statusType === 'success'" class="alert-btn" (click)="goHome()">
+            Enter Platform
+            <span class="material-symbols-outlined">rocket_launch</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="progress-stepper">
+      <div class="step active">
+        <div class="step-circle">
+          <span class="material-symbols-outlined">check</span>
+        </div>
+        <span class="step-label">REGISTERED</span>
+      </div>
+      <div class="step-line active"></div>
+      <div class="step in-progress">
+        <div class="step-circle pulse">
+          <span class="material-symbols-outlined">search</span>
+        </div>
+        <span class="step-label">REVIEWING</span>
+      </div>
+      <div class="step-line"></div>
+      <div class="step locked">
+        <div class="step-circle">
+          <span class="material-symbols-outlined">lock</span>
+        </div>
+        <span class="step-label">ACCESS</span>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-outline" (click)="logout()">
+        <span class="material-symbols-outlined">logout</span>
+        Log Out
+      </button>
+      <button class="btn btn-primary" (click)="checkStatus()" [disabled]="loading">
+        <span class="material-symbols-outlined" [class.spin]="loading">
+          {{ loading ? 'sync' : 'refresh' }}
+        </span>
+        {{ loading ? 'Checking...' : 'Check Status' }}
+      </button>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    Need help? Contact support at <a href="mailto:talelsaadani12@gmail">admin1@admin.com</a>
+  </div>
+</div>

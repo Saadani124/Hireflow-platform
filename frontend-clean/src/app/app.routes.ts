@@ -9,16 +9,19 @@ import { FreelancerDashboardComponent }from './pages/freelancer-dashboard/freela
 import { AdminDashboardComponent } from './pages/admin-dashboard/admin-dashboard';
 import { roleGuard } from './core/guards/role-guard';
 import { VerifyComponent } from './pages/verify/verify';
+import { PendingVerification } from './pages/pending-verification/pending-verification';
+import { verificationGuard } from './core/guards/verification-guard';
 
 export const routes: Routes = [
   { path: '', component: Welcome },
   { path: 'login', component: Login },
   { path: 'register', component: Register },
   { path: 'verify', component: VerifyComponent },
+  { path: 'pending-verification', component: PendingVerification, canActivate: [authGuard] },
 
-  { path: 'home', component: Home, canActivate: [authGuard] },
-  { path: 'ClientDashboard', component: ClientDashboard, canActivate: [roleGuard], data: { role: 'client' } },
-  { path: 'FreelancerDashboard', component: FreelancerDashboardComponent, canActivate: [roleGuard], data: { role: 'freelancer' } },
+  { path: 'home', component: Home, canActivate: [authGuard, verificationGuard] },
+  { path: 'ClientDashboard', component: ClientDashboard, canActivate: [roleGuard, verificationGuard], data: { role: 'client' } },
+  { path: 'FreelancerDashboard', component: FreelancerDashboardComponent, canActivate: [roleGuard, verificationGuard], data: { role: 'freelancer' } },
   { path: 'AdminDashboard', component: AdminDashboardComponent, canActivate: [roleGuard], data: { role: 'admin' } },
   
   // Aliases for notification links

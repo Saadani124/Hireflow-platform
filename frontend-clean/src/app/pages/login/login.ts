@@ -70,7 +70,12 @@ export class Login implements OnInit {
       this.auth.getMe().subscribe((user: any) => {
         user.profile_image = normalizeImage(user.profile_image);
         this.auth.saveUser(user);
-        this.router.navigate(['/home']);
+        
+        if (user.role !== 'admin' && (user.is_verified == 0 || user.is_verified === false)) {
+          this.router.navigate(['/pending-verification']);
+        } else {
+          this.router.navigate(['/home']);
+        }
       });
     },
     error: (err: any) => {
