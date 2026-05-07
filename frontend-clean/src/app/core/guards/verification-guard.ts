@@ -13,12 +13,10 @@ export const verificationGuard: CanActivateFn = () => {
     return false;
   }
 
-  // Admin and verified users (relaxed check for Boolean/Integer compatibility)
   if (user.role === 'admin' || user.is_verified == 1 || user.is_verified === true) {
     return true;
   }
 
-  // Not verified
   router.navigate(['/pending-verification']);
   return false;
 };
