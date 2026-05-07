@@ -71,7 +71,8 @@ def seed_admins():
                     name=admin["name"],
                     email=admin["email"],
                     password_hash=hashed_password,
-                    role="admin"
+                    role="admin",
+                    is_verified=1
                 ))
         db.commit()
         print("✅ Admin users seeded")

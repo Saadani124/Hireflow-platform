@@ -53,3 +53,12 @@ async def delete_proposal(proposal_id: int,
                     db: Session = Depends(get_db),
                     user = Depends(get_current_admin)):
     return await AdminService.delete_proposal(db, proposal_id, body.admin_message)
+
+@router.get("/unverified-users")
+def get_unverified_users(db: Session = Depends(get_db), user = Depends(get_current_admin)):
+    return AdminService.get_unverified_users(db)
+
+@router.post("/verify-user/{user_id}")
+async def verify_user(user_id: int, db: Session = Depends(get_db), user = Depends(get_current_admin)):
+    return await AdminService.verify_user(db, user_id)
+

@@ -48,7 +48,7 @@ def register(data: registerSchema, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="Email already registered")
 
     # Freelancers start unverified; clients are auto-verified
-    is_verified = True if data.role == "client" else False
+    is_verified = 1 if data.role == "client" else 0
 
     user = User(
         name=data.name,
@@ -83,11 +83,11 @@ def login(data: loginSchema, db: Session = Depends(get_db)):
     if not user or not verify_password(data.password, user.password_hash):
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
-    # Block unverified freelancers from logging in
-    if user.role == "freelancer" and not user.is_verified:
+    # Block unverified users from logging in
+    if not user.is_verified:
         raise HTTPException(
             status_code=403,
-            detail="Please verify your email before logging in. Check your inbox."
+            detail="Your account is not verified. Please check your email or contact support."
         )
 
     token = create_access_token({
@@ -119,7 +119,7 @@ def verify_email(token: str, db: Session = Depends(get_db)):
         # Already verified — just redirect to login
         return RedirectResponse(url=f"{FRONTEND_URL}/login?verified=already")
 
-    user.is_verified = True
+    user.is_verified = 1
     db.commit()
 
     return RedirectResponse(url=f"{FRONTEND_URL}/login?verified=true")

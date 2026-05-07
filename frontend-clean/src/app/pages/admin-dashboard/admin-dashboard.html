@@ -93,6 +93,9 @@
     <a class="nav-item" [class.active]="activeSection === 'profile'" (click)="showSection('profile')">
       <span class="material-symbols-outlined">person</span> Profile
     </a>
+    <a class="nav-item critical" [class.active]="activeSection === 'critical'" (click)="showSection('critical')">
+      <span class="material-symbols-outlined" style="color: inherit;">priority_high</span> Critical Actions ({{ unverifiedUsers.length }})
+    </a>
     <a class="nav-item danger" (click)="logout()" style="color:#ba1a1a; margin-top: auto;">
       <span class="material-symbols-outlined" style="color:#ba1a1a">logout</span> Logout
     </a>
@@ -526,6 +529,65 @@
                       <span class="material-symbols-outlined">delete</span> Delete Target
                     </button>
                   </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== CRITICAL ACTIONS ===== -->
+    <section *ngIf="activeSection === 'critical'" class="page-section">
+      <div class="page-header">
+        <h1>Critical Actions</h1>
+        <p>Manage users requiring manual verification</p>
+      </div>
+      <div class="section-card">
+        <div class="section-card-header">
+          <span class="section-card-title">Unverified Users ({{ unverifiedUsers.length }})</span>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>User</th>
+                <th>Role</th>
+                <th>Joined</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngIf="dataLoading">
+                <td colspan="4"><div class="empty-state"><p>Loading...</p></div></td>
+              </tr>
+              <tr *ngIf="!dataLoading && unverifiedUsers.length === 0">
+                <td colspan="4">
+                  <div class="empty-state">
+                    <span class="material-symbols-outlined">check_circle</span>
+                    <p>No unverified users found. Great job!</p>
+                  </div>
+                </td>
+              </tr>
+              <tr *ngFor="let u of unverifiedUsers">
+                <td>
+                  <div class="user-cell">
+                    <div class="table-avatar">
+                      <img *ngIf="u.profile_image" [src]="normalizeImage(u.profile_image)" [alt]="u.name" />
+                      <span *ngIf="!u.profile_image">{{ u.name?.charAt(0)?.toUpperCase() }}</span>
+                    </div>
+                    <div>
+                      <div class="user-name">{{ u.name }}</div>
+                      <div class="user-email">{{ u.email }}</div>
+                    </div>
+                  </div>
+                </td>
+                <td><ng-container [ngTemplateOutlet]="roleBadgeTpl" [ngTemplateOutletContext]="{role: u.role}"></ng-container></td>
+                <td style="color:var(--on-surface-variant); font-size:12px">{{ formatDate(u.created_at) }}</td>
+                <td>
+                  <button id="admin-verify-user-btn-{{u.id}}" class="btn btn-primary btn-sm" (click)="verifyUser(u.id)" style="background: linear-gradient(135deg, #f97316, #ea580c); border: none;">
+                    <span class="material-symbols-outlined">verified</span> Verify User
+                  </button>
                 </td>
               </tr>
             </tbody>

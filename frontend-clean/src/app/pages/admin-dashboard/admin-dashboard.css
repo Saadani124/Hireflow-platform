@@ -196,6 +196,33 @@
 .nav-item.danger:hover { background: #fee2e2; }
 .nav-item.danger .material-symbols-outlined { color: #ba1a1a; }
 
+.nav-item.critical {
+  color: #ea580c;
+}
+.nav-item.critical .material-symbols-outlined {
+  color: #ea580c;
+}
+.nav-item.critical:hover {
+  background: #fff7ed;
+}
+.nav-item.critical.active {
+  background: #ffedd5;
+  color: #f97316;
+}
+.nav-item.critical.active .material-symbols-outlined {
+  color: #f97316;
+}
+
+.critical-badge {
+  background: #f97316;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 9999px;
+  margin-left: auto;
+}
+
 .edit-icon {
   font-size: 20px;
   color: #434655;

@@ -38,6 +38,7 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
   allUsers: any[] = [];
   allJobs: any[] = [];
   allProposals: any[] = [];
+  unverifiedUsers: any[] = [];
 
   // ---- Pagination ----
   jobPage = 0;
@@ -241,7 +242,7 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
     this.dataLoading = true;
 
     this.adminService.getAllData().subscribe({
-      next: ({ stats, users, jobs, proposals }) => {
+      next: ({ stats, users, jobs, proposals, unverifiedUsers }) => {
         this.stats = stats;
         this.allUsers = users;
         
@@ -252,6 +253,8 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
         // Handle paginated proposals
         this.allProposals = proposals.items;
         this.totalProposals = proposals.total;
+
+        this.unverifiedUsers = unverifiedUsers;
 
         this.filteredUsers = [...users];
         this.filteredJobs = [...this.allJobs];
@@ -482,6 +485,18 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
         this.showToast(err.error?.detail || 'Failed to delete proposal.', 'error');
         this.deletingProposal = false;
         this.cdr.detectChanges();
+      }
+    });
+  }
+
+  verifyUser(userId: number) {
+    this.adminService.verifyUser(userId).subscribe({
+      next: (res: any) => {
+        this.showToast(res.message, 'success');
+        this.loadAdminData(); 
+      },
+      error: (err: any) => {
+        this.showToast(err.error?.detail || 'Failed to verify user', 'error');
       }
     });
   }

@@ -31,12 +31,17 @@ export class AdminService {
     return this.http.get<any>(url);
   }
 
+  getUnverifiedUsers(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.BASE}/unverified-users`);
+  }
+
   getAllData(): Observable<any> {
     return forkJoin({
       stats: this.getStats(),
       users: this.getUsers(),
       jobs: this.getJobs(),
-      proposals: this.getProposals()
+      proposals: this.getProposals(),
+      unverifiedUsers: this.getUnverifiedUsers()
     });
   }
 
@@ -53,5 +58,9 @@ export class AdminService {
   deleteProposal(id: number, adminMessage?: string): Observable<any> {
     const options = adminMessage ? { body: { admin_message: adminMessage } } : {};
     return this.http.delete(`${this.BASE}/proposals/${id}`, options);
+  }
+
+  verifyUser(id: number): Observable<any> {
+    return this.http.post(`${this.BASE}/verify-user/${id}`, {});
   }
 }

@@ -17,10 +17,13 @@ class AdminService:
         in_progress_jobs = db.query(Job).filter(Job.status == "in_progress").count()
         completed_jobs = db.query(Job).filter(Job.status == "completed").count()
 
+        unverified_users_count = db.query(User).filter(User.is_verified == 0).count()
+        
         return {
             "users": total_users,
             "jobs": total_jobs,
             "proposals": total_proposals,
+            "unverified_users_count": unverified_users_count,
             "job_status": {
                 "open": open_jobs,
                 "in_progress": in_progress_jobs,
@@ -150,3 +153,25 @@ class AdminService:
             link="/freelancer-dashboard?section=applications"
         )
         return {"message": "Proposal deleted"}
+    @staticmethod
+    def get_unverified_users(db: Session):
+        return db.query(User).filter(User.is_verified == 0).all()
+
+    @staticmethod
+    async def verify_user(db: Session, user_id: int):
+        user = db.query(User).filter(User.id == user_id).first()
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        user.is_verified = 1
+        db.commit()
+
+        await NotificationService.create_notification(
+            db=db,
+            user_id=user_id,
+            notif_type="verification",
+            title="Account Verified!",
+            message="Your account has been manually verified by an administrator.",
+            link="/profile"
+        )
+        return {"message": f"User {user.name} has been verified"}
