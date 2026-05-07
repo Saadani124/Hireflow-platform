@@ -27,7 +27,6 @@ def ask_chatbot(request: ChatRequest, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="Message is empty")
 
     try:
-        # --- 1. DATA EXTRACTION (Security Filtered) ---
         role = request.user_role
         u_id = request.user_id
         
@@ -36,7 +35,6 @@ def ask_chatbot(request: ChatRequest, db: Session = Depends(get_db)):
         all_proposals = []
         all_reports = []
 
-        # ROOT ADMIN: FETCH EVERYTHING WITH FULL DETAIL
         if role == "admin":
             all_users = db.query(User).all()
             all_jobs = db.query(Job).all()
@@ -56,17 +54,14 @@ def ask_chatbot(request: ChatRequest, db: Session = Depends(get_db)):
             all_proposals = db.query(Proposal).filter(Proposal.freelancer_id == u_id).all()
             all_users = db.query(User).filter(User.id == u_id).all()
         
-        # --- 2. CONTEXT CONSTRUCTION (Detail Level depends on Role) ---
         user_map = {u.id: u for u in all_users}
         job_map = {j.id: j for j in all_jobs}
 
-        # 2.1 Directory
         if role == "admin":
             user_info = [f"U{u.id}: {u.name} ({u.role}) | Email: {u.email} | Created: {u.created_at.strftime('%Y-%m-%d')}" for u in all_users]
         else:
             user_info = [f"U{u.id}: {u.name} ({u.role})" for u in all_users]
 
-        # 2.2 Jobs
         job_info = []
         for j in all_jobs:
             c = user_map.get(j.client_id)
@@ -76,7 +71,6 @@ def ask_chatbot(request: ChatRequest, db: Session = Depends(get_db)):
             else:
                 job_info.append(f"J{j.id}: '{j.title}' | {j.category} | ${j.budget} | {j.status} | Client: {c_name}")
 
-        # 2.3 Proposals
         proposal_info = []
         for p in all_proposals:
             f = user_map.get(p.freelancer_id)

@@ -8,9 +8,33 @@ from app.db.session import get_db
 from app.models.user import User
 from app.core.dependencies import get_current_user
 from app.schemas.user import UpdateProfileRequest
+from app.services.user_ai_service import UserAIService
+from pydantic import BaseModel
 
+class BioGenRequest(BaseModel):
+    title: str = ""
+    skills: str = ""
+    experience: str | int = ""
+    achievement: str = ""
+    tone: str = "Professional"
+
+class BioSummarizeBatchRequest(BaseModel):
+    bios: list[str]
 
 router = APIRouter(prefix="/users", tags=["Users"])
+
+@router.post("/generate-bio")
+def generate_bio(request: BioGenRequest):
+    bio = UserAIService.generate_bio(request.dict())
+    return {"bio": bio}
+
+@router.post("/summarize-batch")
+def summarize_batch(request: BioSummarizeBatchRequest):
+    results = []
+    for bio in request.bios:
+        summary = UserAIService.summarize_bio(bio)
+        results.append(summary)
+    return {"summaries": results}
 
 UPLOAD_DIR = "uploads"
 
@@ -31,7 +55,7 @@ def upload_profile_picture(
 
     os.makedirs(UPLOAD_DIR, exist_ok=True)
 
-    # 🔴 DELETE OLD IMAGE (except default)
+    # DELETE OLD IMAGE (except default)
     if user.profile_image and user.profile_image != DEFAULT_IMAGE:
         old_path = user.profile_image.lstrip("/")
         if os.path.exists(old_path):
@@ -61,7 +85,7 @@ def update_profile(
     db: Session = Depends(get_db),
     user: User = Depends(get_current_user)
 ):
-    # 🔴 CHECK EMAIL UNIQUE
+    #CHECK EMAIL UNIQUE
     existing = db.query(User).filter(
         User.email == data.email,
         User.id != user.id
@@ -70,9 +94,10 @@ def update_profile(
     if existing:
         raise HTTPException(status_code=400, detail="Email already in use")
 
-    # 🔴 UPDATE FIELDS
+    #UPDATE FIELDS
     user.name = data.name
     user.email = data.email
+    user.bio = data.bio
 
     db.commit()
     db.refresh(user)

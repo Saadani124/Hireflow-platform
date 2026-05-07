@@ -58,7 +58,7 @@ export class FreelancerDashboardComponent implements OnInit, OnDestroy {
 
   // ---- Profile / Image ----
   editMode = false;
-  profileForm = { name: '', email: '' };
+  profileForm = { name: '', email: '', bio: '' };
   imageMenu = false;
   menuX = 0;
   menuY = 0;
@@ -80,6 +80,17 @@ export class FreelancerDashboardComponent implements OnInit, OnDestroy {
   reportSubmitting = false;
   reportError = '';
   reportSuccess = '';
+
+  // ── AI Bio Generation ──────────────────────────────
+  bioGenModalOpen = false;
+  generatingBio = false;
+  bioGenForm = {
+    title: '',
+    skills: '',
+    experience: '',
+    achievement: '',
+    tone: 'Professional'
+  };
 
   constructor(
     private jobService: JobService,
@@ -114,7 +125,7 @@ export class FreelancerDashboardComponent implements OnInit, OnDestroy {
 
     this.loadProposals();
 
-    this.profileForm = { name: this.user.name, email: this.user.email };
+    this.profileForm = { name: this.user.name, email: this.user.email, bio: this.user.bio || '' };
     const token = localStorage.getItem('token');
 
     this.loadUnreadCount();
@@ -332,7 +343,7 @@ export class FreelancerDashboardComponent implements OnInit, OnDestroy {
   toggleEdit() {
     this.editMode = !this.editMode;
     if (this.editMode) {
-      this.profileForm = { name: this.user.name, email: this.user.email };
+      this.profileForm = { name: this.user.name, email: this.user.email, bio: this.user.bio || '' };
     }
     this.cdr.detectChanges();
   }
@@ -372,6 +383,44 @@ export class FreelancerDashboardComponent implements OnInit, OnDestroy {
         });
       },
       error: () => this.showToast('Upload failed', 'error')
+    });
+  }
+
+  // =========================
+  // AI BIO GENERATOR
+  // =========================
+
+  openBioGenModal() {
+    this.bioGenModalOpen = true;
+    this.cdr.detectChanges();
+  }
+
+  closeBioGenModal() {
+    this.bioGenModalOpen = false;
+    this.cdr.detectChanges();
+  }
+
+  generateAI() {
+    if (!this.bioGenForm.title || !this.bioGenForm.skills) {
+      this.showToast('Please fill title and skills at least.', 'error');
+      return;
+    }
+
+    this.generatingBio = true;
+    this.auth.generateBio(this.bioGenForm).subscribe({
+      next: (res: any) => {
+        this.generatingBio = false;
+        this.profileForm.bio = res.bio;
+        this.editMode = true; // Switch to edit mode to show the result
+        this.closeBioGenModal();
+        this.showToast('Bio generated! Review and save.', 'success');
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.generatingBio = false;
+        this.showToast('Generation failed.', 'error');
+        this.cdr.detectChanges();
+      }
     });
   }
 

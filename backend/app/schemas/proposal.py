@@ -10,6 +10,7 @@ class UserMini(BaseModel):
     id: int
     name: str
     profile_image: str | None
+    bio: str | None
 
     class Config:
         from_attributes = True

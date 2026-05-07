@@ -438,6 +438,113 @@ tr:hover td { background: #f2f4f6; }
 .proposal-meta { font-size: 12px; color: #434655; margin-top: 2px; }
 .proposal-message { font-size: 13px; color: #434655; margin-top: 6px; line-height: 1.5; }
 
+.freelancer-bio-preview {
+  background: rgba(0, 74, 198, 0.05);
+  border-left: 3px solid var(--primary);
+  padding: 10px 14px;
+  border-radius: 4px 8px 8px 4px;
+  margin: 12px 0;
+}
+.bio-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--primary);
+  margin-bottom: 4px;
+}
+.freelancer-bio-preview p, .proposal-message p {
+  margin: 0;
+  font-size: 13.5px;
+  color: var(--on-surface-variant);
+}
+
+.freelancer-bio-summary {
+  margin: 14px 0;
+}
+.bio-points {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+.bio-point {
+  background: #ffffff;
+  border: 1px solid var(--outline-variant);
+  color: var(--primary);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+}
+.bio-point .material-symbols-outlined {
+  font-size: 14px;
+  color: #166534;
+}
+
+/* ─── AI SUMMARIZING BANNER ───────────────────────────────── */
+.ai-summarizing-banner {
+  background: linear-gradient(135deg, #004ac6, #2563eb);
+  color: #ffffff;
+  padding: 16px 24px;
+  border-radius: 14px;
+  margin-bottom: 24px;
+  box-shadow: 0 8px 32px rgba(37, 99, 235, 0.2);
+  animation: slideInDown 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ai-banner-content {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.ai-icon {
+  font-size: 28px;
+  animation: spin 3s linear infinite;
+  color: #a5f3fc;
+}
+
+.ai-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.ai-text strong {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 15px;
+  letter-spacing: 0.02em;
+}
+
+.ai-text span {
+  font-size: 13px;
+  opacity: 0.9;
+}
+
+.ai-loader {
+  width: 24px;
+  height: 24px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes slideInDown {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 /* ========= MODAL ========= */
 .modal-overlay {
   position: fixed;

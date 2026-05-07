@@ -61,4 +61,18 @@ export class AuthService {
       data
     );
   }
+
+  generateBio(data: any) {
+    return this.http.post(
+      'http://localhost:8000/users/generate-bio',
+      data
+    );
+  }
+
+  summarizeBatch(bios: string[]) {
+    return this.http.post(
+      'http://localhost:8000/users/summarize-batch',
+      { bios }
+    );
+  }
 }

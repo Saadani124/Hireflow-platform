@@ -250,53 +250,77 @@
         <p>Your account information</p>
       </div>
 
-      <div class="profile-card">
+      <div class="profile-card-premium">
+        
+        <!-- LEFT COLUMN: Identity -->
+        <div class="profile-left">
+          <div class="profile-avatar">
+            <img
+              *ngIf="user?.profile_image"
+              [src]="normalizeImage(user?.profile_image)"
+              (click)="onAvatarClick($event)"
+              class="avatar" />
+            <span
+              *ngIf="!user?.profile_image"
+              class="material-symbols-outlined"
+              (click)="onAvatarClick($event)"
+              style="font-size:36px; color:var(--on-surface-variant); cursor:pointer">
+              person
+            </span>
 
-        <!-- Avatar -->
-        <div class="profile-avatar">
-          <img
-            *ngIf="user?.profile_image"
-            [src]="normalizeImage(user?.profile_image)"
-            (click)="onAvatarClick($event)"
-            class="avatar" />
-          <span
-            *ngIf="!user?.profile_image"
-            class="material-symbols-outlined"
-            (click)="onAvatarClick($event)"
-            style="font-size:36px; color:var(--on-surface-variant); cursor:pointer">
-            person
-          </span>
-
-          <!-- Image context menu -->
-          <div *ngIf="imageMenu" class="image-menu" (click)="$event.stopPropagation()">
-            <div (click)="viewPhoto()">View photo</div>
-            <div (click)="triggerUpload()">Change photo</div>
+            <div *ngIf="imageMenu" class="image-menu" (click)="$event.stopPropagation()">
+              <div (click)="viewPhoto()">View photo</div>
+              <div (click)="triggerUpload()">Change photo</div>
+            </div>
           </div>
-        </div>
 
-        <!-- Info / edit form -->
-        <div style="flex:1">
-          <ng-container *ngIf="!editMode">
+          <div style="text-align: center; margin-top: 16px;">
             <div class="profile-name">{{ user?.name }}</div>
             <div class="profile-meta">{{ user?.email }}</div>
-          </ng-container>
-
-          <ng-container *ngIf="editMode">
-            <div class="form-group">
-              <label class="form-label">Name</label>
-              <input id="freelancer-profile-name-input" class="form-input" [(ngModel)]="profileForm.name" />
-            </div>
-            <div class="form-group">
-              <label class="form-label">Email</label>
-              <input id="freelancer-profile-email-input" class="form-input" [(ngModel)]="profileForm.email" />
-            </div>
-            <button id="freelancer-profile-save-btn" class="btn btn-primary" (click)="saveProfile()">Save</button>
-          </ng-container>
-
-          <div class="profile-meta" style="margin-top:6px"><strong>Role:</strong> Freelancer</div>
+            <div class="badge badge-accepted" style="margin-top: 10px;">Freelancer</div>
+          </div>
+          
+          <button class="btn btn-ghost btn-sm" style="margin-top: 20px;" (click)="toggleEdit()">
+            <span class="material-symbols-outlined">{{ editMode ? 'close' : 'edit' }}</span>
+            {{ editMode ? 'Cancel' : 'Edit Profile' }}
+          </button>
         </div>
 
-        <span class="material-symbols-outlined edit-icon" style="cursor:pointer" (click)="toggleEdit()">edit</span>
+        <!-- RIGHT COLUMN: Professional Bio -->
+        <div class="profile-right">
+          <div class="bio-header">
+            <span class="bio-title">Professional Bio</span>
+            <button class="btn-ai" (click)="openBioGenModal()">
+              <span class="material-symbols-outlined">auto_awesome</span>
+              Generate with AI
+            </button>
+          </div>
+
+          <div class="bio-content-box">
+            <ng-container *ngIf="!editMode">
+              <div class="profile-bio" *ngIf="user?.bio" style="font-size: 14.5px; color: var(--on-surface-variant); white-space: pre-wrap; line-height: 1.6;">{{ user.bio }}</div>
+              <div *ngIf="!user?.bio" class="empty-state" style="padding: 20px 0;">
+                <p>No bio yet. Click generate to create one!</p>
+              </div>
+            </ng-container>
+
+            <ng-container *ngIf="editMode">
+              <div class="form-group" style="margin-bottom: 12px;">
+                <label class="form-label">Name</label>
+                <input id="freelancer-profile-name-input" class="form-input" [(ngModel)]="profileForm.name" />
+              </div>
+              <div class="form-group" style="margin-bottom: 12px;">
+                <label class="form-label">Email</label>
+                <input id="freelancer-profile-email-input" class="form-input" [(ngModel)]="profileForm.email" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Bio</label>
+                <textarea id="freelancer-profile-bio-textarea" class="form-textarea" [(ngModel)]="profileForm.bio" rows="6" style="min-height: 150px;"></textarea>
+              </div>
+              <button id="freelancer-profile-save-btn" class="btn btn-primary" style="width: 100%;" (click)="saveProfile()">Save Changes</button>
+            </ng-container>
+          </div>
+        </div>
       </div>
 
       <input id="fileInput" type="file" hidden (change)="uploadAvatar($event)" />
@@ -337,6 +361,64 @@
         {{ submittingProposal
             ? (editingProposal ? 'Updating...' : 'Submitting...')
             : (editingProposal ? 'Update' : 'Submit') }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- AI BIO GENERATOR MODAL -->
+<div class="modal-overlay" [class.open]="bioGenModalOpen" (click)="closeBioGenModal()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <span class="material-symbols-outlined" style="color: #a855f7;">auto_awesome</span>
+        <span class="modal-title">AI Bio Generator</span>
+      </div>
+      <button class="modal-close" (click)="closeBioGenModal()">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+
+    <p style="font-size: 13px; color: var(--on-surface-variant); margin-bottom: 20px;">
+      Answer a few questions and our AI will craft a professional bio for you.
+    </p>
+
+    <div class="form-group">
+      <label class="form-label">Professional Title</label>
+      <input class="form-input" [(ngModel)]="bioGenForm.title" placeholder="e.g. Senior Full Stack Developer" />
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Key Skills (comma separated)</label>
+      <input class="form-input" [(ngModel)]="bioGenForm.skills" placeholder="e.g. React, Python, UI Design" />
+    </div>
+
+    <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+      <div class="form-group">
+        <label class="form-label">Years of Experience</label>
+        <input class="form-input" type="number" [(ngModel)]="bioGenForm.experience" placeholder="e.g. 5" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Tone</label>
+        <select class="form-input" [(ngModel)]="bioGenForm.tone" style="height: 43px;">
+          <option value="Professional">Professional</option>
+          <option value="Creative">Creative</option>
+          <option value="Concise">Concise</option>
+          <option value="Friendly">Friendly</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Biggest Achievement</label>
+      <textarea class="form-textarea" [(ngModel)]="bioGenForm.achievement" placeholder="e.g. Led a team to build a fintech app used by 10k users" rows="3"></textarea>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-ghost" (click)="closeBioGenModal()">Cancel</button>
+      <button class="btn-ai" style="padding: 10px 24px; font-size: 13px;" (click)="generateAI()" [disabled]="generatingBio">
+        <span class="material-symbols-outlined">{{ generatingBio ? 'sync' : 'auto_awesome' }}</span>
+        {{ generatingBio ? 'Generating...' : 'Generate Bio' }}
       </button>
     </div>
   </div>
