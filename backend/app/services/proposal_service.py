@@ -1,4 +1,6 @@
 from sqlalchemy.orm import Session, joinedload
+from app.db.session import SessionLocal
+import asyncio
 from fastapi import HTTPException
 from datetime import datetime
 from app.models.proposal import Proposal
@@ -16,6 +18,12 @@ class ProposalService:
         if job.status != "open":
             raise HTTPException(status_code=400, detail="Job is not open")
 
+        if data.price > job.budget:
+            raise HTTPException(
+                status_code=400, 
+                detail=f"Your proposed price ({data.price} TND) cannot exceed the job's budget ({job.budget} TND)."
+            )
+
         exist = db.query(Proposal).filter(
             Proposal.job_id == data.job_id,
             Proposal.freelancer_id == user.id
@@ -32,6 +40,10 @@ class ProposalService:
                 exist.created_at = datetime.now()
                 db.commit()
                 db.refresh(exist)
+
+                # Notify the job's client about the re-application in the background
+                asyncio.create_task(ProposalService._notify_client_new_proposal(job.id, user.id))
+
                 return exist
 
         proposal = Proposal(
@@ -45,19 +57,34 @@ class ProposalService:
         db.commit()
         db.refresh(proposal)
 
-        # Notify the job's client about the new proposal
-        job_owner = db.query(User).filter(User.id == job.client_id).first()
-        if job_owner:
-            await NotificationService.create_notification(
-                db=db,
-                user_id=job_owner.id,
-                notif_type="new_proposal",
-                title=f"New proposal on '{job.title}'",
-                message=f"{user.name} submitted a proposal for your job '{job.title}'.",
-                link=f"/client-dashboard?section=proposals&job_id={job.id}"
-            )
+        # Notify the job's client about the new proposal in the background
+        asyncio.create_task(ProposalService._notify_client_new_proposal(job.id, user.id))
 
         return proposal
+
+    @staticmethod
+    async def _notify_client_new_proposal(job_id: int, freelancer_id: int):
+        """Background task to notify client without blocking the response."""
+        db = SessionLocal()
+        try:
+            job = db.query(Job).filter(Job.id == job_id).first()
+            freelancer = db.query(User).filter(User.id == freelancer_id).first()
+            
+            if job and freelancer:
+                job_owner = db.query(User).filter(User.id == job.client_id).first()
+                if job_owner:
+                    await NotificationService.create_notification(
+                        db=db,
+                        user_id=job_owner.id,
+                        notif_type="new_proposal",
+                        title=f"New proposal on '{job.title}'",
+                        message=f"{freelancer.name} submitted a proposal for your job '{job.title}'.",
+                        link=f"/client-dashboard?section=proposals&job_id={job.id}"
+                    )
+        except Exception as e:
+            print(f"Error sending background notification: {e}")
+        finally:
+            db.close()
 
     @staticmethod
     async def accept_proposal(db: Session, proposal_id: int, user: User):
@@ -152,3 +179,26 @@ class ProposalService:
             .options(joinedload(Proposal.job))\
             .filter(Proposal.freelancer_id == user.id)\
             .all()
+
+    @staticmethod
+    def update_proposal(db: Session, proposal_id: int, data: ProposalCreate, user: User):
+        proposal = db.query(Proposal).filter(Proposal.id == proposal_id).first()
+        if not proposal:
+            raise HTTPException(status_code=404, detail="Proposal not found")
+        if proposal.freelancer_id != user.id:
+            raise HTTPException(status_code=403, detail="Not allowed")
+        if proposal.status != "pending":
+            raise HTTPException(status_code=400, detail="Cannot edit a processed proposal")
+
+        job = db.query(Job).filter(Job.id == proposal.job_id).first()
+        if job and data.price > job.budget:
+            raise HTTPException(
+                status_code=400, 
+                detail=f"Proposed price ({data.price} TND) exceeds job budget ({job.budget} TND)."
+            )
+
+        proposal.message = data.message
+        proposal.price = data.price
+        db.commit()
+        db.refresh(proposal)
+        return proposal

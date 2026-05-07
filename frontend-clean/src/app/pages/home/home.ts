@@ -417,6 +417,11 @@ export class Home implements OnInit, OnDestroy {
     this.applySubmitted = true;
     if (!this.proposalData.message || this.proposalData.message.length < 10) return;
     if (!this.proposalData.price || this.proposalData.price <= 0) return;
+    
+    if (this.proposalData.price > this.selectedJob.budget) {
+      this.applyError = `Price cannot exceed job budget (${this.selectedJob.budget} TND)`;
+      return;
+    }
     this.applyLoading = true;
     this.applyError = '';
     this.applySuccess = '';

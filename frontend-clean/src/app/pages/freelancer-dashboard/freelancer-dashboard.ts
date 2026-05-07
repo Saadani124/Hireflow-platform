@@ -285,6 +285,12 @@ export class FreelancerDashboardComponent implements OnInit, OnDestroy {
     const { message, price } = this.proposalForm;
     if (!message || !price) { this.showToast('Please fill all fields', 'error'); return; }
 
+    const budgetLimit = this.editingProposal ? this.editingProposal.job?.budget : this.applyingJob?.budget;
+    if (budgetLimit && price > budgetLimit) {
+      this.showToast(`Price cannot exceed job budget (${budgetLimit} TND)`, 'error');
+      return;
+    }
+
     this.submittingProposal = true;
 
     const request = this.proposalService.update(this.editingProposal.id, {

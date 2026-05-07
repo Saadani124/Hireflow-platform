@@ -42,3 +42,10 @@ def delete_proposal(proposal_id: int,
 def get_my_proposals(db: Session = Depends(get_db),
                     user = Depends(get_current_freelancer)):
     return ProposalService.get_my_proposals(db, user)
+
+@router.put("/{proposal_id}", response_model=ProposalResponse)
+def update_proposal(proposal_id: int,
+                    data: ProposalCreate,
+                    db: Session = Depends(get_db),
+                    user = Depends(get_current_freelancer)):
+    return ProposalService.update_proposal(db, proposal_id, data, user)
