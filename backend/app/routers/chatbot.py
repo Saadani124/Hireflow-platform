@@ -37,22 +37,22 @@ def ask_chatbot(request: ChatRequest, db: Session = Depends(get_db), current_use
         all_reports = []
 
         if role == "admin":
-            all_users = db.query(User).all()
-            all_jobs = db.query(Job).all()
-            all_proposals = db.query(Proposal).all()
-            all_reports = db.query(Report).all()
+            all_users = db.query(User).order_by(User.created_at.desc()).limit(20).all()
+            all_jobs = db.query(Job).order_by(Job.created_at.desc()).limit(20).all()
+            all_proposals = db.query(Proposal).order_by(Proposal.created_at.desc()).limit(20).all()
+            all_reports = db.query(Report).order_by(Report.created_at.desc()).limit(20).all()
         
         elif role == "client":
-            all_jobs = db.query(Job).filter(Job.client_id == u_id).all()
+            all_jobs = db.query(Job).filter(Job.client_id == u_id).order_by(Job.created_at.desc()).limit(20).all()
             job_ids = [j.id for j in all_jobs]
-            all_proposals = db.query(Proposal).filter(Proposal.job_id.in_(job_ids)).all() if job_ids else []
-            all_reports = db.query(Report).filter(Report.target_type == "job", Report.target_id.in_(job_ids)).all() if job_ids else []
+            all_proposals = db.query(Proposal).filter(Proposal.job_id.in_(job_ids)).order_by(Proposal.created_at.desc()).limit(20).all() if job_ids else []
+            all_reports = db.query(Report).filter(Report.target_type == "job", Report.target_id.in_(job_ids)).order_by(Report.created_at.desc()).limit(20).all() if job_ids else []
             applicant_ids = [p.freelancer_id for p in all_proposals]
-            all_users = db.query(User).filter(User.id.in_(applicant_ids + [u_id])).all()
+            all_users = db.query(User).filter(User.id.in_(applicant_ids + [u_id])).order_by(User.created_at.desc()).limit(20).all()
 
         elif role == "freelancer":
-            all_jobs = db.query(Job).filter(Job.status == "open").all()
-            all_proposals = db.query(Proposal).filter(Proposal.freelancer_id == u_id).all()
+            all_jobs = db.query(Job).filter(Job.status == "open").order_by(Job.created_at.desc()).limit(20).all()
+            all_proposals = db.query(Proposal).filter(Proposal.freelancer_id == u_id).order_by(Proposal.created_at.desc()).limit(20).all()
             all_users = db.query(User).filter(User.id == u_id).all()
         
         user_map = {u.id: u for u in all_users}
@@ -87,7 +87,7 @@ def ask_chatbot(request: ChatRequest, db: Session = Depends(get_db), current_use
             f"DATE: {datetime.utcnow().strftime('%Y-%m-%d %H:%M')} (UTC)",
             f"USER: {current_user.name} (ID: {u_id})",
             f"SECURITY_ROLE: {role.upper() if role else 'GUEST'}",
-            "\n--- AUTHORIZED DATABASE VIEW ---",
+            "\n--- AUTHORIZED DATABASE VIEW (Showing Most Recent 20 Records) ---",
             "USERS:\n" + ("\n".join(user_info) if user_info else "None"),
             "\nJOBS:\n" + ("\n".join(job_info) if job_info else "None"),
             "\nPROPOSALS:\n" + ("\n".join(proposal_info) if proposal_info else "None")
