@@ -1,10 +1,11 @@
-import { Component, ViewChild, ElementRef, AfterViewChecked, ChangeDetectorRef } from '@angular/core';
+import { Component, ViewChild, ElementRef, AfterViewChecked, ChangeDetectorRef, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { Router, NavigationEnd, RouterModule } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { AuthService } from '../../../services/auth';
+import { environment } from '../../../../environments/environment';
 
 interface Message {
   role: 'user' | 'ai';
@@ -99,7 +100,7 @@ export class ChatbotComponent implements AfterViewChecked {
 
     // Call Backend
     this.http.post<{reply: string}>(
-      'http://localhost:8000/chatbot/ask', 
+      `${environment.apiUrl}/chatbot/ask`, 
       payload,
       { headers: { 'Authorization': `Bearer ${token}` } }
     )

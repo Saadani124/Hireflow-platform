@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-verify',
@@ -28,7 +29,7 @@ export class VerifyComponent implements OnInit {
       return;
     }
 
-    this.http.get(`http://localhost:8000/auth/verify?token=${token}`, {
+    this.http.get(`${environment.apiUrl}/auth/verify?token=${token}`, {
       observe: 'response',
       responseType: 'text'
     }).subscribe({

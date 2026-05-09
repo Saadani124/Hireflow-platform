@@ -44,7 +44,7 @@
       <!-- PROFILE DROPDOWN -->
       <div class="avatar-wrap">
         <img
-          [src]="user?.profile_image || 'http://localhost:8000/uploads/default.png'"
+          [src]="user?.profile_image || defaultImage"
           (click)="toggleMenu($event)"
           class="avatar"
           alt="profile">
@@ -363,7 +363,7 @@
         <!-- Avatar (click opens context menu) -->
         <div class="profile-avatar">
           <img
-            [src]="user.profile_image || 'http://localhost:8000/uploads/default.png'"
+            [src]="user.profile_image || defaultImage"
             (click)="onImageClick($event)"
             class="avatar" />
         </div>

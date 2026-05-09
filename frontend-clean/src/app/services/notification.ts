@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, Subject } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class NotificationService {
-  private BASE = 'http://localhost:8000/notifications';
-  private WS_URL = 'ws://localhost:8000/notifications/ws';
+  private BASE = `${environment.apiUrl}/notifications`;
+  private WS_URL = `${environment.wsUrl}/notifications/ws`;
   private socket: WebSocket | null = null;
   private realtimeSubject = new Subject<any>();
 

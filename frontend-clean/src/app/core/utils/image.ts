@@ -1,8 +1,9 @@
-// image.ts
+import { environment } from '../../../environments/environment';
+
 export function normalizeImage(url: string): string {
   if (!url) return '';
 
-  const base = 'http://localhost:8000';
+  const base = environment.apiUrl;
   const path = url.replace(base, '');
   return base + path;
 }

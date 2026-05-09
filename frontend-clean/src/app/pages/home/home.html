@@ -52,7 +52,7 @@
       <!-- PROFILE DROPDOWN -->
       <div class="avatar-wrap">
         <img
-          [src]="user?.profile_image || 'http://localhost:8000/uploads/default.png'"
+          [src]="user?.profile_image || defaultImage"
           (click)="menuOpen = !menuOpen; $event.stopPropagation(); notifOpen = false"
           class="avatar"
           alt="profile">

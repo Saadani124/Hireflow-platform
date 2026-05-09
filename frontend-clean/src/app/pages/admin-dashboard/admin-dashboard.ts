@@ -7,6 +7,7 @@ import { AuthService } from '../../services/auth';
 import { normalizeImage } from '../../core/utils/image';
 import { NotificationService } from '../../services/notification';
 import { ReportService } from '../../services/report';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -25,6 +26,7 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
   // ---- UI State ----
   menuOpen = false;
   activeSection = 'overview';
+  defaultImage = `${environment.apiUrl}/uploads/default.png`;
   dataLoading = false;
   confirmModalOpen = false;
   confirmUserModalOpen = false;

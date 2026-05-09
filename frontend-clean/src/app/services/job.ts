@@ -1,12 +1,13 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class JobService {
 
-  API = 'http://localhost:8000/jobs/';
+  API = `${environment.apiUrl}/jobs/`;
 
   constructor(private http: HttpClient) {}
 
@@ -14,18 +15,18 @@ export class JobService {
     return this.http.get<any>(`${this.API}?skip=${skip}&limit=${limit}`);
   }
   getMyJobs() {
-    return this.http.get<any[]>('http://localhost:8000/jobs/me');
+    return this.http.get<any[]>(`${environment.apiUrl}/jobs/me`);
   }
   createJob(data: any) {
-  return this.http.post('http://localhost:8000/jobs/create', data);
+  return this.http.post(`${environment.apiUrl}/jobs/create`, data);
   }
   deleteJobAsAdmin(id: number) {
-    return this.http.delete(`http://localhost:8000/admin/jobs/${id}`);
+    return this.http.delete(`${environment.apiUrl}/admin/jobs/${id}`);
   }
   completeJob(id: number) {
-    return this.http.post(`http://localhost:8000/jobs/complete/${id}`, {});
+    return this.http.post(`${environment.apiUrl}/jobs/complete/${id}`, {});
   }
   deleteJobAsClient(id: number) {
-    return this.http.delete(`http://localhost:8000/jobs/${id}`);
+    return this.http.delete(`${environment.apiUrl}/jobs/${id}`);
   }
 }

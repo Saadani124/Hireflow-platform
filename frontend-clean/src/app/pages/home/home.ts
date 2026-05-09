@@ -9,6 +9,7 @@ import { ChangeDetectorRef } from '@angular/core';
 import { CATEGORIES } from '../../core/categories';
 import { Router } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-home',
@@ -26,6 +27,7 @@ export class Home implements OnInit, OnDestroy {
   menuOpen = false;
   search = '';
   selectedCategories: string[] = [];
+  defaultImage = `${environment.apiUrl}/uploads/default.png`;
 
   minPrice: number | null = null;
   maxPrice: number | null = null;
@@ -445,7 +447,7 @@ export class Home implements OnInit, OnDestroy {
 
   private normalizeImageUrl(url: string): string {
     if (!url) return '';
-    const path = url.replace('http://localhost:8000', '');
-    return 'http://localhost:8000' + path;
+    const path = url.replace(environment.apiUrl, '');
+    return environment.apiUrl + path;
   }
 }

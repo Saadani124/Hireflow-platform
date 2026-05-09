@@ -1,12 +1,13 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
 
-  API = 'http://localhost:8000';
+  API = environment.apiUrl;
 
   constructor(private http: HttpClient) {}
 
@@ -44,34 +45,34 @@ export class AuthService {
     return !!this.getToken();
   }
   getMe() {
-  return this.http.get('http://localhost:8000/users/me');
+    return this.http.get(`${this.API}/users/me`);
   }
   uploadProfilePicture(file: File) {
     const formData = new FormData();
     formData.append('file', file);
 
     return this.http.post<any>(
-      'http://localhost:8000/users/upload-profile-picture',
+      `${this.API}/users/upload-profile-picture`,
       formData
     );
   }
   updateProfile(data: any) {
     return this.http.put(
-      'http://localhost:8000/users/me',
+      `${this.API}/users/me`,
       data
     );
   }
 
   generateBio(data: any) {
     return this.http.post(
-      'http://localhost:8000/users/generate-bio',
+      `${this.API}/users/generate-bio`,
       data
     );
   }
 
   summarizeBatch(bios: string[]) {
     return this.http.post(
-      'http://localhost:8000/users/summarize-batch',
+      `${this.API}/users/summarize-batch`,
       { bios }
     );
   }

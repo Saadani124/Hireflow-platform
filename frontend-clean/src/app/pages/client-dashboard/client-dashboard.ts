@@ -7,6 +7,7 @@ import { ProposalService } from '../../services/proposal';
 import { AuthService } from '../../services/auth';
 import { NotificationService } from '../../services/notification';
 import { ReportService } from '../../services/report';
+import { environment } from '../../../environments/environment';
 import { ActivatedRoute } from '@angular/router';
 import { Router } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, Validators, FormGroup } from '@angular/forms';
@@ -61,6 +62,7 @@ export class ClientDashboard implements OnInit, OnDestroy {
 
   viewModal = false;
   normalizeImage = normalizeImage;
+  defaultImage = `${environment.apiUrl}/uploads/default.png`;
 
   // ── Delete Job Modal ──────────────────────────────────────
   showDeleteModal = false;
@@ -261,8 +263,8 @@ export class ClientDashboard implements OnInit, OnDestroy {
   private normalizeImageUrl(url: string): string {
     if (!url) return '';
     // Strip any existing prefix first, then re-apply — idempotent no matter how many times called
-    const path = url.replace('http://localhost:8000', '');
-    return 'http://localhost:8000' + path;
+    const path = url.replace(environment.apiUrl, '');
+    return environment.apiUrl + path;
   }
 
   // =========================

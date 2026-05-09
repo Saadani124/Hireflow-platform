@@ -441,7 +441,7 @@
         <!-- Avatar -->
         <div class="profile-avatar">
           <img
-            [src]="user.profile_image || 'http://localhost:8000/uploads/default.png'"
+            [src]="user.profile_image || defaultImage"
             (click)="onImageClick($event)"
             class="avatar" />
         </div>
