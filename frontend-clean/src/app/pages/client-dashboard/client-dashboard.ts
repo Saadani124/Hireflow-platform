@@ -83,7 +83,6 @@ export class ClientDashboard implements OnInit, OnDestroy {
   reportSubmitting = false;
   reportError = '';
   reportSuccess = '';
-  isSummarizing = false;
   // =========================
   // CONSTRUCTOR
   // =========================
@@ -293,49 +292,13 @@ export class ClientDashboard implements OnInit, OnDestroy {
     });
   }
 
-  summarizeBios() {
-    const biosToSummarize: string[] = [];
-    const freelancerMap: any = {};
-
-    // Collect all unique bios from all proposals in activeJobsWithProposals
-    this.activeJobsWithProposals.forEach(item => {
-      if (item.proposals) {
-        item.proposals.forEach((p: any) => {
-          if (p.freelancer?.bio && !p.freelancer.summarized_bio) {
-            if (!freelancerMap[p.freelancer.bio]) {
-              biosToSummarize.push(p.freelancer.bio);
-              freelancerMap[p.freelancer.bio] = [];
-            }
-            freelancerMap[p.freelancer.bio].push(p.freelancer);
-          }
-        });
-      }
-    });
-
-    if (biosToSummarize.length === 0) return;
-
-    this.isSummarizing = true;
-    this.cdr.detectChanges();
-
-    this.auth.summarizeBatch(biosToSummarize).subscribe({
-      next: (res: any) => {
-        const summaries = res.summaries;
-        biosToSummarize.forEach((bio, index) => {
-          const summary = summaries[index];
-          if (freelancerMap[bio]) {
-            freelancerMap[bio].forEach((f: any) => {
-              f.summarized_bio = summary;
-            });
-          }
-        });
-        this.isSummarizing = false;
-        this.cdr.detectChanges();
-      },
-      error: () => {
-        this.isSummarizing = false;
-        this.cdr.detectChanges();
-      }
-    });
+  parseBio(bioString: string): string[] {
+    if (!bioString) return [];
+    try {
+      const p = JSON.parse(bioString);
+      if (Array.isArray(p)) return p;
+    } catch (e) {}
+    return [bioString];
   }
 
   completeJob(id: number) {
@@ -444,7 +407,6 @@ export class ClientDashboard implements OnInit, OnDestroy {
             this.myJobs = this.activeJobsWithProposals.map(item => item.job);
             
             this.proposalsLoading = false;
-            this.summarizeBios();
           }
           this.cdr.detectChanges();
         },

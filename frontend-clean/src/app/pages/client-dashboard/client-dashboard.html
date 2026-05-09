@@ -260,17 +260,7 @@
         <p>Review proposals on your jobs</p>
       </div>
 
-      <!-- AI SUMMARIZING ALERT -->
-      <div *ngIf="isSummarizing" class="ai-summarizing-banner">
-        <div class="ai-banner-content">
-          <span class="material-symbols-outlined ai-icon">auto_awesome</span>
-          <div class="ai-text">
-            <strong>Summarizing profiles with AI...</strong>
-            <span>Crafting high-quality professional highlights for your applicants.</span>
-          </div>
-          <div class="ai-loader"></div>
-        </div>
-      </div>
+
 
       <div *ngIf="proposalsLoading" class="empty-state">
         <span class="material-symbols-outlined">hourglass_empty</span>
@@ -312,20 +302,17 @@
             </div>
             <div class="proposal-meta">Proposed price: <strong>{{ p.price }} TND</strong></div>
             
-            <div *ngIf="p.freelancer?.summarized_bio" class="freelancer-bio-summary">
+            <div *ngIf="p.freelancer?.bio" class="freelancer-bio-summary">
               <span class="bio-label">Freelancer Highlights:</span>
               <div class="bio-points">
-                <span *ngFor="let point of p.freelancer.summarized_bio" class="bio-point">
+                <span *ngFor="let point of parseBio(p.freelancer.bio)" class="bio-point">
                   <span class="material-symbols-outlined">check_circle</span>
                   {{ point }}
                 </span>
               </div>
             </div>
 
-            <div *ngIf="!p.freelancer?.summarized_bio && p.freelancer?.bio" class="freelancer-bio-preview">
-              <span class="bio-label">About Freelancer:</span>
-              <p>{{ p.freelancer.bio }}</p>
-            </div>
+
 
             <div class="proposal-message">
               <span class="bio-label">Cover Letter:</span>

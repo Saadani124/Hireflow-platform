@@ -64,6 +64,15 @@ export class FreelancerDashboardComponent implements OnInit, OnDestroy {
   menuY = 0;
   viewImageModal = false;
 
+  get parsedBioList() {
+    if (!this.user?.bio) return [];
+    try {
+      const p = JSON.parse(this.user.bio);
+      if (Array.isArray(p)) return p;
+    } catch(e) {}
+    return [this.user.bio];
+  }
+
   // ── Notifications ──────────────────────────────────────────
   notifOpen = false;
   notifications: any[] = [];
@@ -343,7 +352,14 @@ export class FreelancerDashboardComponent implements OnInit, OnDestroy {
   toggleEdit() {
     this.editMode = !this.editMode;
     if (this.editMode) {
-      this.profileForm = { name: this.user.name, email: this.user.email, bio: this.user.bio || '' };
+      let bioText = this.user.bio || '';
+      try {
+        const p = JSON.parse(bioText);
+        if (Array.isArray(p)) {
+          bioText = p.map((point: string) => "• " + point).join('\n');
+        }
+      } catch (e) {}
+      this.profileForm = { name: this.user.name, email: this.user.email, bio: bioText };
     }
     this.cdr.detectChanges();
   }

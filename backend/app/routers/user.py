@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, UploadFile, File, HTTPException
 from sqlalchemy.orm import Session
 import shutil
 import os
+import json
 from uuid import uuid4
 
 from app.db.session import get_db
@@ -97,7 +98,26 @@ def update_profile(
     #UPDATE FIELDS
     user.name = data.name
     user.email = data.email
-    user.bio = data.bio
+    
+    if data.bio:
+        current_bio_text = user.bio
+        if user.bio:
+            try:
+                parsed = json.loads(user.bio)
+                if isinstance(parsed, list):
+                    current_bio_text = "\n".join([f"• {p}" for p in parsed])
+            except:
+                pass
+                
+        if data.bio != current_bio_text and data.bio != user.bio:
+            try:
+                summarized_list = UserAIService.summarize_bio(data.bio)
+                user.bio = json.dumps(summarized_list)
+            except Exception as e:
+                print(f"Bio summarization failed: {e}")
+                user.bio = data.bio
+    else:
+        user.bio = None
 
     db.commit()
     db.refresh(user)

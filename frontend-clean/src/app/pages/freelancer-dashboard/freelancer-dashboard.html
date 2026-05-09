@@ -298,7 +298,14 @@
 
           <div class="bio-content-box">
             <ng-container *ngIf="!editMode">
-              <div class="profile-bio" *ngIf="user?.bio" style="font-size: 14.5px; color: var(--on-surface-variant); white-space: pre-wrap; line-height: 1.6;">{{ user.bio }}</div>
+              <div class="profile-bio" *ngIf="user?.bio">
+                <div class="bio-points" style="display: flex; flex-direction: column; gap: 8px;">
+                  <span *ngFor="let point of parsedBioList" class="bio-point" style="display: flex; align-items: flex-start; gap: 8px; font-size: 14.5px; color: var(--on-surface-variant); line-height: 1.5;">
+                    <span class="material-symbols-outlined" style="color: #a855f7; font-size: 18px; margin-top: 2px;">check_circle</span>
+                    <span>{{ point }}</span>
+                  </span>
+                </div>
+              </div>
               <div *ngIf="!user?.bio" class="empty-state" style="padding: 20px 0;">
                 <p>No bio yet. Click generate to create one!</p>
               </div>
