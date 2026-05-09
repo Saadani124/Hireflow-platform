@@ -94,16 +94,15 @@ export class ChatbotComponent implements AfterViewChecked {
     this.messagesList.push(aiMessage);
     this.saveHistory();
 
-    const user = this.auth.getUser();
-    const payload = { 
-      message: msg,
-      user_role: user?.role,
-      user_name: user?.name,
-      user_id: user?.id
-    };
+    const token = this.auth.getToken();
+    const payload = { message: msg };
 
     // Call Backend
-    this.http.post<{reply: string}>('http://localhost:8000/chatbot/ask', payload)
+    this.http.post<{reply: string}>(
+      'http://localhost:8000/chatbot/ask', 
+      payload,
+      { headers: { 'Authorization': `Bearer ${token}` } }
+    )
       .subscribe({
         next: (res) => {
           aiMessage.typing = false;

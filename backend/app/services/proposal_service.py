@@ -37,7 +37,7 @@ class ProposalService:
                 exist.message = data.message
                 exist.price = data.price
                 exist.status = "pending"
-                exist.created_at = datetime.now()
+                exist.created_at = datetime.utcnow()
                 db.commit()
                 db.refresh(exist)
 

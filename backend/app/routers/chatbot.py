@@ -10,6 +10,7 @@ from app.models.job import Job
 from app.models.user import User
 from app.models.proposal import Proposal
 from app.models.report import Report
+from app.core.dependencies import get_current_user
 from app.schemas.chatbot import ChatRequest, ChatResponse
 
 load_dotenv()
@@ -17,7 +18,7 @@ load_dotenv()
 router = APIRouter(prefix="/chatbot", tags=["Chatbot"])
 
 @router.post("/ask", response_model=ChatResponse)
-def ask_chatbot(request: ChatRequest, db: Session = Depends(get_db)):
+def ask_chatbot(request: ChatRequest, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     api_key = os.getenv("OPENROUTER_API_KEY")
     if not api_key:
         return ChatResponse(reply="Configuration Error: OPENROUTER_API_KEY is missing. 🤖")
@@ -27,8 +28,8 @@ def ask_chatbot(request: ChatRequest, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="Message is empty")
 
     try:
-        role = request.user_role
-        u_id = request.user_id
+        role = current_user.role
+        u_id = current_user.id
         
         all_users = []
         all_jobs = []
@@ -83,8 +84,8 @@ def ask_chatbot(request: ChatRequest, db: Session = Depends(get_db)):
                 proposal_info.append(f"P{p.id}: {f_name} applied to '{j_title}' | ${p.price} | {p.status}")
 
         context_parts = [
-            f"DATE: {datetime.now().strftime('%Y-%m-%d %H:%M')}",
-            f"USER: {request.user_name} (ID: {u_id})",
+            f"DATE: {datetime.utcnow().strftime('%Y-%m-%d %H:%M')} (UTC)",
+            f"USER: {current_user.name} (ID: {u_id})",
             f"SECURITY_ROLE: {role.upper() if role else 'GUEST'}",
             "\n--- AUTHORIZED DATABASE VIEW ---",
             "USERS:\n" + ("\n".join(user_info) if user_info else "None"),
