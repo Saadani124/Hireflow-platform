@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from fastapi import HTTPException
 from app.models.job import Job
 from app.models.proposal import Proposal
@@ -42,10 +43,22 @@ class JobService:
 
     @staticmethod
     def get_my_jobs(db: Session, user: User):
-        jobs = db.query(Job).filter(Job.client_id == user.id).all()
-        # Populating proposal_count for each job
-        for job in jobs:
-            job.proposal_count = db.query(Proposal).filter(Proposal.job_id == job.id).count()
+        results = db.query(
+            Job, 
+            func.count(Proposal.id).label("proposal_count")
+        ).outerjoin(
+            Proposal, Job.id == Proposal.job_id
+        ).filter(
+            Job.client_id == user.id
+        ).group_by(
+            Job.id
+        ).all()
+
+        jobs = []
+        for job, count in results:
+            job.proposal_count = count
+            jobs.append(job)
+            
         return jobs
 
     @staticmethod
